@@ -36,7 +36,7 @@ Arena::Arena() {
 		}
 	}
 	tracktiles[0][0].addConnection(1,2);
-	tracktiles[0][0].addConnection(2,1);
+	verticalEdges[0][1].receiveTrain(&tracktiles[0][1], 3);
 }
 
 void Arena::display() const {
