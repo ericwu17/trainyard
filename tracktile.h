@@ -26,7 +26,11 @@ public:
 	void addConnection(int d1, int d2);
 	bool hasActiveConnection(int d1, int d2) const;
 	bool hasPassiveConnection(int d1, int d2) const;
-	bool connectionsDoInteract(int d1, int d2) const;
+	bool hasConnection(int d1, int d2) const;
+	bool hasConnections(int d1, int d2, int e1, int e2) const;
+	bool hasConnectionUpToRotation(int d1, int d2) const;
+	bool hasConnectionsUpToRotation(int d1, int d2, int e1, int e2) const;
+	char classifyConnectionType() const;
 private:
 	Edge* activeConnection[2];
 	Edge* passiveConnection[2];

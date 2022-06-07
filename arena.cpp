@@ -36,14 +36,14 @@ Arena::Arena() {
 		}
 	}
 	// the below is a situation where two trains need to merge into one
-	// tracktiles[0][0].addConnection(1,2);
-	// tracktiles[0][1].addConnection(2,3);
-	// tracktiles[0][1].addConnection(2,1);
-	// tracktiles[0][2].addConnection(2,3);
-	// tracktiles[1][2].addConnection(2,0);
-	// tracktiles[1][1].addConnection(2,0);
-	// horizontalEdges[1][0].receiveTrain(&tracktiles[1][0], 1);
-	// horizontalEdges[1][2].receiveTrain(&tracktiles[1][2], 2);
+	tracktiles[0][0].addConnection(1,2);
+	tracktiles[0][1].addConnection(2,3);
+	tracktiles[0][1].addConnection(2,1);
+	tracktiles[0][2].addConnection(2,3);
+	tracktiles[1][2].addConnection(2,0);
+	tracktiles[1][1].addConnection(2,0);
+	horizontalEdges[1][0].receiveTrain(&tracktiles[1][0], 1);
+	horizontalEdges[1][2].receiveTrain(&tracktiles[1][2], 2);
 
 
 

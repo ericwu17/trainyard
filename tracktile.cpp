@@ -24,13 +24,7 @@ char Tracktile::getRepr() const {
 	if (nTrains > 0) {
 		return 'T';  // T stands for train
 	}
-	if (passiveConnection[0] != nullptr && activeConnection[0] != nullptr) {
-		return 'C';  // C stands for connection, and a capital C implies both are there.
-	}
-	if (activeConnection[0] != nullptr) {
-		return 'c';  // c stands for connection
-	}
-	return '_';
+	return classifyConnectionType();
 	
 }
 
@@ -42,6 +36,54 @@ bool Tracktile::hasActiveConnection(int d1, int d2) const {
 bool Tracktile::hasPassiveConnection(int d1, int d2) const {
 	return (passiveConnection[0] == border[d1] && passiveConnection[1] == border[d2]) 
 	|| (passiveConnection[1] == border[d1] && passiveConnection[0] == border[d2]);
+}
+
+bool Tracktile::hasConnection(int d1, int d2) const {
+	return hasActiveConnection(d1, d2) || hasPassiveConnection(d1, d2);
+}
+
+bool Tracktile::hasConnections(int d1, int d2, int e1, int e2) const {
+	return hasConnection(d1, d2) && hasConnection(e1, e2);
+}
+
+bool Tracktile::hasConnectionUpToRotation(int d1, int d2) const {
+	for (int i = 0; i < 4; i ++) {
+		if (hasConnection((d1+i) % 4, (d2+i) % 4)) {
+			return true;
+		}
+	}
+	return false;
+}
+bool Tracktile::hasConnectionsUpToRotation(int d1, int d2, int e1, int e2) const {
+	for (int i = 0; i < 4; i ++) {
+		if (hasConnection((d1+i) % 4, (d2+i) % 4) && hasConnection((e1+i) % 4, (e2+i) % 4)) {
+			return true;
+		}
+	}
+	return false;
+}
+
+char Tracktile::classifyConnectionType() const {
+	if (activeConnection[0] == nullptr) {
+		return '_';
+	}
+	if (passiveConnection[0] == nullptr) {
+		if (hasConnectionUpToRotation(0, 2)) {
+			return 's';
+		}
+		assert(hasConnectionUpToRotation(0, 1));
+		return 'b';
+	}
+	// now we can assume that there is both an active and passive connection
+	if (hasConnectionsUpToRotation(0, 2, 1, 3)) {
+		return 'h';
+	} else if (hasConnectionsUpToRotation(0, 1, 2, 3)) {
+		return 'z';
+	} else if (hasConnectionsUpToRotation(0, 1, 0, 3)) {
+		return 'm';
+	}
+	assert(hasConnectionsUpToRotation(0, 1, 0, 2));
+	return 'j';
 }
 
 void Tracktile::addConnection(int d1, int d2) {
@@ -104,4 +146,11 @@ void Tracktile::dispatchTrains() {
 		trainDestinations[i]->receiveTrain(this, trains[i]);
 	}
 	nTrains = 0;
+}
+
+void Tracktile::interactTrains() {
+	if (nTrains < 2) {
+		return;
+	}
+
 }
