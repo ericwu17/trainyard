@@ -1,15 +1,8 @@
 #include <iostream>
 #include "edge.h"
+#include "train.h"
 using namespace std;
 
-bool isValidTrain(int train){
-	// -1 is the null train
-	// valid trains are trains for 0 to 6:
-	// 0: brown
-	// 1: red     2: blue    3: yellow
-	// 4: purple  5: green   6: orange
-	return 0 <= train && train <= 6;
-}
 
 char Edge::getRepr() const {
 	if (trainGoingToA == -1 && trainGoingToB == -1) {
@@ -30,5 +23,24 @@ void Edge::receiveTrain(Tracktile* source, int train) {
 		trainGoingToB = train;
 	} else {
 		trainGoingToA = train;
+	}
+}
+
+void Edge::interactTrains() {
+	if (trainGoingToA == -1 || trainGoingToB == -1) {
+		return;
+	}
+	trainGoingToA = mixTrainColors(trainGoingToA, trainGoingToB);
+	trainGoingToB = mixTrainColors(trainGoingToA, trainGoingToB);
+}
+
+void Edge::dispatchTrains() {
+	if (trainGoingToA != -1) {
+		neighborA->addTrain(trainGoingToA, this);
+		trainGoingToA = -1;
+	}
+	if (trainGoingToB != -1) {
+		neighborB->addTrain(trainGoingToB, this);
+		trainGoingToB = -1;
 	}
 }
