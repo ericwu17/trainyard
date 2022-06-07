@@ -1,4 +1,5 @@
 #include "tracktile.h"
+#include "train.h"
 #include <iostream>
 using namespace std;
 
@@ -24,7 +25,7 @@ char Tracktile::getRepr() const {
 		return 'T';  // T stands for train
 	}
 	if (passiveConnection[0] != nullptr && activeConnection[0] != nullptr) {
-		return 'C';  // C stands for connection, and a captial C implies both are there.
+		return 'C';  // C stands for connection, and a capital C implies both are there.
 	}
 	if (activeConnection[0] != nullptr) {
 		return 'c';  // c stands for connection
@@ -58,4 +59,28 @@ void Tracktile::addConnection(int d1, int d2) {
 
 	activeConnection[0] = border[d1];
 	activeConnection[1] = border[d2];
+}
+
+void Tracktile::addTrain(int train, Edge* incomingSource) {
+	assert(isValidTrain(train));
+	if(incomingSource != activeConnection[0] && incomingSource != activeConnection[1]){
+		if(incomingSource != passiveConnection[0] && incomingSource != passiveConnection[1]){
+			cout << "A train has crashed into this tracktile. Oh no!" << endl;
+			assert(false);
+		}
+	}
+
+	trains[nTrains] = train;
+	trainSources[nTrains] = incomingSource;
+	if (incomingSource == activeConnection[0]) {
+		
+		trainDestinations[nTrains] = activeConnection[1];
+	} else if (incomingSource == activeConnection[1]) {
+		trainDestinations[nTrains] = activeConnection[0];
+	} else if (incomingSource == passiveConnection[0]) {
+		trainDestinations[nTrains] = passiveConnection[1];
+	} else {
+		trainDestinations[nTrains] = passiveConnection[0];
+	}
+	nTrains ++;
 }
