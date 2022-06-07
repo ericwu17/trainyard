@@ -61,28 +61,42 @@ void Tracktile::addConnection(int d1, int d2) {
 	activeConnection[1] = border[d2];
 }
 
-void Tracktile::addTrain(int train, Edge* incomingSource) {
-	assert(isValidTrain(train));
-	if(incomingSource != activeConnection[0] && incomingSource != activeConnection[1]){
-		if(incomingSource != passiveConnection[0] && incomingSource != passiveConnection[1]){
-			cout << "A train has crashed into this tracktile. Oh no!" << endl;
-			assert(false);
+void Tracktile::pullTrainsFromNeighbors() {
+	if (activeConnection[0] != nullptr) {
+		int t1 = activeConnection[0]->giveTrain(this);
+		if (t1 != -1) {
+			trains[nTrains] = t1;
+			trainSources[nTrains] = activeConnection[0];
+			trainDestinations[nTrains] = activeConnection[1];
+			nTrains ++;
+		}
+
+		t1 = activeConnection[1]->giveTrain(this);
+		if (t1 != -1) {
+			trains[nTrains] = t1;
+			trainSources[nTrains] = activeConnection[1];
+			trainDestinations[nTrains] = activeConnection[0];
+			nTrains ++;
 		}
 	}
+	if (passiveConnection[0] != nullptr) {
+		int t1 = passiveConnection[0]->giveTrain(this);
+		if (t1 != -1) {
+			trains[nTrains] = t1;
+			trainSources[nTrains] = passiveConnection[0];
+			trainDestinations[nTrains] = passiveConnection[1];
+			nTrains ++;
+		}
 
-	trains[nTrains] = train;
-	trainSources[nTrains] = incomingSource;
-	if (incomingSource == activeConnection[0]) {
-		
-		trainDestinations[nTrains] = activeConnection[1];
-	} else if (incomingSource == activeConnection[1]) {
-		trainDestinations[nTrains] = activeConnection[0];
-	} else if (incomingSource == passiveConnection[0]) {
-		trainDestinations[nTrains] = passiveConnection[1];
-	} else {
-		trainDestinations[nTrains] = passiveConnection[0];
+		t1 = passiveConnection[1]->giveTrain(this);
+		if (t1 != -1) {
+			trains[nTrains] = t1;
+			trainSources[nTrains] = passiveConnection[1];
+			trainDestinations[nTrains] = passiveConnection[0];
+			nTrains ++;
+		}
 	}
-	nTrains ++;
+	
 }
 
 void Tracktile::dispatchTrains() {

@@ -35,10 +35,25 @@ Arena::Arena() {
 			tracktiles[r][c].setBorder(borderArr);
 		}
 	}
-	tracktiles[0][0].addConnection(1,2);
-	tracktiles[1][0].addConnection(0,2);
-	tracktiles[2][0].addConnection(0,2);
-	verticalEdges[0][1].receiveTrain(&tracktiles[0][1], 3);
+	// the below is a situation where two trains need to merge into one
+	// tracktiles[0][0].addConnection(1,2);
+	// tracktiles[0][1].addConnection(2,3);
+	// tracktiles[0][1].addConnection(2,1);
+	// tracktiles[0][2].addConnection(2,3);
+	// tracktiles[1][2].addConnection(2,0);
+	// tracktiles[1][1].addConnection(2,0);
+	// horizontalEdges[1][0].receiveTrain(&tracktiles[1][0], 1);
+	// horizontalEdges[1][2].receiveTrain(&tracktiles[1][2], 2);
+
+
+
+	// the below is a situation where a train is in an infinite loop
+	// tracktiles[0][0].addConnection(1,2);
+	// tracktiles[0][1].addConnection(3,2);
+	// tracktiles[1][0].addConnection(1,0);
+	// tracktiles[1][1].addConnection(3,0);
+	// horizontalEdges[1][0].receiveTrain(&tracktiles[0][0], 1);
+
 }
 
 void Arena::display() const {
@@ -73,21 +88,43 @@ void Arena::addConnection(int row, int col, int dir1, int dir2) {
 }
 
 void Arena::processTick() {
+
 	for(int c = 0; c < NUM_COLS+1; c ++) {
 		for (int r = 0; r < NUM_ROWS; r ++) {
-			verticalEdges[r][c].dispatchTrains();
+			verticalEdges[r][c].interactTrains();
 		}
 	}
 	for(int r = 0; r < NUM_ROWS+1; r ++) {
 		for (int c = 0; c < NUM_COLS; c ++) {
-			horizontalEdges[r][c].dispatchTrains();
+			horizontalEdges[r][c].interactTrains();
+		}
+	}
+	
+	for (int r = 0; r < NUM_ROWS; r ++) {
+		for (int c = 0; c < NUM_COLS; c ++) {
+			tracktiles[r][c].pullTrainsFromNeighbors();
+		}
+	}
+
+	for(int c = 0; c < NUM_COLS+1; c ++) {
+		for (int r = 0; r < NUM_ROWS; r ++) {
+			if(verticalEdges[r][c].crashIfTrainsInEdge()) {
+				assert(false);
+			}
+		}
+	}
+	for(int r = 0; r < NUM_ROWS+1; r ++) {
+		for (int c = 0; c < NUM_COLS; c ++) {
+			if(horizontalEdges[r][c].crashIfTrainsInEdge()) {
+				assert(false);
+			}
 		}
 	}
 
 
 	for (int r = 0; r < NUM_ROWS; r ++) {
 		for (int c = 0; c < NUM_COLS; c ++) {
-			// interact all trains
+			// TODO: interact all trains
 		}
 	}
 	for (int r = 0; r < NUM_ROWS; r ++) {

@@ -8,7 +8,13 @@ char Edge::getRepr() const {
 	if (trainGoingToA == -1 && trainGoingToB == -1) {
 		return '*';
 	} else {
-		return 'T';
+		if (trainGoingToA != -1 && trainGoingToB != -1) {
+			return 'T';
+		}
+		if (trainGoingToA != -1) {
+			return '0' + trainGoingToA;
+		} 
+		return '0' + trainGoingToB;
 	}
 };
 void Edge::setNeighbors(Tracktile* a, Tracktile* b) {
@@ -32,17 +38,26 @@ void Edge::interactTrains() {
 	if (trainGoingToA == -1 || trainGoingToB == -1) {
 		return;
 	}
-	trainGoingToA = mixTrainColors(trainGoingToA, trainGoingToB);
-	trainGoingToB = mixTrainColors(trainGoingToA, trainGoingToB);
+	trainGoingToB = trainGoingToA = mixTrainColors(trainGoingToA, trainGoingToB);
 }
 
-void Edge::dispatchTrains() {
-	if (trainGoingToA != -1) {
-		neighborA->addTrain(trainGoingToA, this);
+int Edge::giveTrain(Tracktile *recipient) {
+	assert(recipient == neighborA || recipient == neighborB);
+	if (recipient == neighborA) {
+		int toRet = trainGoingToA;
 		trainGoingToA = -1;
-	}
-	if (trainGoingToB != -1) {
-		neighborB->addTrain(trainGoingToB, this);
+		return toRet;
+	} else {
+		int toRet = trainGoingToB;
 		trainGoingToB = -1;
+		return toRet;
 	}
+}
+
+bool Edge::crashIfTrainsInEdge() {
+	if (trainGoingToA == -1 && trainGoingToB == -1) {
+		return false;
+	}
+	cout << "A train has crashed" << endl;
+	return true;
 }

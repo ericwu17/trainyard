@@ -17,8 +17,7 @@ public:
 	Tracktile();
 	char getRepr() const;
 
-	void addTrain(int train, Edge* incomingSource);
-		// This function will be called by each Edge when the Edge is dispatching trains.
+	void pullTrainsFromNeighbors();
 	void interactTrains();
 	void dispatchTrains();
 

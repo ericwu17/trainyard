@@ -13,9 +13,11 @@ public:
 	char getRepr() const;
 
 	void receiveTrain(Tracktile* source, int train);
-	// This function will be called by each Tracktile when the Tracktile is dispatching trains.
+		// This function will be called by each Tracktile when the Tracktile is dispatching trains.
 	void interactTrains();
-	void dispatchTrains();
+	int giveTrain(Tracktile *recipient);
+		// This function will be called be each Tracktile when the tracktile is receiving trains.
+	bool crashIfTrainsInEdge();
 
 	void setNeighbors(Tracktile* a, Tracktile* b);
 
