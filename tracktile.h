@@ -23,6 +23,10 @@ public:
 	void dispatchTrains();
 
 	void setBorder(Edge* border[]);
+
+	void addConnection(int d1, int d2);
+	bool hasActiveConnection(int d1, int d2) const;
+	bool hasPassiveConnection(int d1, int d2) const;
 private:
 	Edge* activeConnection[2];
 	Edge* passiveConnection[2];

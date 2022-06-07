@@ -13,6 +13,7 @@ class Arena {
 public:
 	Arena();
 	void display() const;
+	void addConnection(int row, int col, int dir1, int dir2);
 private:
 	Tracktile tracktiles[NUM_ROWS][NUM_COLS];
 	Edge horizontalEdges[NUM_ROWS+1][NUM_COLS];

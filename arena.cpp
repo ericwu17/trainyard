@@ -35,6 +35,8 @@ Arena::Arena() {
 			tracktiles[r][c].setBorder(borderArr);
 		}
 	}
+	tracktiles[0][0].addConnection(1,2);
+	tracktiles[0][0].addConnection(2,1);
 }
 
 void Arena::display() const {
@@ -54,4 +56,16 @@ void Arena::display() const {
 		cout << horizontalEdges[NUM_ROWS][c].getRepr() << ' ';
 	}
 	cout << endl;
+}
+
+void Arena::addConnection(int row, int col, int dir1, int dir2) {
+	if (row < 0 || row >= NUM_ROWS) {
+		cout << "row out of range" << endl;
+		exit(1);
+	}
+	if (col < 0 || col >= NUM_COLS) {
+		cout << "col out of range" << endl;
+		exit(1);
+	}
+	tracktiles[row][col].addConnection(dir1, dir2);
 }
