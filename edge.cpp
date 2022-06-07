@@ -20,8 +20,10 @@ void Edge::receiveTrain(Tracktile* source, int train) {
 	assert(source == neighborA || source == neighborB);
 	assert(isValidTrain(train));
 	if (source == neighborA) {
+		assert(trainGoingToB == -1);
 		trainGoingToB = train;
 	} else {
+		assert(trainGoingToA == -1);
 		trainGoingToA = train;
 	}
 }
