@@ -36,6 +36,8 @@ Arena::Arena() {
 		}
 	}
 	tracktiles[0][0].addConnection(1,2);
+	tracktiles[1][0].addConnection(0,2);
+	tracktiles[2][0].addConnection(0,2);
 	verticalEdges[0][1].receiveTrain(&tracktiles[0][1], 3);
 }
 
@@ -68,4 +70,29 @@ void Arena::addConnection(int row, int col, int dir1, int dir2) {
 		exit(1);
 	}
 	tracktiles[row][col].addConnection(dir1, dir2);
+}
+
+void Arena::processTick() {
+	for(int c = 0; c < NUM_COLS+1; c ++) {
+		for (int r = 0; r < NUM_ROWS; r ++) {
+			verticalEdges[r][c].dispatchTrains();
+		}
+	}
+	for(int r = 0; r < NUM_ROWS+1; r ++) {
+		for (int c = 0; c < NUM_COLS; c ++) {
+			horizontalEdges[r][c].dispatchTrains();
+		}
+	}
+
+
+	for (int r = 0; r < NUM_ROWS; r ++) {
+		for (int c = 0; c < NUM_COLS; c ++) {
+			// interact all trains
+		}
+	}
+	for (int r = 0; r < NUM_ROWS; r ++) {
+		for (int c = 0; c < NUM_COLS; c ++) {
+			tracktiles[r][c].dispatchTrains();
+		}
+	}
 }

@@ -8,5 +8,9 @@ using namespace std;
 
 int main() {
 	Arena a;
-	a.display();
+	while(true) {
+		a.display();
+		cin.ignore();
+		a.processTick();
+	}
 }
