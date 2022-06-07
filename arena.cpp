@@ -37,7 +37,7 @@ Arena::Arena() {
 	}
 }
 
-void Arena::display() {
+void Arena::display() const {
 	for (int r = 0; r < NUM_ROWS; r ++) {
 		cout << ' ';
 		for (int c = 0; c < NUM_ROWS; c ++) {

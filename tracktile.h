@@ -15,7 +15,7 @@ class Edge;
 class Tracktile {
 public:
 	Tracktile();
-	char getRepr();
+	char getRepr() const;
 
 	void addTrain(int train, Edge* incomingSource);
 		// This function will be called by each Edge when the Edge is dispatching trains.

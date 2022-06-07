@@ -10,7 +10,7 @@ class Tracktile;
 class Edge {
 public:
 	Edge() : neighborA(nullptr), neighborB(nullptr), trainGoingToA(-1), trainGoingToB(-1) {};
-	char getRepr();
+	char getRepr() const;
 
 	void receiveTrain(Tracktile* source, int train);
 	// This function will be called by each Tracktile when the Tracktile is dispatching trains.

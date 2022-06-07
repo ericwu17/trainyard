@@ -12,7 +12,7 @@ const int NUM_COLS = 3;
 class Arena {
 public:
 	Arena();
-	void display();
+	void display() const;
 private:
 	Tracktile tracktiles[NUM_ROWS][NUM_COLS];
 	Edge horizontalEdges[NUM_ROWS+1][NUM_COLS];

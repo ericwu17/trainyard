@@ -19,7 +19,7 @@ void Tracktile::setBorder(Edge* border[]) {
 		this->border[i] = border[i];
 };
 
-char Tracktile::getRepr() {
+char Tracktile::getRepr() const {
 	if (nTrains > 0) {
 		return 'T';  // T stands for train
 	}
