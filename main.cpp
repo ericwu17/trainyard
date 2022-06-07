@@ -8,5 +8,5 @@ using namespace std;
 
 int main() {
 	Arena a;
-	cout << "Hello World" << endl;
+	a.display();
 }

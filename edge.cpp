@@ -2,7 +2,7 @@
 #include "edge.h"
 using namespace std;
 
-char Edge::display() {
+char Edge::getRepr() {
 	if (trainGoingToA == -1 && trainGoingToB == -1) {
 		return '*';
 	} else {
