@@ -84,3 +84,10 @@ void Tracktile::addTrain(int train, Edge* incomingSource) {
 	}
 	nTrains ++;
 }
+
+void Tracktile::dispatchTrains() {
+	for (int i = 0; i < nTrains; i ++) {
+		trainDestinations[i]->receiveTrain(this, trains[i]);
+	}
+	nTrains = 0;
+}
