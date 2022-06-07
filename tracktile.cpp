@@ -44,14 +44,8 @@ bool Tracktile::hasPassiveConnection(int d1, int d2) const {
 }
 
 void Tracktile::addConnection(int d1, int d2) {
-	if (d1 < 0 || d1 > 3 || d2 < 0 || d2 > 3) {
-		cout << "invalid direction!" << endl;
-		exit(1);
-	}
-	if (d1 == d2) {
-		cout << "cannot have a self-connection" << endl;
-		exit(1);
-	}
+	assert(!(d1 < 0 || d1 > 3 || d2 < 0 || d2 > 3));
+	assert(d1 != d2);
 
 	if (hasActiveConnection(d1, d2)) {
 		// if the user draws a connection that is already the active connection, then we erase the passive connection
