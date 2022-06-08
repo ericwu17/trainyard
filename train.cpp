@@ -35,3 +35,21 @@ int mixTrainColors(int train1, int train2) {
 
 	return BROWN;
 }
+
+int mixTrainColors(int trains[], int numTrains) {
+	assert(numTrains > 0);
+	assert(numTrains < 5);
+	if (numTrains == 1) {
+		return trains[0];
+	}
+	if (numTrains == 2) {
+		return mixTrainColors(trains[0], trains[1]);
+	}
+	if (numTrains == 3) {
+		return mixTrainColors(mixTrainColors(trains[0], trains[1]), trains[2]);
+	}
+	
+	return mixTrainColors(mixTrainColors(mixTrainColors(trains[0], trains[1]), trains[2]), trains[3]);
+	
+
+}

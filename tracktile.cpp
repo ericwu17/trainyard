@@ -148,9 +148,104 @@ void Tracktile::dispatchTrains() {
 	nTrains = 0;
 }
 
+bool Tracktile::indicesOfTrainCollidingAlong(Edge* e1, Edge* e2, int & index1, int &index2) const {
+	// two trains are colliding alone e1, e2 if one has source: e1, destination: e2 
+	// and the other has source: e2, destination: e1
+	// if there are no trains colliding along (e1, e2), then we leave index1 and index2 unchanged.
+	// return true if there are trains colliding, false otherwise.
+	for (int i1 = 0; i1 < nTrains; i1 ++) {
+		for (int i2 = 0; i2 < nTrains; i2 ++) {
+			if (trainSources[i1] == e1 && trainDestinations[i1] == e2 && trainSources[i2] == e2 && trainDestinations[i2] == e1) {
+				index1 = i1;
+				index2 = i2;
+				return true;
+			}
+		}
+	}
+	return false;
+}
+
 void Tracktile::interactTrains() {
+	char connType = classifyConnectionType();
+	assert (connType != ' ');
 	if (nTrains < 2) {
+		if (nTrains == 1 && (connType == 'j' || connType == 'm')) {
+			switchActiveAndPassive();
+		}
+		
 		return;
 	}
+	if (connType == 'h' || connType == 's' || connType == 'b') {
+		// simply mix all the trains in these connection types
+		int newTrainColor = mixTrainColors(trains, nTrains);
+		for (int i = 0; i < nTrains; i ++) {
+			trains[i]  = newTrainColor;
+		}
+		return;
+	}
+	int i1, i2;
+	if (connType == 'z') {
+		// first do mixing on Active Connection
 
+		if (indicesOfTrainCollidingAlong(activeConnection[0], activeConnection[1], i1, i2)) {
+			trains[i1] = trains[i2] = mixTrainColors(trains[i1], trains[i2]);
+		}
+		// then do mixing on Active Connection
+		if (indicesOfTrainCollidingAlong(passiveConnection[0], passiveConnection[1], i1, i2)) {
+			trains[i1] = trains[i2] = mixTrainColors(trains[i1], trains[i2]);
+		}
+		return;
+	}
+	assert(connType == 'j' || connType == 'm');
+	// For j and m type connections, we need to worry about switching between active and passive track.
+	bool willSwitchTrack = nTrains % 2 == 1;
+
+	if (indicesOfTrainCollidingAlong(activeConnection[0], activeConnection[1], i1, i2)) {
+		trains[i1] = trains[i2] = mixTrainColors(trains[i1], trains[i2]);
+	}
+	// In this case we don't check for trains colliding along the passive connection, because we know it cannot exist on j and m type connections.
+	
+	// see if two trains have the same destination
+	// if they do, merge them
+	for (int i1 = 0; i1 < nTrains; i1 ++) {
+		for (int i2 = 0; i2 < nTrains; i2 ++) {
+			if(i1 == i2) {
+				continue;
+			}
+			if (trainDestinations[i1] == trainDestinations[i2]) {
+				trains[i1] = mixTrainColors(trains[i1], trains[i2]);
+				
+				// remove the i2 index of train arrays
+				int temp = trains[i2];
+				trains[i2] = trains[nTrains - 1];
+				trains[nTrains - 1] = temp;
+				Edge* tempEdge = trainSources[i2];
+				trainSources[i2] = trainSources[nTrains-1];
+				trainSources[nTrains-1] = tempEdge;
+				tempEdge = trainDestinations[i2];
+				trainDestinations[i2] = trainDestinations[nTrains-1];
+				trainDestinations[nTrains-1] = tempEdge;
+				nTrains --;
+			}
+			
+
+		}
+	}
+
+
+	// switch track connections;
+	if (willSwitchTrack) {
+		switchActiveAndPassive();
+	}
+
+}
+
+void Tracktile::switchActiveAndPassive() {
+	assert (activeConnection[0] != nullptr && passiveConnection[0] != nullptr);
+
+	for (int i = 0; i < 2; i ++) {
+		Edge* temp = activeConnection[i];
+		activeConnection[i] = passiveConnection[i];
+		passiveConnection[i] = temp;
+	}
 }

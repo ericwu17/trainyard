@@ -14,6 +14,7 @@ const int ORANGE  = 6;
 
 
 int mixTrainColors(int train1, int train2);
+int mixTrainColors(int trains[], int numTrains);
 
 bool isValidTrain(int train);
 

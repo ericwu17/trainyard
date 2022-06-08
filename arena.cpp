@@ -36,14 +36,14 @@ Arena::Arena() {
 		}
 	}
 	// the below is a situation where two trains need to merge into one
-	tracktiles[0][0].addConnection(1,2);
-	tracktiles[0][1].addConnection(2,3);
-	tracktiles[0][1].addConnection(2,1);
-	tracktiles[0][2].addConnection(2,3);
-	tracktiles[1][2].addConnection(2,0);
-	tracktiles[1][1].addConnection(2,0);
-	horizontalEdges[1][0].receiveTrain(&tracktiles[1][0], 1);
-	horizontalEdges[1][2].receiveTrain(&tracktiles[1][2], 2);
+	// tracktiles[0][0].addConnection(1,2);
+	// tracktiles[0][1].addConnection(2,3);
+	// tracktiles[0][1].addConnection(2,1);
+	// tracktiles[0][2].addConnection(2,3);
+	// tracktiles[1][2].addConnection(2,0);
+	// tracktiles[1][1].addConnection(2,0);
+	// horizontalEdges[1][0].receiveTrain(&tracktiles[1][0], 1);
+	// horizontalEdges[1][2].receiveTrain(&tracktiles[1][2], 2);
 
 
 
@@ -53,6 +53,27 @@ Arena::Arena() {
 	// tracktiles[1][0].addConnection(1,0);
 	// tracktiles[1][1].addConnection(3,0);
 	// horizontalEdges[1][0].receiveTrain(&tracktiles[0][0], 1);
+
+	// the below is a situation where two trains need to merge into one while also mixing with a third
+	// tracktiles[0][0].addConnection(1,2);
+	// tracktiles[0][1].addConnection(2,3);
+	// tracktiles[0][1].addConnection(2,1);
+	// tracktiles[0][2].addConnection(2,3);
+	// tracktiles[1][2].addConnection(2,0);
+	// tracktiles[1][1].addConnection(2,0);
+	// horizontalEdges[1][0].receiveTrain(&tracktiles[1][0], 1);
+	// horizontalEdges[1][2].receiveTrain(&tracktiles[1][2], 2);
+	// horizontalEdges[2][1].receiveTrain(&tracktiles[2][1], 3);
+
+	// the below tests active/passive track switching
+	tracktiles[0][0].addConnection(1,2);
+	tracktiles[0][1].addConnection(2,3);
+	tracktiles[0][1].addConnection(2,1);
+	tracktiles[0][2].addConnection(2,3);
+	tracktiles[1][2].addConnection(2,0);
+	tracktiles[1][1].addConnection(2,0);
+	horizontalEdges[2][1].receiveTrain(&tracktiles[2][1], 3);
+	horizontalEdges[1][1].receiveTrain(&tracktiles[1][1], 2);
 
 }
 
@@ -124,7 +145,7 @@ void Arena::processTick() {
 
 	for (int r = 0; r < NUM_ROWS; r ++) {
 		for (int c = 0; c < NUM_COLS; c ++) {
-			// TODO: interact all trains
+			tracktiles[r][c].interactTrains();
 		}
 	}
 	for (int r = 0; r < NUM_ROWS; r ++) {
