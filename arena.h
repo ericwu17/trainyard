@@ -6,8 +6,8 @@
 #include "tracktile.h"
 using namespace std;
 
-const int NUM_ROWS = 3;
-const int NUM_COLS = 3;
+const int NUM_ROWS = 7;
+const int NUM_COLS = 7;
 
 class Arena {
 public:
