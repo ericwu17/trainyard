@@ -5,25 +5,26 @@
 #include "tracktile.h"
 using namespace std;
 
-class Tracktile;
+class Tile;
 
 class Edge {
 public:
 	Edge() : neighborA(nullptr), neighborB(nullptr), trainGoingToA(-1), trainGoingToB(-1) {};
 	char getRepr() const;
 
-	void receiveTrain(Tracktile* source, int train);
+	void receiveTrain(Tile* source, int train);
 		// This function will be called by each Tracktile when the Tracktile is dispatching trains.
 	void interactTrains();
-	int giveTrain(Tracktile *recipient);
+	int giveTrain(Tile *recipient);
 		// This function will be called be each Tracktile when the tracktile is receiving trains.
+	int softGiveTrain(Tile *recipient) const;
 	bool crashIfTrainsInEdge();
 
-	void setNeighbors(Tracktile* a, Tracktile* b);
+	void setNeighbors(Tile* a, Tile* b);
 
 private :
-	Tracktile* neighborA;
-	Tracktile* neighborB;
+	Tile* neighborA;
+	Tile* neighborB;
 	int trainGoingToA;
 	int trainGoingToB;
 };

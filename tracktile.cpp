@@ -3,8 +3,13 @@
 #include <iostream>
 using namespace std;
 
+bool Tile::isATrackTile() const {
+	return _isATrackTile;
+}
+
 
 Tracktile::Tracktile() {
+	_isATrackTile = true;
 	for (int i = 0; i < 2; i ++) {
 		activeConnection[i] = nullptr;
 		passiveConnection[i] = nullptr;

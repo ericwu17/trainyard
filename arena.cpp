@@ -4,26 +4,34 @@
 
 
 Arena::Arena() {
+	for (int c = 0; c < NUM_COLS; c ++) {
+		for (int r = 0; r < NUM_ROWS; r ++) {
+			tiles[r][c] = new Tracktile();
+		}
+	}
+	tiles[0][3] = new TrainSource(&horizontalEdges[1][3], 2);
+
+
 	// cout << "Setting neighbors for horizontal edges" << endl;
 	for (int c = 0; c < NUM_COLS; c ++) {
-		horizontalEdges[0][c].setNeighbors(nullptr, &tracktiles[0][c]);
-		horizontalEdges[NUM_ROWS][c].setNeighbors(&tracktiles[NUM_ROWS-1][c], nullptr);
+		horizontalEdges[0][c].setNeighbors(nullptr, tiles[0][c]);
+		horizontalEdges[NUM_ROWS][c].setNeighbors(tiles[NUM_ROWS-1][c], nullptr);
 	}
 	for (int r = 0; r < NUM_ROWS - 1; r ++) {
 		for (int c = 0; c < NUM_COLS; c ++) {
-			horizontalEdges[r+1][c].setNeighbors(&tracktiles[r][c], &tracktiles[r+1][c]);
+			horizontalEdges[r+1][c].setNeighbors(tiles[r][c], tiles[r+1][c]);
 		}
 	}
 
 
 	// cout << "Setting neighbors for vertical edges" << endl;
 	for (int r = 0; r < NUM_ROWS; r ++) {
-		verticalEdges[r][0].setNeighbors(nullptr, &tracktiles[r][0]);
-		verticalEdges[r][NUM_COLS].setNeighbors(&tracktiles[r][NUM_COLS-1], nullptr);
+		verticalEdges[r][0].setNeighbors(nullptr, tiles[r][0]);
+		verticalEdges[r][NUM_COLS].setNeighbors(tiles[r][NUM_COLS-1], nullptr);
 	}
 	for(int c = 0; c < NUM_COLS - 1; c ++) {
 		for (int r = 0; r < NUM_ROWS; r ++) {
-			verticalEdges[r][c+1].setNeighbors(&tracktiles[r][c], &tracktiles[r][c+1]);
+			verticalEdges[r][c+1].setNeighbors(tiles[r][c], tiles[r][c+1]);
 		}
 	}
 	
@@ -32,7 +40,7 @@ Arena::Arena() {
 	for (int r = 0; r < NUM_ROWS; r ++) {
 		for (int c = 0; c < NUM_COLS; c ++) {
 			Edge* borderArr[4] = {&horizontalEdges[r][c], &verticalEdges[r][c+1], &horizontalEdges[r+1][c], &verticalEdges[r][c]};
-			tracktiles[r][c].setBorder(borderArr);
+			tiles[r][c]->setBorder(borderArr);
 		}
 	}
 	// the below is a situation where two trains need to merge into one
@@ -66,14 +74,23 @@ Arena::Arena() {
 	// horizontalEdges[2][1].receiveTrain(&tracktiles[2][1], 3);
 
 	// the below tests active/passive track switching
-	tracktiles[0][0].addConnection(1,2);
-	tracktiles[0][1].addConnection(2,3);
-	tracktiles[0][1].addConnection(2,1);
-	tracktiles[0][2].addConnection(2,3);
-	tracktiles[1][2].addConnection(2,0);
-	tracktiles[1][1].addConnection(2,0);
-	horizontalEdges[2][1].receiveTrain(&tracktiles[2][1], 3);
-	horizontalEdges[1][1].receiveTrain(&tracktiles[1][1], 2);
+	// tiles[0][0]->addConnection(1,2);
+	// tiles[0][1]->addConnection(2,3);
+	// tiles[0][1]->addConnection(2,1);
+	// tiles[0][2]->addConnection(2,3);
+	// tiles[1][2]->addConnection(2,0);
+	// tiles[1][1]->addConnection(2,0);
+	// horizontalEdges[2][1].receiveTrain(tiles[2][1], 3);
+	// horizontalEdges[1][1].receiveTrain(tiles[1][1], 2);
+
+	tiles[0][0]->addConnection(1,2);
+	tiles[0][1]->addConnection(2,3);
+	tiles[0][1]->addConnection(2,1);
+	tiles[0][2]->addConnection(2,3);
+	tiles[1][2]->addConnection(2,0);
+	tiles[1][1]->addConnection(2,0);
+	int trainArr[] = {3};
+	tiles[0][3]->setTrains(trainArr, 1);
 
 }
 
@@ -85,7 +102,7 @@ void Arena::display() const {
 		}
 		cout << endl;
 		for (int c = 0; c < NUM_ROWS; c ++) {
-			cout << verticalEdges[r][c].getRepr() << tracktiles[r][c].getRepr();
+			cout << verticalEdges[r][c].getRepr() << tiles[r][c]->getRepr();
 		}
 		cout << verticalEdges[r][NUM_ROWS].getRepr() << endl;
 	}
@@ -105,7 +122,7 @@ void Arena::addConnection(int row, int col, int dir1, int dir2) {
 		cout << "col out of range" << endl;
 		exit(1);
 	}
-	tracktiles[row][col].addConnection(dir1, dir2);
+	tiles[row][col]->addConnection(dir1, dir2);
 }
 
 void Arena::processTick() {
@@ -123,7 +140,7 @@ void Arena::processTick() {
 	
 	for (int r = 0; r < NUM_ROWS; r ++) {
 		for (int c = 0; c < NUM_COLS; c ++) {
-			tracktiles[r][c].pullTrainsFromNeighbors();
+			tiles[r][c]->pullTrainsFromNeighbors();
 		}
 	}
 
@@ -145,12 +162,12 @@ void Arena::processTick() {
 
 	for (int r = 0; r < NUM_ROWS; r ++) {
 		for (int c = 0; c < NUM_COLS; c ++) {
-			tracktiles[r][c].interactTrains();
+			tiles[r][c]->interactTrains();
 		}
 	}
 	for (int r = 0; r < NUM_ROWS; r ++) {
 		for (int c = 0; c < NUM_COLS; c ++) {
-			tracktiles[r][c].dispatchTrains();
+			tiles[r][c]->dispatchTrains();
 		}
 	}
 }

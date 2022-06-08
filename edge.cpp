@@ -17,12 +17,12 @@ char Edge::getRepr() const {
 		return '0' + trainGoingToB;
 	}
 };
-void Edge::setNeighbors(Tracktile* a, Tracktile* b) {
+void Edge::setNeighbors(Tile* a, Tile* b) {
 	neighborA = a;
 	neighborB = b;
 };
 
-void Edge::receiveTrain(Tracktile* source, int train) {
+void Edge::receiveTrain(Tile* source, int train) {
 	assert(source == neighborA || source == neighborB);
 	assert(isValidTrain(train));
 	if (source == neighborA) {
@@ -41,7 +41,7 @@ void Edge::interactTrains() {
 	trainGoingToB = trainGoingToA = mixTrainColors(trainGoingToA, trainGoingToB);
 }
 
-int Edge::giveTrain(Tracktile *recipient) {
+int Edge::giveTrain(Tile *recipient) {
 	assert(recipient == neighborA || recipient == neighborB);
 	if (recipient == neighborA) {
 		int toRet = trainGoingToA;
@@ -51,6 +51,17 @@ int Edge::giveTrain(Tracktile *recipient) {
 		int toRet = trainGoingToB;
 		trainGoingToB = -1;
 		return toRet;
+	}
+}
+
+int Edge::softGiveTrain(Tile *recipient) const {
+	// same as giveTrain, but only returns the train without actually removing the train.
+	// this function is used when a TrainSink needs to test whether it can pull in a train from the edge.
+	assert(recipient == neighborA || recipient == neighborB);
+	if (recipient == neighborA) {
+		return trainGoingToA;
+	} else {
+		return trainGoingToB;
 	}
 }
 

@@ -12,7 +12,29 @@ const int LEFT = 3;
 
 class Edge;
 
-class Tracktile {
+class Tile {
+public:
+	Tile() {};
+	virtual char getRepr() const {
+		return '&';
+	};
+	virtual void pullTrainsFromNeighbors() {};
+	virtual void interactTrains() {};
+	virtual void dispatchTrains() {};
+
+
+	virtual void setBorder(Edge* border[]) {};
+	virtual void addConnection(int d1, int d2) {};
+	virtual void setTrains(int trains[], int nTrains) {};
+	virtual void setDesires(int trains[], int nTrains) {};
+	
+	bool isATrackTile() const;
+protected:
+	bool _isATrackTile;
+};
+
+
+class Tracktile : public Tile{
 public:
 	Tracktile();
 	char getRepr() const;
@@ -42,7 +64,6 @@ private:
 	Edge* trainDestinations[4];
 	Edge* trainSources[4];
 	int nTrains;
-
 };
 
 #endif
