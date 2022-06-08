@@ -1,8 +1,9 @@
 #include "obstacles.h"
 #include "edge.h"
 
-TrainSource::TrainSource(Edge* targetEdge, int dir) {
-	this->targetEdge = targetEdge;
+TrainSource::TrainSource(int dir) {
+	assert(0 <= dir && dir <= 3);
+	targetEdge = border[dir];
 	this->dir = dir;
 	nTrains = 0;
 }
@@ -13,6 +14,12 @@ void TrainSource::setTrains(int trains[], int nTrains) {
 		this->trains[i] = trains[i];
 	}
 	this->nTrains = nTrains;
+}
+
+void TrainSource::setBorder(Edge* border[]) {
+	targetEdge = border[dir];
+	for (int i = 0; i < 4; i ++)
+		this->border[i] = border[i];
 }
 
 void TrainSource::dispatchTrains() {
@@ -27,10 +34,17 @@ char TrainSource::getRepr() const {
 	return nTrains + '0';
 }
 
-TrainSink::TrainSink(Edge* sourceEdge, int dir) {
-	this->sourceEdge = sourceEdge;
+TrainSink::TrainSink(int dir) {
+	assert(0 <= dir && dir <= 3);
+	sourceEdge = border[dir];
 	this->dir = dir;
 	nTrains = 0;
+}
+
+void TrainSink::setBorder(Edge* border[]) {
+	sourceEdge = border[dir];
+	for (int i = 0; i < 4; i ++)
+		this->border[i] = border[i];
 }
 void TrainSink::setDesires(int trains[], int nTrains) {
 	assert(nTrains <= MAX_NUM_TRAINS_IN_STATION);

@@ -9,7 +9,8 @@ Arena::Arena() {
 			tiles[r][c] = new Tracktile();
 		}
 	}
-	tiles[0][3] = new TrainSource(&horizontalEdges[1][3], 2);
+	tiles[0][3] = new TrainSource(3);
+	tiles[5][2] = new TrainSink(0);
 
 
 	// cout << "Setting neighbors for horizontal edges" << endl;
@@ -83,14 +84,15 @@ Arena::Arena() {
 	// horizontalEdges[2][1].receiveTrain(tiles[2][1], 3);
 	// horizontalEdges[1][1].receiveTrain(tiles[1][1], 2);
 
-	tiles[0][0]->addConnection(1,2);
-	tiles[0][1]->addConnection(2,3);
-	tiles[0][1]->addConnection(2,1);
-	tiles[0][2]->addConnection(2,3);
+	tiles[0][2]->addConnection(2,1);
 	tiles[1][2]->addConnection(2,0);
-	tiles[1][1]->addConnection(2,0);
-	int trainArr[] = {3};
-	tiles[0][3]->setTrains(trainArr, 1);
+	tiles[2][2]->addConnection(2,0);
+	tiles[3][2]->addConnection(2,0);
+	tiles[4][2]->addConnection(2,0);
+	int trainArr[] = {1, 2, 3};
+	tiles[0][3]->setTrains(trainArr, 3);
+	int trainArr2[] = {2, 3, 4};
+	tiles[5][2]->setDesires(trainArr2, 2);
 
 }
 

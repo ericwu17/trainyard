@@ -23,7 +23,7 @@ public:
 	virtual void dispatchTrains() {};
 
 
-	virtual void setBorder(Edge* border[]) {};
+	virtual void setBorder(Edge* border[]);
 	virtual void addConnection(int d1, int d2) {};
 	virtual void setTrains(int trains[], int nTrains) {};
 	virtual void setDesires(int trains[], int nTrains) {};
@@ -31,6 +31,7 @@ public:
 	bool isATrackTile() const;
 protected:
 	bool _isATrackTile;
+	Edge* border[4];
 };
 
 
@@ -42,8 +43,6 @@ public:
 	void pullTrainsFromNeighbors();
 	void interactTrains();
 	void dispatchTrains();
-
-	void setBorder(Edge* border[]);
 
 	void addConnection(int d1, int d2);
 	void switchActiveAndPassive();
@@ -58,7 +57,6 @@ public:
 private:
 	Edge* activeConnection[2];
 	Edge* passiveConnection[2];
-	Edge* border[4];
 	
 	int trains[4];
 	Edge* trainDestinations[4];

@@ -19,8 +19,9 @@ public:
 class TrainSource : public Tile{
 public:
 	TrainSource() {};
-	TrainSource(Edge* targetEdge, int dir);
+	TrainSource(int dir);
 	void setTrains(int trains[], int nTrains);
+	void setBorder(Edge* border[]);
 	void dispatchTrains();
 	char getRepr() const;
 private:
@@ -33,7 +34,8 @@ private:
 class TrainSink : public Tile {
 public:
 	TrainSink() {};
-	TrainSink(Edge* sourceEdge, int dir);
+	TrainSink(int dir);
+	void setBorder(Edge* border[]);
 	void setDesires(int trains[], int nTrains);
 	void pullTrainsFromNeighbors();
 	bool isSatisfied();

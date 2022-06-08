@@ -7,6 +7,11 @@ bool Tile::isATrackTile() const {
 	return _isATrackTile;
 }
 
+void Tile::setBorder(Edge* border[]) {
+	for (int i = 0; i < 4; i ++)
+		this->border[i] = border[i];
+};
+
 
 Tracktile::Tracktile() {
 	_isATrackTile = true;
@@ -18,11 +23,6 @@ Tracktile::Tracktile() {
 		border[i] = nullptr;
 	}
 	nTrains = 0;
-};
-
-void Tracktile::setBorder(Edge* border[]) {
-	for (int i = 0; i < 4; i ++)
-		this->border[i] = border[i];
 };
 
 char Tracktile::getRepr() const {
@@ -87,7 +87,7 @@ char Tracktile::classifyConnectionType() const {
 	} else if (hasConnectionsUpToRotation(0, 1, 0, 3)) {
 		return 'm';
 	}
-	assert(hasConnectionsUpToRotation(0, 1, 0, 2));
+	assert(hasConnectionsUpToRotation(0, 1, 0, 2) || hasConnectionsUpToRotation(0, 3, 0, 2));
 	return 'j';
 }
 
