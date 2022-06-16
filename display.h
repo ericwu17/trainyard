@@ -3,7 +3,7 @@
 
 #include <iostream>
 #include "arena.h"
-
+#include "sprites.h"
 
 #include "olcPixelGameEngine.h"
 
@@ -22,6 +22,7 @@ class Display : public olc::PixelGameEngine {
 		bool OnUserUpdate(float fElapsedTime) override;
 	private:
 		Arena* arena;
+		SpriteList* spriteList;
 		olc::Sprite* SPRITE_TRACKTILE_BLANK;
 };
 

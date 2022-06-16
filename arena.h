@@ -5,7 +5,7 @@
 #include "edge.h"
 #include "tracktiles.h"
 #include "display.h"
-#include "olcPixelGameEngine.h"
+#include "sprites.h"
 using namespace std;
 
 const int NUM_ROWS = 7;
@@ -20,7 +20,7 @@ public:
 	Arena();
 	~Arena();
 	void display() const;
-	void render(Display* display, olc::Sprite* spritePtr) const;
+	void render(Display* display, SpriteList* spriteList) const;
 	void addConnection(int row, int col, int dir1, int dir2);
 	void processTick();
 private:

@@ -1,10 +1,10 @@
-#ifndef TRACKTILE_H
-#define TRACKTILE_H
+#ifndef TRACKTILES_H
+#define TRACKTILES_H
 
 #include <iostream>
 #include "edge.h"
 #include "display.h"
-#include "olcPixelGameEngine.h"
+#include "sprites.h"
 using namespace std;
 
 const int UP = 0;
@@ -23,7 +23,7 @@ public:
 	virtual char getRepr() const {
 		return '&';
 	};
-	virtual void render(Display* display, int r, int c, olc::Sprite* sprite_ptr) const;
+	virtual void render(Display* display, int r, int c, SpriteList* spriteList) const;
 	virtual void pullTrainsFromNeighbors() {};
 	virtual void interactTrains() {};
 	virtual void dispatchTrains() {};

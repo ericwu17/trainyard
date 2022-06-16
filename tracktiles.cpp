@@ -2,6 +2,7 @@
 #include "train.h"
 #include "display.h"
 #include "olcPixelGameEngine.h"
+#include "sprites.h"
 #include <iostream>
 using namespace std;
 
@@ -14,8 +15,8 @@ void Tile::setBorder(Edge* border[]) {
 		this->border[i] = border[i];
 };
 
-void Tile::render(Display* display, int r, int c, olc::Sprite* sprite_ptr) const {
-	display->DrawSprite(olc::vi2d(r, c) * 96, sprite_ptr);
+void Tile::render(Display* display, int r, int c, SpriteList* spriteList) const {
+	display->DrawSprite(olc::vi2d(r, c) * 96, &(spriteList->TRACKTILE_BLANK));
 }
 
 

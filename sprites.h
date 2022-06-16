@@ -4,15 +4,32 @@
 
 #include "olcPixelGameEngine.h"
 
+using olc::Sprite;
 
-// olc::Sprite* SPRITE_TRACKTILE_BLANK = new olc::Sprite("/Users/ericwu/Desktop/trainyard/images/Tracktile_blank.png");
-// static olc::Sprite SPRITE_TRACKTILE_B = olc::Sprite("./images/Tracktile_b.png");
-// static olc::Sprite SPRITE_TRACKTILE_H = olc::Sprite("./images/Tracktile_h.png");
-// static olc::Sprite SPRITE_TRACKTILE_JB = olc::Sprite("./images/Tracktile_jb.png");
-// static olc::Sprite SPRITE_TRACKTILE_JS = olc::Sprite("./images/Tracktile_js.png");
-// static olc::Sprite SPRITE_TRACKTILE_M = olc::Sprite("./images/Tracktile_m.png");
-// static olc::Sprite SPRITE_TRACKTILE_S = olc::Sprite("./images/Tracktile_s.png");
-// static olc::Sprite SPRITE_TRACKTILE_Z = olc::Sprite("./images/Tracktile_z.png");
+struct SpriteList {
+public:
+    SpriteList () {
+        TRACKTILE_BLANK = Sprite("./images/Tracktile_blank.png");
+        TRACKTILE_B = Sprite("./images/Tracktile_b.png");
+        TRACKTILE_H = Sprite("./images/Tracktile_h.png");
+        TRACKTILE_JB = Sprite("./images/Tracktile_jb.png");
+        TRACKTILE_JS = Sprite("./images/Tracktile_js.png");
+        TRACKTILE_M = Sprite("./images/Tracktile_m.png");
+        TRACKTILE_S = Sprite("./images/Tracktile_s.png");
+        TRACKTILE_Z = Sprite("./images/Tracktile_z.png");
+    };
+    Sprite TRACKTILE_BLANK;
+    Sprite TRACKTILE_B;
+    Sprite TRACKTILE_H;
+    Sprite TRACKTILE_JB;
+    Sprite TRACKTILE_JS;
+    Sprite TRACKTILE_M;
+    Sprite TRACKTILE_S;
+    Sprite TRACKTILE_Z;
+};
+
+
+
 
 
 #endif

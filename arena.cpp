@@ -3,6 +3,7 @@
 #include "tracktiles.h"
 #include "display.h"
 #include "olcPixelGameEngine.h"
+#include "sprites.h"
 #include <cassert>
 
 using namespace std;
@@ -144,10 +145,10 @@ void Arena::display() const {
 	cout << endl;
 }
 
-void Arena::render(Display* display, olc::Sprite* sprite_ptr) const {
+void Arena::render(Display* display, SpriteList* spriteList) const {
 	for (int r = 0; r < NUM_ROWS; r ++) {
 		for (int c = 0; c < NUM_COLS; c ++) {
-			tiles[r][c]->render(display, r, c, sprite_ptr);
+			tiles[r][c]->render(display, r, c, spriteList);
 		}
 	}
 }
