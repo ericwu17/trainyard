@@ -45,6 +45,7 @@ class Tracktile : public Tile{
 public:
 	Tracktile();
 	char getRepr() const;
+	void render(Display* display, int r, int c, SpriteList* spriteList) const;
 
 	void pullTrainsFromNeighbors();
 	void interactTrains();
@@ -56,8 +57,8 @@ public:
 	bool hasPassiveConnection(int d1, int d2) const;
 	bool hasConnection(int d1, int d2) const;
 	bool hasConnections(int d1, int d2, int e1, int e2) const;
-	bool hasConnectionUpToRotation(int d1, int d2) const;
-	bool hasConnectionsUpToRotation(int d1, int d2, int e1, int e2) const;
+	int hasConnectionUpToRotation(int d1, int d2) const;
+	int hasConnectionsUpToRotation(int d1, int d2, int e1, int e2) const;
 	bool indicesOfTrainCollidingAlong(Edge* e1, Edge* e2, int & index1, int &index2) const;
 	char classifyConnectionType() const;
 private:

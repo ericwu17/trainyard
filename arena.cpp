@@ -100,6 +100,28 @@ Arena::Arena() {
 	// horizontalEdges[2][1].receiveTrain(tiles[2][1], 3);
 	// horizontalEdges[1][1].receiveTrain(tiles[1][1], 2);
 
+	tiles[0][0]->addConnection(3,2);
+	tiles[0][0]->addConnection(0,1);
+	tiles[0][1]->addConnection(0,1);
+	tiles[1][0]->addConnection(0,3);
+	tiles[1][0]->addConnection(1,2);
+
+	tiles [6][6]->addConnection(0,2);
+	tiles [6][6]->addConnection(1,3);
+	tiles [6][5]->addConnection(1,3);
+	tiles [6][5]->addConnection(0,2);
+	tiles [5][6]->addConnection(2,3);
+	tiles [5][6]->addConnection(1,2);
+	tiles [4][6]->addConnection(1,2);
+	tiles [4][6]->addConnection(2,3);
+	tiles [3][6]->addConnection(3,0);
+	tiles [3][6]->addConnection(1,0);
+
+	tiles [0][6]->addConnection(3,0);
+	tiles [0][6]->addConnection(1,3);
+	tiles [1][6]->addConnection(1,3);
+	tiles [1][6]->addConnection(2,3);
+
 	tiles[0][2]->addConnection(2,1);
 	tiles[1][2]->addConnection(2,0);
 	tiles[2][2]->addConnection(2,0);

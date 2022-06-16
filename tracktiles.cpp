@@ -43,6 +43,67 @@ char Tracktile::getRepr() const {
 	
 }
 
+void Tracktile::render(Display* display, int r, int c, SpriteList* spriteList) const {
+	char type = classifyConnectionType();
+	float width = float(spriteList->SPRITE_TRACKTILE_BLANK->width);
+	int rot;
+	switch (type) {
+		case '_':
+			display->DrawDecal(olc::vi2d(c*width, r*width), spriteList->TRACKTILE_BLANK);
+			break;
+		case 's':
+			if (hasConnection(0,2)) {
+				display->DrawRotatedDecal(olc::vi2d(c*width + width/2, r*width + width/2), spriteList->TRACKTILE_S, 0, {width/2, width/2});
+			} else {
+				display->DrawRotatedDecal(olc::vi2d(c*width + width/2, r*width + width/2), spriteList->TRACKTILE_S, TWO_PI*0.25, {width/2, width/2});
+			}
+			break;
+		case 'b':
+			rot = hasConnectionUpToRotation(2, 3);
+			display->DrawRotatedDecal(olc::vi2d(c*width + width/2, r*width + width/2), spriteList->TRACKTILE_B, TWO_PI*0.25*rot, {width/2, width/2});
+			break;
+		case 'z':
+			rot = hasConnectionsUpToRotation(0, 1, 2, 3);
+			display->DrawRotatedDecal(olc::vi2d(c*width + width/2, r*width + width/2), spriteList->TRACKTILE_Z, TWO_PI*0.25*rot, {width/2, width/2});
+			break;
+		case 'h':
+			if (hasActiveConnection (0, 2)) {
+				rot = 0;
+			} else {
+				rot = 1;
+			}
+			display->DrawRotatedDecal(olc::vi2d(c*width + width/2, r*width + width/2), spriteList->TRACKTILE_H, TWO_PI*0.25*rot, {width/2, width/2});
+			break;
+		case 'm':
+			rot = hasConnectionsUpToRotation(1, 2, 2, 3);
+			if (hasActiveConnection((2+rot)%4, (3+rot)%4) ) {
+				display->DrawRotatedDecal(olc::vi2d(c*width + width/2, r*width + width/2), spriteList->TRACKTILE_M, TWO_PI*0.25*rot, {width/2, width/2});
+			} else {
+				assert (hasActiveConnection((2+rot)%4, (1+rot)%4));
+				display->DrawRotatedDecal(olc::vi2d(c*width + width/2, r*width + width/2), spriteList->TRACKTILE_M_FLIPPED, TWO_PI*0.25*rot, {width/2, width/2});
+			}
+
+			break;
+		case 'j':
+			rot = hasConnectionsUpToRotation(0, 2, 2, 3);
+			if (rot != -1) {
+				if (hasActiveConnection(0, 2) || hasActiveConnection(1, 3)) {
+					display->DrawRotatedDecal(olc::vi2d(c*width + width/2, r*width + width/2), spriteList->TRACKTILE_JS, TWO_PI*0.25*rot, {width/2, width/2});
+				} else {
+					display->DrawRotatedDecal(olc::vi2d(c*width + width/2, r*width + width/2), spriteList->TRACKTILE_JB, TWO_PI*0.25*rot, {width/2, width/2});
+				}
+			} else {
+				rot = hasConnectionsUpToRotation(0, 2, 2, 1);
+				assert(rot != -1);
+				if (hasActiveConnection(0, 2) || hasActiveConnection(1, 3)) {
+					display->DrawRotatedDecal(olc::vi2d(c*width + width/2, r*width + width/2), spriteList->TRACKTILE_JS_FLIPPED, TWO_PI*0.25*rot, {width/2, width/2});
+				} else {
+					display->DrawRotatedDecal(olc::vi2d(c*width + width/2, r*width + width/2), spriteList->TRACKTILE_JB_FLIPPED, TWO_PI*0.25*rot, {width/2, width/2});
+				}
+			}
+	}
+}
+
 bool Tracktile::hasActiveConnection(int d1, int d2) const {
 	return (activeConnection[0] == border[d1] && activeConnection[1] == border[d2]) 
 	|| (activeConnection[1] == border[d1] && activeConnection[0] == border[d2]);
@@ -61,21 +122,21 @@ bool Tracktile::hasConnections(int d1, int d2, int e1, int e2) const {
 	return hasConnection(d1, d2) && hasConnection(e1, e2);
 }
 
-bool Tracktile::hasConnectionUpToRotation(int d1, int d2) const {
+int Tracktile::hasConnectionUpToRotation(int d1, int d2) const {
 	for (int i = 0; i < 4; i ++) {
 		if (hasConnection((d1+i) % 4, (d2+i) % 4)) {
-			return true;
+			return i;
 		}
 	}
-	return false;
+	return -1;
 }
-bool Tracktile::hasConnectionsUpToRotation(int d1, int d2, int e1, int e2) const {
+int Tracktile::hasConnectionsUpToRotation(int d1, int d2, int e1, int e2) const {
 	for (int i = 0; i < 4; i ++) {
 		if (hasConnection((d1+i) % 4, (d2+i) % 4) && hasConnection((e1+i) % 4, (e2+i) % 4)) {
-			return true;
+			return i;
 		}
 	}
-	return false;
+	return -1;
 }
 
 char Tracktile::classifyConnectionType() const {
@@ -83,21 +144,21 @@ char Tracktile::classifyConnectionType() const {
 		return '_';
 	}
 	if (passiveConnection[0] == nullptr) {
-		if (hasConnectionUpToRotation(0, 2)) {
+		if (hasConnectionUpToRotation(0, 2) != -1) {
 			return 's';
 		}
-		assert(hasConnectionUpToRotation(0, 1));
+		assert(hasConnectionUpToRotation(0, 1) != -1);
 		return 'b';
 	}
 	// now we can assume that there is both an active and passive connection
-	if (hasConnectionsUpToRotation(0, 2, 1, 3)) {
+	if (hasConnectionsUpToRotation(0, 2, 1, 3) != -1) {
 		return 'h';
-	} else if (hasConnectionsUpToRotation(0, 1, 2, 3)) {
+	} else if (hasConnectionsUpToRotation(0, 1, 2, 3) != -1) {
 		return 'z';
-	} else if (hasConnectionsUpToRotation(0, 1, 0, 3)) {
+	} else if (hasConnectionsUpToRotation(0, 1, 0, 3) != -1) {
 		return 'm';
 	}
-	assert(hasConnectionsUpToRotation(0, 1, 0, 2) || hasConnectionsUpToRotation(0, 3, 0, 2));
+	assert(hasConnectionsUpToRotation(0, 1, 0, 2) != -1 || hasConnectionsUpToRotation(0, 3, 0, 2) != -1);
 	return 'j';
 }
 
@@ -277,9 +338,8 @@ TrainSource::TrainSource(int dir) {
 }
 
 void TrainSource::render(Display* display, int r, int c, SpriteList* spriteList) const {
-	display->SetPixelMode(olc::Pixel::MASK);
 	float rotation = 0;
-	float width = float(spriteList->SPRITE_TRAINSOURCE_AND_SINK->width);
+	float width = float(spriteList->SPRITE_TRACKTILE_BLANK->width);
 	switch (dir) {
 		case 0:
 			rotation = 0.5*TWO_PI;
@@ -321,7 +381,6 @@ void TrainSource::render(Display* display, int r, int c, SpriteList* spriteList)
 		double yPos = r*width + (width - plus_sign_width)/2 + currRow*(plus_sign_width*scale);
 		display->DrawDecal(olc::vi2d(xPos, yPos), spriteList->PLUS_SIGN, {scale, scale}, resolveTrainColor(trains[i]));
 	}
-	cout << "---" << endl;
 }
 
 void TrainSource::setTrains(int trains[], int nTrains) {
