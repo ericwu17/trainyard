@@ -1,5 +1,7 @@
 #include "tracktiles.h"
 #include "train.h"
+#include "display.h"
+#include "olcPixelGameEngine.h"
 #include <iostream>
 using namespace std;
 
@@ -11,6 +13,10 @@ void Tile::setBorder(Edge* border[]) {
 	for (int i = 0; i < 4; i ++)
 		this->border[i] = border[i];
 };
+
+void Tile::render(Display* display, int r, int c, olc::Sprite* sprite_ptr) const {
+	display->DrawSprite(olc::vi2d(r, c) * 96, sprite_ptr);
+}
 
 
 Tracktile::Tracktile() {

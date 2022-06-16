@@ -3,6 +3,8 @@
 
 #include <iostream>
 #include "edge.h"
+#include "display.h"
+#include "olcPixelGameEngine.h"
 using namespace std;
 
 const int UP = 0;
@@ -13,6 +15,7 @@ const int LEFT = 3;
 const int MAX_NUM_TRAINS_IN_STATION = 9;
 
 class Edge;
+class Display;
 
 class Tile {
 public:
@@ -20,6 +23,7 @@ public:
 	virtual char getRepr() const {
 		return '&';
 	};
+	virtual void render(Display* display, int r, int c, olc::Sprite* sprite_ptr) const;
 	virtual void pullTrainsFromNeighbors() {};
 	virtual void interactTrains() {};
 	virtual void dispatchTrains() {};

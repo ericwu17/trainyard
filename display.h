@@ -22,6 +22,7 @@ class Display : public olc::PixelGameEngine {
 		bool OnUserUpdate(float fElapsedTime) override;
 	private:
 		Arena* arena;
+		olc::Sprite* SPRITE_TRACKTILE_BLANK;
 };
 
 

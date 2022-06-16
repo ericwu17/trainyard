@@ -2,39 +2,52 @@
 #include "edge.h"
 #include "tracktiles.h"
 #include "display.h"
+#include "olcPixelGameEngine.h"
 #include <cassert>
 
+using namespace std;
 
 Arena::Arena() {
-	for (int c = 0; c < NUM_COLS; c ++) {
-		for (int r = 0; r < NUM_ROWS; r ++) {
+	for (int c = 0; c < NUM_COLS; c ++)
+		for (int r = 0; r < NUM_ROWS; r ++)
 			tiles[r][c] = new Tracktile();
-		}
-	}
+	
+	for (int r = 0; r < NUM_ROWS+1; r ++)
+		for (int c = 0; c < NUM_COLS; c ++)
+			horizontalEdges[r][c] = new Edge();
+	
+	for (int r = 0; r < NUM_ROWS; r ++)
+		for (int c = 0; c < NUM_COLS+1; c ++)
+			verticalEdges[r][c] = new Edge();
+	
+
+
+	delete tiles[0][3];
 	tiles[0][3] = new TrainSource(3);
+	delete tiles[5][2];
 	tiles[5][2] = new TrainSink(0);
 
 
 	// cout << "Setting neighbors for horizontal edges" << endl;
 	for (int c = 0; c < NUM_COLS; c ++) {
-		horizontalEdges[0][c].setNeighbors(nullptr, tiles[0][c]);
-		horizontalEdges[NUM_ROWS][c].setNeighbors(tiles[NUM_ROWS-1][c], nullptr);
+		horizontalEdges[0][c]->setNeighbors(nullptr, tiles[0][c]);
+		horizontalEdges[NUM_ROWS][c]->setNeighbors(tiles[NUM_ROWS-1][c], nullptr);
 	}
 	for (int r = 0; r < NUM_ROWS - 1; r ++) {
 		for (int c = 0; c < NUM_COLS; c ++) {
-			horizontalEdges[r+1][c].setNeighbors(tiles[r][c], tiles[r+1][c]);
+			horizontalEdges[r+1][c]->setNeighbors(tiles[r][c], tiles[r+1][c]);
 		}
 	}
 
 
 	// cout << "Setting neighbors for vertical edges" << endl;
 	for (int r = 0; r < NUM_ROWS; r ++) {
-		verticalEdges[r][0].setNeighbors(nullptr, tiles[r][0]);
-		verticalEdges[r][NUM_COLS].setNeighbors(tiles[r][NUM_COLS-1], nullptr);
+		verticalEdges[r][0]->setNeighbors(nullptr, tiles[r][0]);
+		verticalEdges[r][NUM_COLS]->setNeighbors(tiles[r][NUM_COLS-1], nullptr);
 	}
 	for(int c = 0; c < NUM_COLS - 1; c ++) {
 		for (int r = 0; r < NUM_ROWS; r ++) {
-			verticalEdges[r][c+1].setNeighbors(tiles[r][c], tiles[r][c+1]);
+			verticalEdges[r][c+1]->setNeighbors(tiles[r][c], tiles[r][c+1]);
 		}
 	}
 	
@@ -42,7 +55,7 @@ Arena::Arena() {
 	// cout << "Setting neighbors for individual tracktiles" << endl;
 	for (int r = 0; r < NUM_ROWS; r ++) {
 		for (int c = 0; c < NUM_COLS; c ++) {
-			Edge* borderArr[4] = {&horizontalEdges[r][c], &verticalEdges[r][c+1], &horizontalEdges[r+1][c], &verticalEdges[r][c]};
+			Edge* borderArr[4] = {horizontalEdges[r][c], verticalEdges[r][c+1], horizontalEdges[r+1][c], verticalEdges[r][c]};
 			tiles[r][c]->setBorder(borderArr);
 		}
 	}
@@ -98,27 +111,45 @@ Arena::Arena() {
 
 }
 
+Arena::~Arena() {
+	for (int r = 0; r < NUM_ROWS; r ++)
+		for (int c = 0; c < NUM_COLS; c ++)
+			delete tiles[r][c];
+	
+	for (int r = 0; r < NUM_ROWS+1; r ++)
+		for (int c = 0; c < NUM_COLS; c ++)
+			delete horizontalEdges[r][c];
+	
+	for (int r = 0; r < NUM_ROWS; r ++)
+		for (int c = 0; c < NUM_COLS+1; c ++)
+			delete verticalEdges[r][c];
+}
+
 void Arena::display() const {
 	for (int r = 0; r < NUM_ROWS; r ++) {
 		cout << ' ';
 		for (int c = 0; c < NUM_ROWS; c ++) {
-			cout << horizontalEdges[r][c].getRepr() << ' ';
+			cout << horizontalEdges[r][c]->getRepr() << ' ';
 		}
 		cout << endl;
 		for (int c = 0; c < NUM_ROWS; c ++) {
-			cout << verticalEdges[r][c].getRepr() << tiles[r][c]->getRepr();
+			cout << verticalEdges[r][c]->getRepr() << tiles[r][c]->getRepr();
 		}
-		cout << verticalEdges[r][NUM_ROWS].getRepr() << endl;
+		cout << verticalEdges[r][NUM_ROWS]->getRepr() << endl;
 	}
 	cout << ' ';
 	for (int c = 0; c < NUM_ROWS; c ++) {
-		cout << horizontalEdges[NUM_ROWS][c].getRepr() << ' ';
+		cout << horizontalEdges[NUM_ROWS][c]->getRepr() << ' ';
 	}
 	cout << endl;
 }
 
-void Arena::render(Display* display) const {
-	this->display();
+void Arena::render(Display* display, olc::Sprite* sprite_ptr) const {
+	for (int r = 0; r < NUM_ROWS; r ++) {
+		for (int c = 0; c < NUM_COLS; c ++) {
+			tiles[r][c]->render(display, r, c, sprite_ptr);
+		}
+	}
 }
 
 void Arena::addConnection(int row, int col, int dir1, int dir2) {
@@ -137,12 +168,12 @@ void Arena::processTick() {
 
 	for(int c = 0; c < NUM_COLS+1; c ++) {
 		for (int r = 0; r < NUM_ROWS; r ++) {
-			verticalEdges[r][c].interactTrains();
+			verticalEdges[r][c]->interactTrains();
 		}
 	}
 	for(int r = 0; r < NUM_ROWS+1; r ++) {
 		for (int c = 0; c < NUM_COLS; c ++) {
-			horizontalEdges[r][c].interactTrains();
+			horizontalEdges[r][c]->interactTrains();
 		}
 	}
 	
@@ -154,14 +185,14 @@ void Arena::processTick() {
 
 	for(int c = 0; c < NUM_COLS+1; c ++) {
 		for (int r = 0; r < NUM_ROWS; r ++) {
-			if(verticalEdges[r][c].crashIfTrainsInEdge()) {
+			if(verticalEdges[r][c]->crashIfTrainsInEdge()) {
 				assert(false);
 			}
 		}
 	}
 	for(int r = 0; r < NUM_ROWS+1; r ++) {
 		for (int c = 0; c < NUM_COLS; c ++) {
-			if(horizontalEdges[r][c].crashIfTrainsInEdge()) {
+			if(horizontalEdges[r][c]->crashIfTrainsInEdge()) {
 				assert(false);
 			}
 		}
