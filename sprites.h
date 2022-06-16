@@ -17,6 +17,10 @@ public:
         TRACKTILE_M = Sprite("./images/Tracktile_m.png");
         TRACKTILE_S = Sprite("./images/Tracktile_s.png");
         TRACKTILE_Z = Sprite("./images/Tracktile_z.png");
+        TRAINSOURCE_AND_SINK = Sprite("./images/Trainsource_and_sink.png");
+        TRAINSINK_BG = Sprite("./images/Trainsink_bg.png");
+        TRAINSOURCE_BG = Sprite("./images/Trainsource_bg.png");
+        PLUS_SIGN = Sprite("./images/Plus_sign.png");
     };
     Sprite TRACKTILE_BLANK;
     Sprite TRACKTILE_B;
@@ -26,6 +30,10 @@ public:
     Sprite TRACKTILE_M;
     Sprite TRACKTILE_S;
     Sprite TRACKTILE_Z;
+    Sprite TRAINSOURCE_AND_SINK;
+    Sprite TRAINSOURCE_BG;
+    Sprite TRAINSINK_BG;
+    Sprite PLUS_SIGN;
 };
 
 

@@ -4,6 +4,7 @@
 #include "olcPixelGameEngine.h"
 #include "sprites.h"
 #include <iostream>
+#include <cassert>
 using namespace std;
 
 bool Tile::isATrackTile() const {
