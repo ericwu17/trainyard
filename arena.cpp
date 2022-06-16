@@ -1,6 +1,8 @@
 #include "arena.h"
 #include "edge.h"
 #include "tracktile.h"
+#include "display.h"
+#include <cassert>
 
 
 Arena::Arena() {
@@ -113,6 +115,10 @@ void Arena::display() const {
 		cout << horizontalEdges[NUM_ROWS][c].getRepr() << ' ';
 	}
 	cout << endl;
+}
+
+void Arena::render(Display* display) const {
+	this->display();
 }
 
 void Arena::addConnection(int row, int col, int dir1, int dir2) {

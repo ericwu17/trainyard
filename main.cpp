@@ -1,16 +1,15 @@
 #include <iostream>
-#include "tracktile.h"
-#include "edge.h"
-#include "arena.h"
+#include "olcPixelGameEngine.h"
+#include "display.h"
 
 using namespace std;
 
 
-int main() {
-	Arena a;
-	while(true) {
-		a.display();
-		cin.ignore();
-		a.processTick();
-	}
+
+int main(int argc, char const *argv[]) {
+	Display demo;
+	if (demo.Construct(672, 672, 1, 1))
+		demo.Start();
+
+	return 0;
 }

@@ -5,16 +5,19 @@
 #include "edge.h"
 #include "tracktile.h"
 #include "obstacles.h"
+#include "display.h"
 using namespace std;
 
 const int NUM_ROWS = 7;
 const int NUM_COLS = 7;
 const int NUM_TILES = NUM_ROWS * NUM_COLS;
 
+class Display;
 class Arena {
 public:
 	Arena();
 	void display() const;
+	void render(Display* display) const;
 	void addConnection(int row, int col, int dir1, int dir2);
 	void processTick();
 private:

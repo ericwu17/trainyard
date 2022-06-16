@@ -1,5 +1,6 @@
 #include "obstacles.h"
 #include "edge.h"
+#include <cassert>
 
 TrainSource::TrainSource(int dir) {
 	assert(0 <= dir && dir <= 3);
