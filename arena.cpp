@@ -1,6 +1,6 @@
 #include "arena.h"
 #include "edge.h"
-#include "tracktile.h"
+#include "tracktiles.h"
 #include "display.h"
 #include <cassert>
 

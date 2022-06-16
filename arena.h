@@ -3,8 +3,7 @@
 
 #include <iostream>
 #include "edge.h"
-#include "tracktile.h"
-#include "obstacles.h"
+#include "tracktiles.h"
 #include "display.h"
 using namespace std;
 
@@ -24,7 +23,6 @@ private:
 	Tile* tiles[NUM_ROWS][NUM_COLS];
 	Edge horizontalEdges[NUM_ROWS+1][NUM_COLS];
 	Edge verticalEdges[NUM_ROWS][NUM_COLS+1];
-	Boulder boulders[NUM_TILES];
 	TrainSource sources[NUM_TILES];
 	TrainSink sinks[NUM_TILES];
 	int nBoulders, nSources, nSinks;

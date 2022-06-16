@@ -2,7 +2,7 @@
 #define EDGE_H
 
 #include <iostream>
-#include "tracktile.h"
+#include "tracktiles.h"
 using namespace std;
 
 class Tile;

@@ -10,6 +10,8 @@ const int RIGHT = 1;
 const int DOWN = 2;
 const int LEFT = 3;
 
+const int MAX_NUM_TRAINS_IN_STATION = 9;
+
 class Edge;
 
 class Tile {
@@ -63,5 +65,40 @@ private:
 	Edge* trainSources[4];
 	int nTrains;
 };
+
+class TrainSource : public Tile{
+public:
+	TrainSource() {};
+	TrainSource(int dir);
+	void setTrains(int trains[], int nTrains);
+	void setBorder(Edge* border[]);
+	void dispatchTrains();
+	char getRepr() const;
+private:
+	Edge* targetEdge;
+	int dir;
+	int nTrains;
+	int trains[MAX_NUM_TRAINS_IN_STATION];
+};
+
+class TrainSink : public Tile {
+public:
+	TrainSink() {};
+	TrainSink(int dir);
+	void setBorder(Edge* border[]);
+	void setDesires(int trains[], int nTrains);
+	void pullTrainsFromNeighbors();
+	bool isSatisfied();
+	char getRepr() const;
+	int getX() const;
+	int getY() const;
+private:
+	Edge* sourceEdge;
+	int dir;
+	int nTrains;
+	int desiredTrains[MAX_NUM_TRAINS_IN_STATION];
+};
+
+
 
 #endif
