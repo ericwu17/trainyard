@@ -5,35 +5,63 @@
 #include "olcPixelGameEngine.h"
 
 using olc::Sprite;
+using olc::Decal;
 
 struct SpriteList {
 public:
     SpriteList () {
-        TRACKTILE_BLANK = Sprite("./images/Tracktile_blank.png");
-        TRACKTILE_B = Sprite("./images/Tracktile_b.png");
-        TRACKTILE_H = Sprite("./images/Tracktile_h.png");
-        TRACKTILE_JB = Sprite("./images/Tracktile_jb.png");
-        TRACKTILE_JS = Sprite("./images/Tracktile_js.png");
-        TRACKTILE_M = Sprite("./images/Tracktile_m.png");
-        TRACKTILE_S = Sprite("./images/Tracktile_s.png");
-        TRACKTILE_Z = Sprite("./images/Tracktile_z.png");
-        TRAINSOURCE_AND_SINK = Sprite("./images/Trainsource_and_sink.png");
-        TRAINSINK_BG = Sprite("./images/Trainsink_bg.png");
-        TRAINSOURCE_BG = Sprite("./images/Trainsource_bg.png");
-        PLUS_SIGN = Sprite("./images/Plus_sign.png");
+        SPRITE_TRACKTILE_BLANK = new Sprite("./images/Tracktile_blank.png");
+        SPRITE_TRACKTILE_B = new Sprite("./images/Tracktile_b.png");
+        SPRITE_TRACKTILE_H = new Sprite("./images/Tracktile_h.png");
+        SPRITE_TRACKTILE_JB = new Sprite("./images/Tracktile_jb.png");
+        SPRITE_TRACKTILE_JS = new Sprite("./images/Tracktile_js.png");
+        SPRITE_TRACKTILE_M = new Sprite("./images/Tracktile_m.png");
+        SPRITE_TRACKTILE_S = new Sprite("./images/Tracktile_s.png");
+        SPRITE_TRACKTILE_Z = new Sprite("./images/Tracktile_z.png");
+        SPRITE_TRAINSOURCE_AND_SINK = new Sprite("./images/Trainsource_and_sink.png");
+        SPRITE_TRAINSINK_BG = new Sprite("./images/Trainsink_bg.png");
+        SPRITE_TRAINSOURCE_BG = new Sprite("./images/Trainsource_bg.png");
+        SPRITE_PLUS_SIGN = new Sprite("./images/Plus_sign.png");
+
+        TRACKTILE_BLANK = new Decal(SPRITE_TRACKTILE_BLANK);
+        TRACKTILE_B = new Decal(SPRITE_TRACKTILE_B);
+        TRACKTILE_H = new Decal(SPRITE_TRACKTILE_H);
+        TRACKTILE_JB = new Decal(SPRITE_TRACKTILE_JB);
+        TRACKTILE_JS = new Decal(SPRITE_TRACKTILE_JS);
+        TRACKTILE_M = new Decal(SPRITE_TRACKTILE_M);
+        TRACKTILE_S = new Decal(SPRITE_TRACKTILE_S);
+        TRACKTILE_Z = new Decal(SPRITE_TRACKTILE_Z);
+        TRAINSOURCE_AND_SINK = new Decal(SPRITE_TRAINSOURCE_AND_SINK);
+        TRAINSINK_BG = new Decal(SPRITE_TRAINSINK_BG);
+        TRAINSOURCE_BG = new Decal(SPRITE_TRAINSOURCE_BG);
+        PLUS_SIGN = new Decal(SPRITE_PLUS_SIGN);
+
+
     };
-    Sprite TRACKTILE_BLANK;
-    Sprite TRACKTILE_B;
-    Sprite TRACKTILE_H;
-    Sprite TRACKTILE_JB;
-    Sprite TRACKTILE_JS;
-    Sprite TRACKTILE_M;
-    Sprite TRACKTILE_S;
-    Sprite TRACKTILE_Z;
-    Sprite TRAINSOURCE_AND_SINK;
-    Sprite TRAINSOURCE_BG;
-    Sprite TRAINSINK_BG;
-    Sprite PLUS_SIGN;
+    Sprite* SPRITE_TRACKTILE_BLANK;
+    Decal* TRACKTILE_BLANK;
+    Sprite* SPRITE_TRACKTILE_B;
+    Decal* TRACKTILE_B;
+    Sprite* SPRITE_TRACKTILE_H;
+    Decal* TRACKTILE_H;
+    Sprite* SPRITE_TRACKTILE_JB;
+    Decal* TRACKTILE_JB;
+    Sprite* SPRITE_TRACKTILE_JS;
+    Decal* TRACKTILE_JS;
+    Sprite* SPRITE_TRACKTILE_M;
+    Decal* TRACKTILE_M;
+    Sprite* SPRITE_TRACKTILE_S;
+    Decal* TRACKTILE_S;
+    Sprite* SPRITE_TRACKTILE_Z;
+    Decal* TRACKTILE_Z;
+    Sprite* SPRITE_TRAINSOURCE_AND_SINK;
+    Decal* TRAINSOURCE_AND_SINK;
+    Sprite* SPRITE_TRAINSOURCE_BG;
+    Decal* TRAINSOURCE_BG;
+    Sprite* SPRITE_TRAINSINK_BG;
+    Decal* TRAINSINK_BG;
+    Sprite* SPRITE_PLUS_SIGN;
+    Decal* PLUS_SIGN;
 };
 
 

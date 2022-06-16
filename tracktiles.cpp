@@ -7,6 +7,8 @@
 #include <cassert>
 using namespace std;
 
+const double TWO_PI = 6.2831852;
+
 bool Tile::isATrackTile() const {
 	return _isATrackTile;
 }
@@ -17,7 +19,7 @@ void Tile::setBorder(Edge* border[]) {
 };
 
 void Tile::render(Display* display, int r, int c, SpriteList* spriteList) const {
-	display->DrawSprite(olc::vi2d(r, c) * 96, &(spriteList->TRACKTILE_BLANK));
+	display->DrawDecal(olc::vi2d(c, r) * 96, spriteList->TRACKTILE_BLANK);
 }
 
 
@@ -272,6 +274,54 @@ TrainSource::TrainSource(int dir) {
 	targetEdge = border[dir];
 	this->dir = dir;
 	nTrains = 0;
+}
+
+void TrainSource::render(Display* display, int r, int c, SpriteList* spriteList) const {
+	display->SetPixelMode(olc::Pixel::MASK);
+	float rotation = 0;
+	float width = float(spriteList->SPRITE_TRAINSOURCE_AND_SINK->width);
+	switch (dir) {
+		case 0:
+			rotation = 0.5*TWO_PI;
+			break;
+		case 1:
+			rotation = 0.75*TWO_PI;
+			break;
+		case 2:
+			rotation = 0*TWO_PI;
+			break;
+		case 3:
+			rotation = 0.25*TWO_PI;
+			break;
+	}
+	display->DrawRotatedDecal(olc::vi2d(c*width + width/2, r*width + width/2), spriteList->TRAINSOURCE_BG, rotation, {width/2, width/2});
+	display->DrawDecal(olc::vi2d(c, r) * width, spriteList->TRAINSOURCE_AND_SINK);
+
+	float plus_sign_width = float(spriteList->SPRITE_PLUS_SIGN->width);
+
+	float scale;
+	int num_cols;
+	if(nTrains <= 1) {
+		scale = 1;
+		num_cols = 1;
+	} else if (nTrains <= 4) {
+		scale = 0.5;
+		num_cols = 2;
+	} else {
+		assert(nTrains <= 9);
+		scale = 0.33;
+		num_cols = 3;
+	}
+
+	for (int i = 0; i < nTrains; i ++) {
+		int currCol = i%num_cols;
+		int currRow = i/num_cols;
+
+		double xPos = c*width + (width - plus_sign_width)/2 + currCol*(plus_sign_width*scale);
+		double yPos = r*width + (width - plus_sign_width)/2 + currRow*(plus_sign_width*scale);
+		display->DrawDecal(olc::vi2d(xPos, yPos), spriteList->PLUS_SIGN, {scale, scale}, resolveTrainColor(trains[i]));
+	}
+	cout << "---" << endl;
 }
 
 void TrainSource::setTrains(int trains[], int nTrains) {

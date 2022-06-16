@@ -1,6 +1,7 @@
 #ifndef TRAIN_H
 #define TRAIN_H
 
+#include "olcPixelGameEngine.h"
 #include <iostream>
 using namespace std;
 
@@ -17,5 +18,7 @@ int mixTrainColors(int train1, int train2);
 int mixTrainColors(int trains[], int numTrains);
 
 bool isValidTrain(int train);
+
+olc::Pixel resolveTrainColor(int train);
 
 #endif

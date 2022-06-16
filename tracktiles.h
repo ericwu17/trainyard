@@ -78,6 +78,7 @@ public:
 	void setBorder(Edge* border[]);
 	void dispatchTrains();
 	char getRepr() const;
+	void render(Display* display, int r, int c, SpriteList* spriteList) const;
 private:
 	Edge* targetEdge;
 	int dir;

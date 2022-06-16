@@ -1,5 +1,7 @@
 #include "train.h"
+#include "olcPixelGameEngine.h"
 #include <iostream>
+#include <cassert>
 using namespace std;
 
 
@@ -52,4 +54,25 @@ int mixTrainColors(int trains[], int numTrains) {
 	return mixTrainColors(mixTrainColors(mixTrainColors(trains[0], trains[1]), trains[2]), trains[3]);
 	
 
+}
+
+olc::Pixel resolveTrainColor(int train) {
+	assert(isValidTrain(train));
+	switch (train) {
+		case BROWN:
+			return olc::Pixel(139,69,19);
+		case RED:
+			return olc::Pixel(255, 0, 0);
+		case BLUE:
+			return olc::Pixel(0, 0, 255);
+		case YELLOW:
+			return olc::Pixel(255, 255, 0);
+		case PURPLE:
+			return olc::Pixel(148, 0, 211);
+		case GREEN:
+			return olc::Pixel(0, 255, 0);
+		case ORANGE:
+			return olc::Pixel(255, 140, 0);
+	}
+	return olc::Pixel(255,255,255);
 }
