@@ -21,6 +21,10 @@ class Display : public olc::PixelGameEngine {
 
 		bool OnUserUpdate(float fElapsedTime) override;
 	private:
+		int mousePos[2];
+		int mouseDir;
+		int prevMousePos[2];
+		int prevMouseDir;
 		Arena* arena;
 		SpriteList* spriteList;
 		olc::Sprite* SPRITE_TRACKTILE_BLANK;
