@@ -409,15 +409,14 @@ char TrainSource::getRepr() const {
 	return nTrains + '0';
 }
 
-TrainSink::TrainSink(int dir) {
-	assert(0 <= dir && dir <= 3);
-	sourceEdge = border[dir];
-	this->dir = dir;
+TrainSink::TrainSink(bool canReceiveTrain[]) {
+	for (int i = 0; i < 4; i ++) {
+		this->canReceiveTrain[i] = canReceiveTrain[i];
+	}
 	nTrains = 0;
 }
 
 void TrainSink::setBorder(Edge* border[]) {
-	sourceEdge = border[dir];
 	for (int i = 0; i < 4; i ++)
 		this->border[i] = border[i];
 }
@@ -430,16 +429,20 @@ void TrainSink::setDesires(int trains[], int nTrains) {
 }
 void TrainSink::pullTrainsFromNeighbors() {
 	// pull in a train only if there is a train which matches one of the desired trains.
-	int incomingTrain = sourceEdge->softGiveTrain(this);
-	for (int i = 0; i < nTrains; i ++) {
-		if (incomingTrain == desiredTrains[i]) {
-			sourceEdge->giveTrain(this);
-			
-			//delete the i-th train from the array of desired trains while keeping the rest in order
-			for (int k = i; k+1 < nTrains; k ++) {
-				desiredTrains[k] = desiredTrains[k+1];
+	for (int dir = 0; dir < 4; dir ++) {
+		if (canReceiveTrain[dir]) {
+			int incomingTrain = border[dir]->softGiveTrain(this);
+			for (int i = 0; i < nTrains; i ++) {
+				if (incomingTrain == desiredTrains[i]) {
+					border[dir]->giveTrain(this);
+					
+					//delete the i-th train from the array of desired trains while keeping the rest in order
+					for (int k = i; k+1 < nTrains; k ++) {
+						desiredTrains[k] = desiredTrains[k+1];
+					}
+					nTrains --;
+				}
 			}
-			nTrains --;
 		}
 	}
 }

@@ -90,7 +90,7 @@ private:
 class TrainSink : public Tile {
 public:
 	TrainSink() {};
-	TrainSink(int dir);
+	TrainSink(bool canReceiveTrain[]);
 	void setBorder(Edge* border[]);
 	void setDesires(int trains[], int nTrains);
 	void pullTrainsFromNeighbors();
@@ -99,8 +99,7 @@ public:
 	int getX() const;
 	int getY() const;
 private:
-	Edge* sourceEdge;
-	int dir;
+	bool canReceiveTrain[4];
 	int nTrains;
 	int desiredTrains[MAX_NUM_TRAINS_IN_STATION];
 };

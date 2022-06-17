@@ -26,7 +26,8 @@ Arena::Arena() {
 	delete tiles[0][3];
 	tiles[0][3] = new TrainSource(3);
 	delete tiles[5][2];
-	tiles[5][2] = new TrainSink(0);
+	bool canRTrainArr[] = {true, false, false, false};
+	tiles[5][2] = new TrainSink(canRTrainArr);
 
 
 	// cout << "Setting neighbors for horizontal edges" << endl;
