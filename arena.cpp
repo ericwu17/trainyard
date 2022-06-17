@@ -26,7 +26,7 @@ Arena::Arena() {
 	delete tiles[0][3];
 	tiles[0][3] = new TrainSource(3);
 	delete tiles[5][2];
-	bool canRTrainArr[] = {true, false, false, false};
+	bool canRTrainArr[] = {true, true, false, true};
 	tiles[5][2] = new TrainSink(canRTrainArr);
 
 
@@ -131,7 +131,7 @@ Arena::Arena() {
 	int trainArr[] = {1, 2, 3};
 	tiles[0][3]->setTrains(trainArr, 3);
 	int trainArr2[] = {2, 3, 4};
-	tiles[5][2]->setDesires(trainArr2, 2);
+	tiles[5][2]->setDesires(trainArr2, 3);
 
 }
 

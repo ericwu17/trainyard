@@ -96,6 +96,7 @@ public:
 	void pullTrainsFromNeighbors();
 	bool isSatisfied();
 	char getRepr() const;
+	void render(Display* display, int r, int c, SpriteList* spriteList) const;
 	int getX() const;
 	int getY() const;
 private:

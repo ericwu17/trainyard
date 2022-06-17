@@ -19,7 +19,8 @@ void Tile::setBorder(Edge* border[]) {
 };
 
 void Tile::render(Display* display, int r, int c, SpriteList* spriteList) const {
-	display->DrawDecal(olc::vi2d(c, r) * 96, spriteList->TRACKTILE_BLANK);
+	float width = float(spriteList->SPRITE_TRACKTILE_BLANK->width);
+	display->DrawDecal(olc::vi2d(c, r) * width, spriteList->TRACKTILE_BLANK);
 }
 
 
@@ -337,6 +338,7 @@ TrainSource::TrainSource(int dir) {
 	nTrains = 0;
 }
 
+// temp (pls delete me)
 void TrainSource::render(Display* display, int r, int c, SpriteList* spriteList) const {
 	float rotation = 0;
 	float width = float(spriteList->SPRITE_TRACKTILE_BLANK->width);
@@ -453,4 +455,43 @@ bool TrainSink::isSatisfied() {
 
 char TrainSink::getRepr() const {
 	return nTrains + '0';
+}
+
+void TrainSink::render(Display* display, int r, int c, SpriteList* spriteList) const {
+	float width = float(spriteList->SPRITE_TRACKTILE_BLANK->width);
+	display->DrawDecal(olc::vi2d(c, r) * width, spriteList->TRACKTILE_BLANK);
+
+	for (int i = 0; i < 4; i ++) {
+		if (canReceiveTrain[i]) {
+			display->DrawRotatedDecal(olc::vi2d(c*width + width/2, r*width + width/2), spriteList->TRAINSINK_ENTRY, i*0.25*TWO_PI, {width/2, width/2});
+		}
+	}
+	display->DrawDecal(olc::vi2d(c, r) * width, spriteList->TRAINSOURCE_AND_SINK);
+
+
+	float circle_width = float(spriteList->SPRITE_CIRCLE->width);
+
+	float scale;
+	int num_cols;
+	if(nTrains <= 1) {
+		scale = 1;
+		num_cols = 1;
+	} else if (nTrains <= 4) {
+		scale = 0.5;
+		num_cols = 2;
+	} else {
+		assert(nTrains <= 9);
+		scale = 0.33;
+		num_cols = 3;
+	}
+
+	for (int i = 0; i < nTrains; i ++) {
+		int currCol = i%num_cols;
+		int currRow = i/num_cols;
+
+		double xPos = c*width + (width - circle_width)/2 + currCol*(circle_width*scale);
+		double yPos = r*width + (width - circle_width)/2 + currRow*(circle_width*scale);
+		display->DrawDecal(olc::vi2d(xPos, yPos), spriteList->CIRCLE, {scale, scale}, resolveTrainColor(desiredTrains[i]));
+	}
+
 }

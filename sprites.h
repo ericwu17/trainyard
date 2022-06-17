@@ -25,6 +25,8 @@ public:
         SPRITE_TRAINSINK_BG = new Sprite("./images/Trainsink_bg.png");
         SPRITE_TRAINSOURCE_BG = new Sprite("./images/Trainsource_bg.png");
         SPRITE_PLUS_SIGN = new Sprite("./images/Plus_sign.png");
+        SPRITE_TRAINSINK_ENTRY = new Sprite("./images/Trainsink_entry.png");
+        SPRITE_CIRCLE = new Sprite("./images/Circle.png");
 
         TRACKTILE_BLANK = new Decal(SPRITE_TRACKTILE_BLANK);
         TRACKTILE_B = new Decal(SPRITE_TRACKTILE_B);
@@ -41,7 +43,8 @@ public:
         TRAINSINK_BG = new Decal(SPRITE_TRAINSINK_BG);
         TRAINSOURCE_BG = new Decal(SPRITE_TRAINSOURCE_BG);
         PLUS_SIGN = new Decal(SPRITE_PLUS_SIGN);
-
+        TRAINSINK_ENTRY = new Decal(SPRITE_TRAINSINK_ENTRY);
+        CIRCLE = new Decal(SPRITE_CIRCLE);
 
     };
     Sprite* SPRITE_TRACKTILE_BLANK;
@@ -74,6 +77,10 @@ public:
     Decal* TRAINSINK_BG;
     Sprite* SPRITE_PLUS_SIGN;
     Decal* PLUS_SIGN;
+    Sprite* SPRITE_TRAINSINK_ENTRY;
+    Decal* TRAINSINK_ENTRY;
+    Sprite* SPRITE_CIRCLE;
+    Decal* CIRCLE;
 };
 
 
