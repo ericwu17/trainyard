@@ -174,6 +174,14 @@ void Arena::render(Display* display, SpriteList* spriteList) const {
 			tiles[r][c]->render(display, r, c, spriteList);
 		}
 	}
+
+	for (int r = 0; r < NUM_ROWS+1; r ++)
+		for (int c = 0; c < NUM_COLS; c ++)
+			horizontalEdges[r][c]->render(display, r, c, false, spriteList);
+	
+	for (int r = 0; r < NUM_ROWS; r ++)
+		for (int c = 0; c < NUM_COLS+1; c ++)
+			verticalEdges[r][c]->render(display, r, c, true, spriteList);
 }
 
 void Arena::addConnection(int row, int col, int dir1, int dir2) {

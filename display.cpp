@@ -30,6 +30,9 @@ bool Display::OnUserUpdate(float fElapsedTime) {
 	
 	// FillRect(GetMouseX(), GetMouseY(), 1, 1);
 	arena->render(this, spriteList);
+	if (GetKey(olc::Key::N).bPressed) {
+		arena->processTick();
+	}
 
 
 	return true;

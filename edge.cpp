@@ -1,7 +1,11 @@
 #include <iostream>
+#include <cassert>
 #include "edge.h"
 #include "train.h"
+#include "sprites.h"
 using namespace std;
+
+const double TWO_PI = 6.2831852;
 
 
 char Edge::getRepr() const {
@@ -17,6 +21,33 @@ char Edge::getRepr() const {
 		return '0' + trainGoingToB;
 	}
 };
+
+void Edge::render(Display* display, int r, int c, bool isVertical, SpriteList* spriteList) const {
+	float train_height = float(spriteList->SPRITE_TRAIN->height);
+	float train_width = float(spriteList->SPRITE_TRAIN->width);
+	float gridSize = float(spriteList->SPRITE_TRACKTILE_BLANK->width);
+	float xPos, yPos;
+	if (isVertical) {
+		xPos = gridSize * c;
+		yPos = gridSize * r + gridSize * 0.5;
+		if (trainGoingToA != -1) {
+			display->DrawRotatedDecal(olc::vi2d(xPos, yPos), spriteList->TRAIN, 0.75*TWO_PI, {train_width/2, train_height/2}, {1,1}, resolveTrainColor(trainGoingToA));
+		}
+		if (trainGoingToB != -1) {
+			display->DrawRotatedDecal(olc::vi2d(xPos, yPos), spriteList->TRAIN, 0.25*TWO_PI, {train_width/2, train_height/2}, {1,1}, resolveTrainColor(trainGoingToB));
+		}
+	} else {
+		xPos = gridSize * c + gridSize * 0.5;
+		yPos = gridSize * r;
+		if (trainGoingToA != -1) {
+			display->DrawRotatedDecal(olc::vi2d(xPos, yPos), spriteList->TRAIN,0*TWO_PI, {train_width/2, train_height/2}, {1,1}, resolveTrainColor(trainGoingToA));
+		}
+		if (trainGoingToB != -1) {
+			display->DrawRotatedDecal(olc::vi2d(xPos, yPos), spriteList->TRAIN, 0.5*TWO_PI, {train_width/2, train_height/2}, {1,1}, resolveTrainColor(trainGoingToB));
+		}
+	}
+};
+
 void Edge::setNeighbors(Tile* a, Tile* b) {
 	neighborA = a;
 	neighborB = b;
