@@ -20,6 +20,7 @@ class Display;
 class Tile {
 public:
 	Tile() {};
+	virtual ~Tile() {};
 	virtual char getRepr() const {
 		return '&';
 	};

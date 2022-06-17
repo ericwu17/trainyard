@@ -1,3 +1,8 @@
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wmissing-braces"
+#pragma clang diagnostic ignored "-Wunused-private-field"
+#pragma clang diagnostic ignored "-Winconsistent-missing-override"
+
 #pragma region license_and_help
 /*
     olcPixelGameEngine.h
@@ -5582,3 +5587,5 @@ namespace olc
 // O------------------------------------------------------------------------------O
 // | END OF OLC_PGE_APPLICATION                                                   |
 // O------------------------------------------------------------------------------O
+
+#pragma clang diagnostic pop
