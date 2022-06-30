@@ -10,24 +10,24 @@ using olc::Decal;
 struct SpriteList {
 public:
     SpriteList () {
-        SPRITE_TRACKTILE_BLANK = new Sprite("./images/Tracktile_blank.png");
-        SPRITE_TRACKTILE_B = new Sprite("./images/Tracktile_b.png");
-        SPRITE_TRACKTILE_H = new Sprite("./images/Tracktile_h.png");
-        SPRITE_TRACKTILE_JB = new Sprite("./images/Tracktile_jb.png");
-        SPRITE_TRACKTILE_JB_FLIPPED = new Sprite("./images/Tracktile_jb_flipped.png");
-        SPRITE_TRACKTILE_JS = new Sprite("./images/Tracktile_js.png");
-        SPRITE_TRACKTILE_JS_FLIPPED = new Sprite("./images/Tracktile_js_flipped.png");
-        SPRITE_TRACKTILE_M = new Sprite("./images/Tracktile_m.png");
-        SPRITE_TRACKTILE_M_FLIPPED = new Sprite("./images/Tracktile_m_flipped.png");
-        SPRITE_TRACKTILE_S = new Sprite("./images/Tracktile_s.png");
-        SPRITE_TRACKTILE_Z = new Sprite("./images/Tracktile_z.png");
-        SPRITE_TRAINSOURCE_AND_SINK = new Sprite("./images/Trainsource_and_sink.png");
-        SPRITE_TRAINSINK_BG = new Sprite("./images/Trainsink_bg.png");
-        SPRITE_TRAINSOURCE_BG = new Sprite("./images/Trainsource_bg.png");
-        SPRITE_PLUS_SIGN = new Sprite("./images/Plus_sign.png");
-        SPRITE_TRAINSINK_ENTRY = new Sprite("./images/Trainsink_entry.png");
-        SPRITE_CIRCLE = new Sprite("./images/Circle.png");
-        SPRITE_TRAIN = new Sprite("./images/Train.png");
+        SPRITE_TRACKTILE_BLANK = new Sprite("./trainyard_files/images/Tracktile_blank.png");
+        SPRITE_TRACKTILE_B = new Sprite("./trainyard_files/images/Tracktile_b.png");
+        SPRITE_TRACKTILE_H = new Sprite("./trainyard_files/images/Tracktile_h.png");
+        SPRITE_TRACKTILE_JB = new Sprite("./trainyard_files/images/Tracktile_jb.png");
+        SPRITE_TRACKTILE_JB_FLIPPED = new Sprite("./trainyard_files/images/Tracktile_jb_flipped.png");
+        SPRITE_TRACKTILE_JS = new Sprite("./trainyard_files/images/Tracktile_js.png");
+        SPRITE_TRACKTILE_JS_FLIPPED = new Sprite("./trainyard_files/images/Tracktile_js_flipped.png");
+        SPRITE_TRACKTILE_M = new Sprite("./trainyard_files/images/Tracktile_m.png");
+        SPRITE_TRACKTILE_M_FLIPPED = new Sprite("./trainyard_files/images/Tracktile_m_flipped.png");
+        SPRITE_TRACKTILE_S = new Sprite("./trainyard_files/images/Tracktile_s.png");
+        SPRITE_TRACKTILE_Z = new Sprite("./trainyard_files/images/Tracktile_z.png");
+        SPRITE_TRAINSOURCE_AND_SINK = new Sprite("./trainyard_files/images/Trainsource_and_sink.png");
+        SPRITE_TRAINSINK_BG = new Sprite("./trainyard_files/images/Trainsink_bg.png");
+        SPRITE_TRAINSOURCE_BG = new Sprite("./trainyard_files/images/Trainsource_bg.png");
+        SPRITE_PLUS_SIGN = new Sprite("./trainyard_files/images/Plus_sign.png");
+        SPRITE_TRAINSINK_ENTRY = new Sprite("./trainyard_files/images/Trainsink_entry.png");
+        SPRITE_CIRCLE = new Sprite("./trainyard_files/images/Circle.png");
+        SPRITE_TRAIN = new Sprite("./trainyard_files/images/Train.png");
 
         TRACKTILE_BLANK = new Decal(SPRITE_TRACKTILE_BLANK);
         TRACKTILE_B = new Decal(SPRITE_TRACKTILE_B);
