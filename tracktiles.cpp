@@ -331,14 +331,19 @@ void Tracktile::switchActiveAndPassive() {
 
 
 
-TrainSource::TrainSource(int dir) {
+TrainSource::TrainSource(int dir, int trains[], int nTrains) {
 	assert(0 <= dir && dir <= 3);
 	targetEdge = border[dir];
 	this->dir = dir;
-	nTrains = 0;
+	this->nTrains = nTrains;
+	this->N_TRAINS_INIT = nTrains;
+	assert(nTrains <= MAX_NUM_TRAINS_IN_STATION);
+	for (int i = 0; i < nTrains; i ++) {
+		this->trains[i] = trains[i];
+	}
 }
 
-// temp (pls delete me)
+
 void TrainSource::render(Display* display, int r, int c, SpriteList* spriteList) const {
 	float rotation = 0;
 	float width = float(spriteList->SPRITE_TRACKTILE_BLANK->width);
@@ -363,14 +368,14 @@ void TrainSource::render(Display* display, int r, int c, SpriteList* spriteList)
 
 	float scale;
 	int num_cols;
-	if(nTrains <= 1) {
+	if(N_TRAINS_INIT <= 1) {
 		scale = 1;
 		num_cols = 1;
-	} else if (nTrains <= 4) {
+	} else if (N_TRAINS_INIT <= 4) {
 		scale = 0.5;
 		num_cols = 2;
 	} else {
-		assert(nTrains <= 9);
+		assert(N_TRAINS_INIT <= 9);
 		scale = 0.33;
 		num_cols = 3;
 	}
@@ -383,14 +388,6 @@ void TrainSource::render(Display* display, int r, int c, SpriteList* spriteList)
 		double yPos = r*width + (width - plus_sign_width)/2 + currRow*(plus_sign_width*scale);
 		display->DrawDecal(olc::vi2d(xPos, yPos), spriteList->PLUS_SIGN, {scale, scale}, resolveTrainColor(trains[i]));
 	}
-}
-
-void TrainSource::setTrains(int trains[], int nTrains) {
-	assert(nTrains <= MAX_NUM_TRAINS_IN_STATION);
-	for (int i = 0; i < nTrains; i ++) {
-		this->trains[i] = trains[i];
-	}
-	this->nTrains = nTrains;
 }
 
 void TrainSource::setBorder(Edge* border[]) {
@@ -411,23 +408,21 @@ char TrainSource::getRepr() const {
 	return nTrains + '0';
 }
 
-TrainSink::TrainSink(bool canReceiveTrain[]) {
+TrainSink::TrainSink(bool canReceiveTrain[], int trains[], int nTrains) {
 	for (int i = 0; i < 4; i ++) {
 		this->canReceiveTrain[i] = canReceiveTrain[i];
 	}
-	nTrains = 0;
+	this->nTrains = nTrains;
+	this->N_TRAINS_INIT = nTrains;
+	assert(nTrains <= MAX_NUM_TRAINS_IN_STATION);
+	for (int i = 0; i < nTrains; i ++) {
+		desiredTrains[i] = trains[i];
+	}
 }
 
 void TrainSink::setBorder(Edge* border[]) {
 	for (int i = 0; i < 4; i ++)
 		this->border[i] = border[i];
-}
-void TrainSink::setDesires(int trains[], int nTrains) {
-	assert(nTrains <= MAX_NUM_TRAINS_IN_STATION);
-	for (int i = 0; i < nTrains; i ++) {
-		desiredTrains[i] = trains[i];
-	}
-	this->nTrains = nTrains;
 }
 void TrainSink::pullTrainsFromNeighbors() {
 	// pull in a train only if there is a train which matches one of the desired trains.
@@ -473,14 +468,14 @@ void TrainSink::render(Display* display, int r, int c, SpriteList* spriteList) c
 
 	float scale;
 	int num_cols;
-	if(nTrains <= 1) {
+	if(N_TRAINS_INIT <= 1) {
 		scale = 1;
 		num_cols = 1;
-	} else if (nTrains <= 4) {
+	} else if (N_TRAINS_INIT <= 4) {
 		scale = 0.5;
 		num_cols = 2;
 	} else {
-		assert(nTrains <= 9);
+		assert(N_TRAINS_INIT <= 9);
 		scale = 0.33;
 		num_cols = 3;
 	}

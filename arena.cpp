@@ -22,12 +22,13 @@ Arena::Arena() {
 			verticalEdges[r][c] = new Edge();
 	
 
-
+	int trainArr[] = {1, 2, 3};
 	delete tiles[0][3];
-	tiles[0][3] = new TrainSource(3);
+	tiles[0][3] = new TrainSource(3, trainArr, 3);
 	delete tiles[5][2];
+	int trainArr2[] = {2, 3, 4};
 	bool canRTrainArr[] = {true, true, false, true};
-	tiles[5][2] = new TrainSink(canRTrainArr);
+	tiles[5][2] = new TrainSink(canRTrainArr, trainArr2, 3);
 
 
 	// cout << "Setting neighbors for horizontal edges" << endl;
@@ -128,10 +129,8 @@ Arena::Arena() {
 	// tiles[2][2]->addConnection(2,0);
 	// tiles[3][2]->addConnection(2,0);
 	// tiles[4][2]->addConnection(2,0);
-	int trainArr[] = {1, 2, 3};
-	tiles[0][3]->setTrains(trainArr, 3);
-	int trainArr2[] = {2, 3, 4};
-	tiles[5][2]->setDesires(trainArr2, 3);
+	
+	
 
 }
 

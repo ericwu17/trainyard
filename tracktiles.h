@@ -75,8 +75,7 @@ private:
 class TrainSource : public Tile{
 public:
 	TrainSource() {};
-	TrainSource(int dir);
-	void setTrains(int trains[], int nTrains);
+	TrainSource(int dir, int trains[], int nTrains);
 	void setBorder(Edge* border[]);
 	void dispatchTrains();
 	char getRepr() const;
@@ -85,15 +84,15 @@ private:
 	Edge* targetEdge;
 	int dir;
 	int nTrains;
+	int N_TRAINS_INIT;
 	int trains[MAX_NUM_TRAINS_IN_STATION];
 };
 
 class TrainSink : public Tile {
 public:
 	TrainSink() {};
-	TrainSink(bool canReceiveTrain[]);
+	TrainSink(bool canReceiveTrain[], int trains[], int nTrains);
 	void setBorder(Edge* border[]);
-	void setDesires(int trains[], int nTrains);
 	void pullTrainsFromNeighbors();
 	bool isSatisfied();
 	char getRepr() const;
@@ -103,6 +102,7 @@ public:
 private:
 	bool canReceiveTrain[4];
 	int nTrains;
+	int N_TRAINS_INIT;
 	int desiredTrains[MAX_NUM_TRAINS_IN_STATION];
 };
 
