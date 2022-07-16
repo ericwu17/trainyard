@@ -1,0 +1,1348 @@
+/* -------------------------------------------------------------- 
+  
+   Boilerplate Screen Styles
+   * Version:   0.5 (2007-11-19)
+   
+-------------------------------------------------------------- */
+
+@import "lib/reset.css";
+@import "lib/typography.css";
+@import "lib/forms.css";
+@import "lib/plugins/tabs.css";
+@import "handy.css";
+
+/*http://www.cssdrive.com/compressor/compress.php*/
+
+
+/*
+Colors:
+
+Dark Blue: #2D69A1
+Light Blue: #28659F
+Dark Green: #59B300
+Neon Green: #99FF33
+Dark Grey: #333333
+Link Yellow: #FFFF33;
+
+Padding Order: T R B L
+
+*/
+
+/* Debug
+-------------------------------------------------------------- */
+
+.border { border: solid 1px #660000; }
+
+/* Global
+-------------------------------------------------------------- */
+
+a:link { text-decoration: none; color: #EEFF99; }
+a:visited { text-decoration: none; color: #EEFF99}
+a:hover { text-decoration: underline; color: #AAFF66; }
+a:active, a:focus { text-decoration: underline; color: #AAFF66; }
+
+/*http://ryanfait.com/articles/breaking-floats-without-hacks/*/
+
+.superclear
+{
+	width: 100%;
+	height: 1px;
+	margin: 0 0 -1px;
+	clear: both; 
+}
+
+/* Site
+-------------------------------------------------------------- */
+
+body
+{ 
+	background-color: #051010; 
+	background-image: url("../img/Middle_BGTile.png"); 
+	background-repeat: repeat;	
+	/*background-position: center; */
+	font-family: "Trebuchet MS", Helvetica, Arial, sans-serif;
+	font-size:.72em;
+	color:#F5F5F5;
+	
+	margin:0px;
+	padding:0px;
+	height:100%;	
+}
+
+html
+{
+	margin:0px;
+	padding:0px;
+	height:100%;
+}
+
+#container 
+{ 
+	position:relative;
+	height:auto !important;
+	height:100%;
+	min-height:100%;
+	/*background: url("../img/sidebarBackground.gif") repeat-y 50%;*/
+}
+
+#main 
+{ 
+	margin:0 auto;
+	width: 760px; 
+	min-height:100%;
+	padding:0; 
+	padding-bottom:31px;
+}
+
+#header
+{
+	margin:0 auto;
+	height:161px;
+	background-image: url("../img/Header_BGTile.png"); 
+	background-repeat: repeat-x;
+}
+
+#header div.inner 
+{
+	background-image: url("../img/Header_BGCenter.png"); 
+	background-repeat: no-repeat;
+	padding:0px;
+	margin: 0 auto;
+	width: 760px; 
+	height:161px;
+}
+
+#header img.appStoreLogo
+{
+	float:right;
+	margin:68px 0 0 0;
+}
+
+#header img.comingSoon
+{
+	float:right;
+	margin:79px 0 0 0;
+}
+
+#header img.trainyardLogo
+{
+	float:left;
+	margin:74px 0 0 0;
+}
+
+#header div.menu
+{
+	clear:both;
+	float:left;
+	margin:13px 10px 0 0;
+} 
+
+#header div.menu
+{
+	clear:both;
+	float:left;
+	padding:0px 0 0 0;
+}
+
+#header div.menu ul li
+{
+	padding: 10px 20px 10px 0px;
+	text-decoration:none;
+}
+
+#header div.menu ul li a
+{
+	color:#CCCCCC;
+	text-decoration:none;
+	font-size:1.3em;
+	padding-bottom:2px;
+}
+
+#header div.menu ul li a.selected
+{
+	color:#EEEEEE;
+	font-weight:bold;
+	/*border-bottom: 1px solid #CCCCCC;*/
+}
+
+#header div.menu ul li a:hover
+{
+	color:#FFFFFF;
+}
+
+#footer 
+{
+	position:absolute;
+	width:100%;
+	bottom:0px;
+	background-image: url("../img/Footer_BGTile.png"); 
+	background-repeat: repeat-x;	
+	margin-top:0px; /*might need to be be 31px */
+	height:31px;
+}
+
+#footer a
+{
+	color: #AAFF44;	
+}
+
+* html #footer { bottom:-1px; /*fix footer in IE6 */ }
+
+#footer div.inner
+{
+	font-family:Tahoma, Arial, Helvetica, sans-serif;
+	background-image: url("../img/Footer_BGCenter.png"); 
+	background-repeat: no-repeat;
+	padding:0px;
+	margin: 0 auto; 
+	width: 760px;
+	height:31px;
+}
+
+#footer div.inner div.left
+{
+	float:left;
+	width:460px;
+	padding:6px 0px 6px 0px;
+	font-size:0.95em;
+}
+
+#footer div.inner div.right
+{
+	float:right;
+	width:260px;
+	text-align:right;
+	padding:6px 0px 6px 0px; 
+	font-size:0.95em;
+}	
+
+#footer div.inner div.right a
+{
+	text-decoration:none;
+}
+
+/*#footer div.inner div.right a:active, #footer div.inner div.right a:focus, #footer div.inner div.right a:hover { text-decoration:underline; color:#FFFF66;} */
+/*****CONTENT*****/
+
+#content
+{
+	text-align:left;
+	font-family:"Trebuchet MS", Arial, Helvetica, sans-serif;
+	padding-left:0px;
+	padding-top:20px;
+	padding-bottom:30px;
+}
+
+#content p
+{
+	font-size:1.3em;
+}
+
+#content h1
+{
+	font-size:2em;
+	color:#FFFFFF;
+	letter-spacing:-0.05em;
+	padding-bottom:10px;
+}
+
+#content div.body h2
+{
+	margin-top:10px;
+	margin-bottom:0px;
+}
+
+#content div.body p
+{
+	font-size:1.3em;
+	margin:0px;
+	padding:0px;
+}
+
+
+#content div.body p a
+{
+	/*color:#FFFF66;*/
+	text-decoration: underline; 
+}
+
+/* SPECIFIC CONTENT*/
+
+/* //////// */
+/* HOMEPAGE */
+/* //////// */
+
+ul.featureList
+{
+	list-style: none;
+	padding:0;
+	margin:0;
+}
+
+ul.featureList li 
+{
+	font-size:1.4em;
+	background-image: url("../img/List_Bullet.png");
+	background-repeat: no-repeat;
+	background-position: 0px 5px;
+	margin:5px 0 0 0;
+	padding: 0 0 0 25px; 
+}
+
+ul.reviewList
+{
+	list-style: none;
+	padding:0;
+	margin:0;
+}
+
+ul.reviewList li 
+{
+	font-size:1.4em;
+	margin:5px 0 15px 0;
+	padding: 0 0 0 0px; 
+}
+
+div.youtubeTrailer
+{
+	margin:0px 0 20px 0;
+	border: solid 1px #000000;
+	background-color: #000000;
+}
+
+/* //////// */
+/* //////// */
+/* //////// */
+
+#blueprintViewer
+{
+	padding: 0px;
+	width:316px;
+	height:350px;
+	/*border:1px solid #000000;*/
+}
+
+#blueprintViewer .noFlash
+{
+	color:#888888;
+	font-size:1.0em;
+	line-height:1.25em;
+	display:block
+	padding-top:6px;
+}
+
+
+div.solutionInfo
+{
+	padding:0px 0px 10px 0px;
+}
+
+
+
+div.solutionInfo div.puzzleThumb
+{
+	float:left;
+	margin: 0 10px 0 0;
+}
+
+div.solutionInfo div.puzzleThumb a img
+{
+	font-size:0;
+	border:1px solid #304040;
+}
+
+div.solutionInfo div.puzzleThumb a:hover img
+{
+	border:1px solid #668888;
+}
+
+div.solutionInfo div.solutionFor
+{
+	font-size:1.0em;
+	color:#888888;
+	line-height: 10px;
+	margin-bottom: -0.5em;
+}
+
+
+div.solutionInfo div.puzzleName
+{
+	font-size:1.7em;
+	font-weight:bold;
+}
+
+div.solutionInfo div.puzzleName a
+{
+	color:#FFFFFF;
+}
+
+div.solutionInfo div.userName
+{
+	font-size:1.2em;
+	font-weight:bold;
+	color:#CCCCCC;
+	margin-bottom:-0.4em;
+}
+
+div.solutionInfo div.userName a
+{
+	color:#EEFF99;
+}
+
+div.solutionInfo div.date
+{
+	font-size:1.0em;
+	color:#888888;
+}
+
+div.solutionInfo div.stats
+{
+	margin-top:-2px;
+	font-size:1.0em;
+	color:#648585;
+}
+
+div.solutionInfo div.stats em
+{
+	font-style:normal;
+	font-weight:bold;
+}
+
+
+.darkBackground
+{
+	background-color:#030909;
+	border: solid 1px #000000;
+	-moz-border-radius: 6px;
+    -webkit-border-radius: 6px;
+}
+
+a.backLink
+{
+	font-size:1.2em;
+	padding:10px 10px 10px 5px; 
+}
+
+a.backLink:hover
+{
+	color:#AAFF66;
+}
+
+
+div.solutionLeftSide 
+{
+	padding:10px 10px 10px 10px;
+	float:left;
+	margin-bottom:10px;
+} 
+
+div.solutionRightSide 
+{
+	float:right;
+	width:412px;
+}
+
+
+div.solutionGroup a
+{
+	color:#EEFF99;
+}
+
+div.solutionGroup h2
+{
+	font-size:1.2em;
+	padding:4px 4px 0 4px;
+	font-weight:bold;
+	margin: 0px;
+}
+
+div.solutionGroup
+{
+	padding:5px;
+	margin-bottom:10px;
+	overflow:hidden;
+}
+
+div.solutionThumb a
+{
+	margin:4px;
+	float:left;
+	font-size:0;
+	border:1px solid #000000;
+}
+
+div.solutionThumb a:hover
+{
+	border:1px solid #668888;
+}
+
+div.solutionThumb a:visited img
+{
+	/*For some reason this doesn't work in Chrome, and only in the visited state!*/
+	-moz-opacity: 0.6; filter:alpha(opacity=60); opacity: 0.6;
+}
+
+/* //////// */
+/* //////// */
+/* //////// */
+
+div.cityGroup
+{
+	padding:10px 10px 0px 10px;
+	margin-top:0px;
+	margin-bottom:20px;
+	clear:both;
+	overflow:hidden;
+}
+
+h1.cityNameHeader
+{
+	margin-top:20px;
+	margin-bottom:0px;
+}
+
+div.cityGroup h1
+{
+	font-size:2.2em;
+	margin-bottom:12px;
+}
+
+div.puzzleInfo
+{
+	padding:0px 0 10px 0;
+	width:350px;
+	float:left;
+}
+
+a.puzzleInfoLink
+{
+	text-decoration:none;
+}
+
+div.puzzleInfo a
+{
+	color:#FFFFFF;
+}
+
+
+div.puzzleInfo div.puzzleThumb
+{
+	float:left;
+	margin: 0 10px 0 0;
+}
+
+div.puzzleInfo div.puzzleThumb img
+{
+	font-size:0;
+	border:1px solid #304040;
+}
+
+a.puzzleInfoLink:hover div.puzzleInfo div.puzzleThumb img
+{
+	border:1px solid #668888;
+}
+
+div.puzzleInfo div.name
+{
+	font-size:1.7em;
+	font-weight:bold;
+	display:block;
+	padding-top:9px;
+	margin-bottom:-0.4em;
+}
+
+
+
+div.puzzleInfo
+{
+	color:#666666;
+}
+
+a.puzzleInfoLink div.puzzleInfo
+{
+	color:#CCCCCC;
+}
+
+a.puzzleInfoLink:hover div.puzzleInfo
+{
+	color:#FFFFFF;
+}
+
+div.puzzleInfo div.numSolutions
+{
+	font-size:1.5em;
+	font-weight:bold;
+	display:block;
+}
+
+div.puzzleInfo div.trackCount
+{
+	margin-top:-4px;
+	font-size:1.0em;
+	color:#648585;
+	display:block;
+}
+
+div.userList
+{
+	margin: 5px 0px;
+}
+
+div.userList a.userLink
+{
+	display:block;
+	float:left;
+	padding:3px 5px;
+	margin:3px;
+	border: 1px solid #101515;
+}
+
+div.userGroup
+{
+	padding:10px;
+	margin-bottom:10px;
+	overflow:hidden;
+	clear:both;
+}
+
+
+/* //////// */
+/* //////// */
+/* //////// */
+
+div.levelInfo
+{
+	clear:both;
+	margin:0 0 10px 0;
+	padding:10px;
+	height:81px;
+	/*width:690px;*/
+}
+
+div.levelInfo div.puzzleThumb
+{
+	float:left;
+	margin:0px 10px 0 0;
+}
+
+div.levelInfo div.puzzleThumb img
+{
+	
+	border:1px solid #304040;
+}
+
+div.levelInfo div.cityName
+{
+	padding-top:17px;
+	font-size:1.3em;
+	font-weight:bold;
+	color:#CCCCCC;
+	margin-bottom:-4px; 
+}
+
+div.levelInfo div.puzzleName
+{
+	padding-top:0px;
+	font-size:1.7em;
+	font-weight:bold;
+	color:#EEEEEE;
+	margin-bottom:-8px;
+}
+
+div.levelInfo div.numSolutions
+{
+	font-size:1.5em;
+	font-weight:bold;
+	color:#999999;
+	display:block;
+}
+
+div.solutionListPage div.solutionGroup 
+{
+	/*width:700px;*/
+}
+
+
+/* //////// */
+/* //////// */
+/* //////// */
+
+
+div.userInfo
+{
+	clear:both;
+	margin:0 0 10px 0;
+	padding:10px;
+	/*height:81px;*/
+	/*width:690px;*/
+}
+
+div.userInfo div.solutionsBy
+{
+	font-size:1.0em;
+	color:#999999;
+	margin-bottom:-6px;
+}
+
+div.userInfo div.userName
+{
+	font-size:1.7em;
+	font-weight:bold;
+	color:#EEEEEE;
+	margin-bottom:-8px;
+}
+
+div.userInfo div.numSolutions
+{
+	font-size:1.5em;
+	font-weight:bold;
+	color:#999999;
+	display:block;
+}
+
+div.solutionListPage div.solutionGroup 
+{
+	/*width:700px;*/
+}
+
+img.starLabel
+{
+	margin:0px 0px -4px 3px;
+}
+
+p.footerStat
+{
+	font-size:1.0em;
+	color:#BBBBBB;
+	padding:10px;
+	margin-bottom:10px;
+} 
+
+div.notice
+{
+	clears:both;
+	float:left;
+	margin-top:10px; 
+	color:#BBBBBB;
+	width:700px;
+}
+
+div.announcement
+{
+	clears:both;
+	float:left;
+	margin-top:10px; 
+	color:#EEEEEE;
+	width:748px;
+	font-size:15px;
+}
+
+
+/* //////// */ 
+/* ////NEWS//// */
+/* //////// */
+
+div.newsStory
+{
+	padding:10px 10px 0 10px;
+	margin-bottom:10px;
+	clear:both;
+	overflow:hidden; 
+	margin-bottom:10px;
+}
+
+div.newsStory h1
+{
+	font-size:2.2em;
+	margin-bottom:6px;
+}
+
+div.newsStory h1 a
+{
+	color:#FFFFFF;
+}
+
+div.newsStory div.date
+{
+	color:#CCCCCC;
+	margin-bottom:6px;
+}
+
+div.newsStory p
+{
+	color:#FAFAFA;
+	margin-bottom:10px;
+}
+
+
+/* //////// */
+/* ////FAQ//// */
+/* //////// */
+
+
+div.faq
+{
+	padding:10px 10px 0px 10px;
+	margin-bottom:10px;
+	clear:both;
+	overflow:hidden; 
+}
+
+div.faq h2
+{
+	font-size:1.6em;
+	margin-bottom:6px;
+}
+
+div.faq h2 a
+{
+	color:#FFFFFF;
+}
+
+div.faq p
+{
+	color:#FAFAFA;
+	margin-bottom:10px;
+}
+
+/* //////// */
+/* ///SOLUTIONS MENU/// */
+/* //////// */
+
+div.solutionsMenu
+{
+	font-size:16px;
+	/*padding:7px 10px 7px 0px;*/
+	padding:0px 10px 0px 0px;
+	clear:both;
+	/*overflow:hidden; */
+	margin-bottom:25px;
+}
+
+div.solutionsMenu a.selected
+{
+	font-size:16px;
+	font-weight:bold;
+	color:#CCFF00;
+}
+
+div.solutionsMenu a
+{
+	
+}
+
+/* //////// */
+/* //////// */
+/* //////// */
+
+/* //////// */
+/* //////// */
+/* //////// */
+
+/* //////// */
+/* //////// */
+/* //////// */
+
+/* //////// */
+/* ////ENGINEER STUFF//// */
+/* //////// */
+
+div.filterGroup span.label
+{
+	margin-left:6px;
+	font-size:0.95em;
+	display:block;
+	margin-bottom:-3px;
+	margin-top:5px;
+	padding-top:2px;
+	padding-bottom:0px;
+	text-transform:uppercase;
+	color:#889595;
+	width:300px;
+	/*border-top:1px solid #152020;*/
+}
+
+div.filterGroup span.label.first
+{
+	margin-top:0px;
+	padding-top:0px;
+}
+
+a.filterTypeLink
+{
+	font-size:1.2em;
+	padding:2px 10px 2px 6px; 
+}
+
+a.filterTypeLink:hover
+{
+	color:#AAFF66;
+}
+
+a.filterTypeLink.selected
+{
+	font-size:1.2em;
+	padding:2px 10px 2px 5px; 
+	font-weight:bold;
+	color:#AAFF66;
+	text-decoration:none;
+}
+
+.solutionGroup h2.pageGroupH2
+{
+	float:left;	
+	font-size:2.0em;
+	display:block;
+	margin-top:7px;
+	padding-left:5px;
+}
+
+.solutionGroup img.pageGroupLoadIcon
+{
+	float:left;	
+	display:block;
+	margin-top:12px;
+	padding-left:0px;
+}
+
+.solutionGroup .pageGroupNav
+{
+	float:right;
+	width:250px;
+	text-align:right;
+	padding:4px 53px 6px 4px;
+	font-size:1.2em;  
+}	
+
+.solutionGroup .pageGroupNav span.text
+{
+	float:right;
+	width:250px;
+	text-align:right;
+	padding:0px 0px 4px 4px;
+	font-size:1.2em;
+}	
+
+.solutionGroup .pageGroupNav a.pageLink
+{
+	display:inline-block;
+	width:50px;
+	height:16px;
+	margin-left:3px;
+}	
+
+.solutionGroup .pageGroupNav a.pageLink.first
+{
+	background: url("../img/pageButtons/FirstButton.png")  no-repeat 0px 0px; 
+}	
+
+.solutionGroup .pageGroupNav a.pageLink.previous
+{
+	background: url("../img/pageButtons/PreviousButton.png")  no-repeat 0px 0px; 
+}
+
+.solutionGroup .pageGroupNav a.pageLink.next
+{
+	background: url("../img/pageButtons/NextButton.png")  no-repeat 0px 0px; 
+}
+
+.solutionGroup .pageGroupNav a.pageLink.last
+{
+	background: url("../img/pageButtons/LastButton.png")  no-repeat 0px 0px; 
+}
+
+.solutionGroup .pageGroupNav a:hover.pageLink
+{
+	background-position: 0px -16px; 
+}	
+
+.solutionGroup .pageGroupNav a.pageLink.first.disabled
+{
+	background: url("../img/pageButtons/FirstButton.png")  no-repeat 0px -32px; 
+}	
+
+.solutionGroup .pageGroupNav a.pageLink.previous.disabled
+{
+	background: url("../img/pageButtons/PreviousButton.png")  no-repeat 0px -32px; 
+}
+
+.solutionGroup .pageGroupNav a.pageLink.next.disabled
+{
+	background: url("../img/pageButtons/NextButton.png")  no-repeat 0px -32px; 
+}
+ 
+.solutionGroup .pageGroupNav a.pageLink.last.disabled
+{
+	background: url("../img/pageButtons/LastButton.png")  no-repeat 0px -32px; 
+}	
+
+
+/* PUZZLE THUMBS */
+
+div.solutionGroup.epuzzles
+{
+	padding-left:4px;
+	padding-right:0px;	
+	padding-bottom:4px;
+}
+
+.solutionGroup.epuzzles .pageGroupNav
+{
+	padding-right:10px;
+}
+
+div.epuzzleThumb a
+{
+	margin:5px;
+	padding:0px;
+	float:left;
+	border:1px solid #030909; /*#0C1717*/
+	width:236px;
+	height:92px;
+	
+	/*background-color:#0A1212; */
+	background-color:#030909;
+	
+	vertical-align:middle;
+	display:table;
+	overflow:hidden;
+}
+
+div.epuzzleThumb a:hover
+{
+	text-decoration:none;
+	
+	/*
+	border:1px solid #1A2D2D;
+	background-color:#0C1717; 
+	*/
+	/* brighter
+	border:1px solid #2B4A4A;
+	background-color:#1A2D2D; 
+	*/
+}
+
+div.epuzzleThumb a img 
+{
+	float:left;
+	border:1px solid #030909;
+}
+
+div.epuzzleThumb a:hover img
+{
+	border:1px solid #8DBCBC;
+}
+
+div.epuzzleThumb a div.info
+{
+	display:table-cell;
+	width:140px;
+	padding-left:0px;
+	margin-left:0px;
+	padding-top:0px;
+	margin-top:auto;
+	vertical-align:middle;
+	text-align:left;
+	overflow:hidden;
+}
+ 
+div.epuzzleThumb a div.info span
+{
+	display:block;
+	color:#CCDDDD;
+	font-size:10px;
+	padding-left:0px;
+	margin-left:0px;
+}
+
+div.epuzzleThumb a div.info span.name
+{
+	font-size:1.5em;
+	font-weight:bold;
+	color:#CCCCCC;
+	line-height:0.9em;
+}
+
+div.epuzzleThumb a:hover div.info span.name
+{
+	color:#FFFFFF;
+}
+
+div.epuzzleThumb a div.info span.wrenchImage /*The wrench icon*/
+{
+	display:block;	
+	background:url("http://s3.amazonaws.com/trainyardengineer/images/site/misc/wrenchLabelSheet.png") no-repeat;
+	width:30px;
+	height:20px;
+} 
+
+div.epuzzleThumb a div.info span.solutionCount
+{
+	font-size:1.0em;
+	padding-top:0px;
+	color:#CCCCCC;
+}
+
+div.epuzzleThumb a:hover div.info span.solutionCount
+{
+	color:#FFFFFF;
+}
+
+div.epuzzleThumb a div.info span.creatorName
+{
+	font-size:1.0em;
+	padding-top:4px;
+	color:#648585;
+}
+
+div.epuzzleInfo
+{
+	padding:10px;
+	margin-bottom:10px;
+	width:760px;
+	display:table;
+	text-align:left;
+}
+
+div.epuzzleInfo img
+{
+	padding:0px;
+	margin:0px;
+	
+}
+
+div.epuzzleInfo div.info
+{
+	display:table-cell;
+	width:566px;
+	padding-left:10px;
+	padding-top:0px;
+	padding-bottom:10px;
+	margin:0px;
+	vertical-align:middle;
+	text-align:left;
+	color:#CCCCCC;
+	left:-100px;
+}
+
+div.epuzzleInfo div.info div.name
+{
+	font-size:1.5em;
+	font-weight:bold;
+	color:#FFFFFF;
+}
+
+div.epuzzleInfo div.info div.name span.wrenchImage /*The wrench icon*/
+{
+	display:inline-block;	
+	background:url("http://s3.amazonaws.com/trainyardengineer/images/site/misc/wrenchLabelSheet.png") no-repeat;
+	width:30px;
+	height:20px;
+	margin-left:4px;
+	position:relative;
+	top:0px;
+} 
+
+div.epuzzleInfo div.info div.name span.solutionCount 
+{
+	display:inline-block;
+	color:#888888;
+	position:relative;
+	left:35px;
+	top:-1px;
+	width:200px;
+	font-size:0.8em;
+	padding-top:0px;
+	margin-top:0px;
+	font-weight:normal;
+}
+
+div.epuzzleInfo div.info div.description
+{
+	padding-top:3px;
+	font-size:1.3em;
+	line-height:1.0em;
+	width:360px;
+	color:#AAAAAA;
+}
+
+div.epuzzleInfo div.info div.warning
+{
+	margin-top:5px;
+	font-size:1.1em;
+	line-height:1.0em;
+	color:#FFAAAA;
+}
+
+div.epuzzleInfo div.info div.creatorName
+{
+	font-size:1.2em;
+	font-weight:bold;
+	color:#CCCCCC;
+	margin-top:0.3em;
+}
+
+div.epuzzleInfo div.info div.creatorName a
+{
+	color:#EEFF99;
+}
+
+div.epuzzleInfo div.info div.date
+{
+	font-size:1.0em;
+	color:#888888;
+	margin-top:-0.3em;
+}
+
+div.epuzzleInfo div.info div.stats
+{
+	font-size:1.0em;
+	color:#888888; /*#648585;*/
+	margin-top:-0.3em;
+}
+
+div.openInApp
+{
+	padding-left:10px;
+	font-size:2.0em;
+}
+
+div.openInApp a
+{
+	
+}
+
+div.solutionInfo.engineer div.puzzleThumb
+{
+	padding-bottom:10px;
+}
+
+div.solutionInfo.engineer div.solutionFor
+{
+	padding-top:7px;
+}
+
+div.solutionInfo.engineer div.puzzleName
+{
+	font-size:1.3em;
+	font-weight:bold;
+	width:205px;
+	overflow:hidden;
+	text-overflow:ellipsis;
+}
+
+div.solutionInfo.engineer div.puzzleName span.wrenchImage /*The wrench icon*/
+{
+	display:inline-block;	
+	background:url("http://s3.amazonaws.com/trainyardengineer/images/site/misc/wrenchLabelSheet.png") no-repeat;
+	width:30px;
+	height:20px;
+	margin-left:4px;
+	position:relative;
+	top:5px;
+} 
+
+div.solutionInfo.engineer div.userName
+{
+	width:205px;
+	overflow:hidden;
+	text-overflow:ellipsis;
+}
+
+div.puzzleInfo.engineer div.name span.wrenchImage /*The wrench icon*/
+{
+	display:inline-block;	
+	background:url("http://s3.amazonaws.com/trainyardengineer/images/site/misc/wrenchLabelSheet.png") no-repeat;
+	width:30px;
+	height:20px;
+	margin-left:4px;
+	position:relative;
+	top:5px;
+}
+
+div.puzzleInfo.engineer div.name
+{
+	padding-top:13px;
+}
+
+
+/* DO THE SPACING
+
+.solutionGroup .pageGroupHeader
+{
+	padding-right:10px;	
+}
+
+.solutionGroup .solutionThumb.spaced
+{
+	display:block;
+	float:left;
+	width:98px;
+	height:98px;	
+	vertical-align:center;
+	text-align:center;
+	padding-left:5px;
+	padding-right:5px;
+	padding-bottom:7px;
+	padding-top:3px;
+}
+
+div.solutionGroup.spaced
+{
+	padding-left:0px;
+	padding-right:0px;	
+	padding-bottom:0px;
+}
+*/
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
