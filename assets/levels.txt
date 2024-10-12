@@ -1,0 +1,1512 @@
+// lines starting with double slashes are ignored.
+// blank lines are also ignored.
+// symbols:
+// + <- train source
+// - <- train sink
+// * <- rock
+// p <- painter
+// s <- splitter
+
+
+CITY:Abbotsford
+
+// This is a 1-star level called "Red Line"
+Red Line:1
++ 1,3 red right
+o 5,3 red left
+---
+// 3 dashes marks the end of a single level.
+
+Grorange lines:1
++ 1,1 green down
+o 1,5 green up
++ 2,5 orange right
+o 5,5 orange left
+---
+
+
+Yorple lines:1
++ 0,6 purple right
++ 6,0 purple left
+o 0,0 purple right
+o 6,6 purple left
++ 1,2 yellow down
++ 5,4 yellow up
+o 1,4 yellow up
+o 5,2 yellow down
+---
+
+Magical Trains:1
++ 0,3 purple right
++ 3,6 purple up
+o 3,0 purple down
+o 6,3 purple left
+---
+
+The Red Corner:1
++ 1,1 red down
+o 5,5 red left
+---
+
+Purpablu:1
++ 1,1 purple left
+o 5,1 purple right
++ 1,5 blue down
+o 5,5 blue up
+---
+----
+// 4 dashes marks the end of a single city.
+
+CITY:Brampton
+
+A Rock in the Way:1
++ 3,6 green up
+o 3,0 green down
+* 3,3
+---
+
+Green Wally:1
++ 5,1 green down
+o 1,1 green down
+* 3,1
+* 3,2
+* 3,3
+* 3,4
+* 3,5
+* 3,6
+---
+
+Yellow Snake:1
++ 6,0 yellow left
+o 0,6 yellow right
+
+* 1,1
+* 2,1
+* 3,1
+* 4,1
+* 5,1
+* 6,1
+
+* 0,3
+* 1,3
+* 2,3
+* 3,3
+* 4,3
+* 5,3
+---
+
+U-Turn:1
++ 0,0 purple down
+o 2,0 purple down
+o 4,0 red down
++ 6,0 red down
+
+* 1,0
+* 1,1
+* 1,2
+* 1,3
+* 1,4
+* 1,5
+* 5,0
+* 5,1
+* 5,2
+* 5,3
+* 5,4
+* 5,5
+---
+
+Journey:1
++ 0,6 orange up
+o 6,0 orange down
+
+* 0,0
+* 1,2
+* 2,5
+* 3,1
+* 4,3
+* 5,6
+* 6,4
+---
+----
+
+CITY:Calgary
+Rainbow:1
++ 0,6 red up
+o 0,0 red down
++ 2,6 blue up
+o 2,0 blue down
++ 4,6 yellow up
+o 4,0 yellow down
++ 6,6 red up
+o 6,0 red down
+
++ 1,0 purple down
+o 1,6 purple up
++ 3,0 green down
+o 3,6 green up
++ 5,0 orange down
+o 5,6 orange up
+---
+
+Innie Outie:1
++ 4,2 blue right
+o 2,4 blue left
++ 5,1 red right
+o 1,5 red left
+---
+
+Around the Back:2
++ 1,1 red right
++ 1,3 yellow right
++ 1,5 blue right
+o 5,1 blue left
+o 5,3 red left
+o 5,5 yellow left
+---
+
+Multicolor:1
++ 3,0 blue down
++ 3,6 red up
++ 0,3 green right
++ 6,3 yellow left
+o 3,3 green,blue,red,yellow up,left,down,right
+---
+
+Squiggle:1
++ 3,2 orange up
++ 3,4 green down
+o 3,3 green,orange left,right
+---
+
+Two Two:1
++ 3,6 red,red up
+o 3,0 red,red down
+---
+
+Crossover:2
++ 3,0 blue down
+o 3,6 blue up
++ 0,3 red right
+o 6,3 red left
+---
+----
+
+CITY:Delson
+
+Mellow Yellow:2
++ 5,5 yellow,yellow left
+o 1,5 yellow right
+o 3,1 yellow down
+---
+
+Delivering Oranges:2
++ 3,3 orange,orange up
+o 3,4 orange down
+o 3,6 orange up
+---
+
+Purple Parcels:2
++ 0,0 purple,purple,purple down
+o 0,6 purple up,right
+o 6,6 purple up,left
+o 6,0 purple down,left
+
+* 3,3
+* 1,3
+* 5,3
+* 3,1
+* 3,5
+---
+
+Prellow:2
++ 3,5 purple,yellow up
+o 1,1 purple right
+o 5,1 yellow left
+---
+
+Around the Bend:2
++ 5,3 orange,blue up
+o 4,3 orange down
+o 6,3 blue down
+
+* 5,4
+* 5,5
+* 1,3
+* 2,3
+* 3,3
+---
+
+Preenies:2
++ 0,0 purple,green,purple,green,purple,green,purple,green,purple right
+o 0,6 green,green,green,green up,right
+o 6,6 purple,purple,purple,purple,purple up,left
+
+* 0,1
+* 1,1
+* 2,1
+* 3,1
+* 4,1
+* 5,1
+
+* 1,3
+* 2,3
+* 3,3
+* 4,3
+* 5,3
+* 6,3
+
+* 3,4
+* 3,5
+---
+
+Too Many:3
+o 3,0 green,green,green,green,blue,blue,blue,blue,orange,orange,orange,orange down
++ 1,5 green,green,green,green left
++ 3,5 blue,blue,blue,blue up
++ 5,5 orange,orange,orange,orange right
+
+* 0,2
+* 1,2
+* 2,2
+* 4,2
+* 5,2
+* 6,2
+
+* 0,3
+* 1,3
+* 2,3
+* 4,3
+* 5,3
+* 6,3
+---
+----
+CITY:Edmonton
+
+Yield:3
++ 1,1 yellow right
++ 1,5 yellow right
+o 5,3 yellow left
+---
+
+Blue Boys:3
++ 3,1 blue down
++ 5,3 blue left
+o 3,5 blue up
+---
+
+Timing Test:3
++ 1,1 red right
++ 5,1 red right
+o 3,6 red left
+---
+
+Grimace Town:3
++ 3,6 purple,purple,purple up
+o 3,0 purple down
+o 0,3 purple right
+o 6,3 purple left
+---
+
+Lemon Latency:3
++ 1,0 yellow down
++ 5,6 yellow left
+o 0,0 yellow down
+---
+
+Three Reds:3
++ 0,0 red down
++ 2,0 red down
++ 6,0 red down
+o 3,6 red up
+---
+
+Colour Theory:3
++ 1,2 blue right
++ 5,2 yellow left
+o 3,5 green up
+---
+
+Secondary:3
++ 0,0 red down
++ 6,0 yellow down
+o 6,6 orange up
+---
+
+Nurple:3
++ 1,1 red down
++ 5,5 blue up
+o 3,3 purple up,down,left,right
+---
+----
+
+CITY:Fredericton
+
+Micro Mix:3
++ 1,1 blue right
++ 1,5 yellow left
+o 2,5 green right
+---
+
+The First:3
++ 3,1 blue down
++ 3,5 red up
+o 1,3 purple right
+o 5,3 purple left
+---
+
+Wait Outside:3
++ 1,1 red down
++ 6,6 blue up
+o 0,6 purple right
+
+* 5,1
+* 5,2
+* 5,3
+* 5,4
+* 5,5
+* 5,6
+
+* 0,3
+* 1,3
+* 2,3
+* 3,3
+* 3,2
+* 3,1
+---
+
+Nine Men's Morris:3
++ 0,0 yellow down
++ 6,6 red up
+o 6,0 orange left,down
+o 0,6 orange right,up
+
+* 2,3
+* 3,3
+* 4,3
+
+* 2,2
+* 3,2
+* 4,2
+
+* 2,4
+* 3,4
+* 4,4
+---
+
+Eee Tee:3
++ 1,4 red up
++ 1,6 red left
++ 5,4 yellow up
++ 5,6 blue right
+o 3,6 orange,purple up
+---
+
+Relish:4
++ 0,1 green down
++ 1,0 yellow right
++ 5,6 blue right
+o 1,1 green down
+
+* 0,0
+* 4,5
+* 5,5
+* 4,6
+---
+----
+
+CITY:Guelph
+
+Mirror Squad:3
++ 0,0 red right
++ 0,2 blue right
+o 6,1 purple left
++ 6,4 blue left
++ 6,6 yellow left
+o 0,5 green right
+
+* 0,3
+* 1,3
+* 2,3
+* 3,3
+* 4,3
+* 5,3
+* 6,3
+
+* 2,1
+* 2,2
+* 4,4
+* 4,5
+---
+
+Cute Loop:3
++ 0,0 red right
++ 6,0 blue left
+o 6,2 purple left
+
+* 0,1
+* 2,1
+* 3,1
+* 4,1
+* 5,1
+* 6,1
+
+* 4,2
+* 4,3
+* 4,4
+* 4,5
+---
+
+Hourglass:4
++ 0,0 red right
++ 0,6 red right
++ 6,0 yellow left
++ 6,6 blue left
+o 3,2 purple up
+o 3,4 orange down
+
+* 3,3
+---
+
+Gauss:4
++ 0,2 red right
++ 0,4 blue right
++ 6,2 purple left
+o 6,4 purple left
+* 0,3
+* 6,3
+---
+
+Third Wheel:4
++ 3,0 orange down
++ 0,3 yellow up
++ 6,3 red up
+o 3,6 orange up
+---
+
+
+Turtles:4
++ 0,4 green right
++ 0,6 green right
++ 4,4 green left
++ 4,6 green left
+o 6,6 green up
+
+* 5,1
+* 5,2
+* 5,3
+* 5,4
+* 5,5
+* 5,6
+---
+
+Royals:4
++ 0,0 purple down
++ 2,6 purple right
+o 0,6 purple up
+
+* 1,6
+
+* 0,4
+* 1,4
+* 2,4
+* 3,4
+* 4,4
+* 5,4
+---
+
+Spiced:4
++ 0,0 red,red right
++ 6,6 red,red left
++ 0,6 yellow,yellow right
++ 6,0 yellow,yellow left
+o 3,3 orange,orange up,down,left,right
+---
+----
+
+CITY:Halifax
+Handlebars:4
++ 0,1 blue down
++ 0,5 yellow up
++ 6,1 yellow down
++ 6,5 blue up
+
+o 0,0 green right
+o 0,6 green right
+o 6,0 green left
+o 6,6 green left
+---
+
+Compact:4
++ 3,2 red up
++ 3,4 yellow down
++ 2,3 blue left
++ 4,3 red right
+o 2,2 orange left,up
+o 4,4 purple right,down
+
+* 3,3
+* 4,2
+* 2,4
+---
+
+Wailing:5
++ 1,1 blue right
++ 1,3 red right
++ 1,5 yellow right
+o 5,1 red left
+o 5,3 yellow left
+o 5,5 blue left
+
+* 3,0
+* 3,1
+* 3,2
+* 3,4
+* 3,5
+* 3,6
+---
+
+Laser Master:7
++ 3,6 red,blue,red,blue up
+o 3,0 purple,purple,purple,purple down
+---
+
+Squads:6
++ 1,0 red right
++ 0,1 blue down
++ 6,5 red up
++ 5,6 yellow left
+
+o 3,3 purple,purple,orange,orange down
+---
+
+Aspire:7
++ 2,4 blue,red down
++ 3,4 red,yellow down
+o 1,4 green left
+o 1,5 red left
+* 1,6
+---
+
+Under The Fence:5
++ 0,0 red right
++ 6,0 red left
++ 0,1 blue right
++ 6,1 blue left
+o 0,6 red up
+o 6,6 blue up
+
+* 3,0
+* 3,1
+* 3,2
+* 3,3
+* 3,4
+---
+----
+
+CITY:Iqaluit
+
+Inverse:7
++ 0,1 yellow,yellow up
++ 6,1 blue,red up
+o 0,5 green down
+o 6,5 green down
+o 3,3 orange up,down,left,right
+
+* 0,2
+* 0,3
+* 0,4
+* 6,2
+* 6,3
+* 6,4
+---
+
+Totem Pole:5
+o 3,0 orange,orange down
++ 3,3 yellow left
++ 3,4 red left
++ 3,5 red right
++ 3,6 yellow right
+---
+
+Western:6
++ 0,0 yellow right
++ 1,1 blue right
++ 1,3 red right
++ 1,5 yellow right
++ 0,6 blue right
+
+* 3,0
+* 3,1
+* 3,2
+* 3,4
+* 3,5
+* 3,6
+
+o 5,1 red left
+o 5,3 yellow,blue left
+o 5,5 blue left
+o 6,6 yellow up
+---
+
+
+Collider:6
++ 0,2 yellow right
++ 0,3 yellow right
++ 0,4 yellow right
++ 6,2 blue left
++ 6,3 blue left
++ 6,4 blue left
+o 3,3 green,green,green,green,green,green up,left,down,right
+---
+
+
+Starship Sandwich:6
++ 0,1 red right
++ 0,2 red right
++ 0,4 blue right
++ 0,5 blue right
+o 0,0 purple,purple right
+o 0,6 purple,purple right
+
+* 0,3
+* 1,3
+* 2,3
+* 3,3
+* 4,3
+* 5,3
+---
+
+The Classic:7
++ 1,2 red right
++ 1,4 yellow,yellow right
++ 1,6 blue right
+o 0,6 green up
+o 3,0 green down
+o 4,0 orange down
+---
+----
+
+CITY:Joliette
+
+Red Pear:2
+p 0,0 red down,right
++ 0,3 green right
+o 6,3 red left
+---
+
+
+Paint The Town:4
++ 0,0 yellow down
++ 6,0 blue down
+o 3,6 orange up
+p 3,3 red up,down
+---
+
+Lopsided:5
++ 3,6 orange up
++ 4,6 orange up
+o 3,0 orange left
+o 4,0 orange right
+p 3,5 yellow left,down
+p 4,5 red right,down
+
+* 4,2
+* 4,3
+* 4,4
+* 3,2
+* 3,3
+* 3,4
+---
+
+Plus:6
++ 0,3 yellow up
++ 4,3 blue right
+o 0,6 purple up,right
+p 0,0 red down,right
+
+* 3,3
+* 2,3
+* 3,2
+* 3,4
+---
+
+Orange Wall:7
++ 0,3 blue,blue up
++ 6,3 blue,blue down
+
+o 6,0 orange left
+o 0,6 orange right
+o 3,2 orange up
+o 3,4 orange down
+
+p 3,1 orange up,down
+p 3,5 orange up,down
+p 3,3 orange left,right
+---
+----
+
+
+CITY:Kamloops
+
+Podded Peas:4
++ 0,4 purple down
++ 6,4 purple down
+p 0,6 yellow up,right
+p 6,6 blue up,left
+o 3,0 green,green down
+---
+
+Let Them Yellow:7
++ 3,6 purple,purple,purple,purple up
+o 0,0 yellow down
+o 6,0 yellow down
+o 0,6 yellow up
+o 6,6 yellow up
+p 3,3 yellow up,down
+
+* 0,3
+* 1,3
+* 2,3
+* 4,3
+* 5,3
+* 6,3
+---
+
+The Original:7
++ 3,2 blue,blue up
++ 4,2 yellow up
++ 6,6 red left
+o 3,3 purple,purple down
+o 4,3 green down
+---
+
+
+Stuck To You:7
++ 0,2 purple right
++ 0,4 purple right
+o 6,3 green left
+
+p 3,3 blue up,down
+p 3,4 yellow up,down
+
+* 0,3
+* 6,2
+* 6,4
+---
+
+Diagonal Mirror:7
++ 4,1 blue up
++ 5,2 blue right
+o 5,1 yellow right,up
+p 1,5 yellow down,left
+* 3,3
+* 4,2
+* 2,4
+---
+
+Four Shadowing:8
++ 0,0 red,red,red,red down
+o 6,6 blue,yellow,orange,green up
+
+p 3,2 yellow up,down
+p 3,4 green up,down
+p 2,3 blue left,right
+p 4,3 orange left,right
+---
+
+Fireball Island:10
++ 5,2 yellow right
++ 5,4 yellow right
++ 4,1 red up
++ 4,5 blue down
+
+o 0,0 green,green right,down
+o 0,6 orange,orange right,up
+
+* 6,3
+* 2,5
+* 2,1
+
+---
+----
+
+CITY:London
+
+Round The Twist:3
++ 3,6 purple up
+o 0,6 red up
+o 6,6 blue up
+s 3,3 down
+---
+
+More Is Merrier:4
++ 0,3 green,green,green,green right
+o 0,4 yellow,yellow,yellow,yellow right
+o 6,3 blue,blue left
+o 6,4 blue,blue left
+s 3,3 up
+---
+
+Three Peas:4
++ 3,2 green left
++ 3,3 green left
++ 3,4 green left
+o 4,0 yellow,yellow,yellow down
+o 4,6 blue,blue,blue up
+s 4,3 right
+---
+
+Ackee Tree:5
++ 3,0 green down
+s 3,1 up
+o 3,2 blue right
+o 3,3 yellow,yellow left
+o 3,4 red right
+s 3,5 down
++ 3,6 orange up
+---
+
+Hookshot:6
++ 1,1 blue up
++ 5,5 orange down
+o 1,5 red left
+o 5,1 green right
+s 3,3 right
+---
+
+Pick Your Partner:7
++ 0,5 purple right
++ 6,5 blue left
+o 0,0 blue right
+o 0,1 blue right
+o 0,2 blue right
+o 6,2 red left
+s 3,2 down
+s 2,5 left
+* 0,3 1,3 2,3 4,3 5,3 6,3
+---
+
+Primer:8
++ 3,0 yellow down
+s 3,2 up
+o 0,6 yellow up
+o 3,6 yellow up
+o 6,6 yellow up
+---
+
+
+Reunited:9
++ 3,1 blue left
++ 3,3 purple right
+o 3,5 purple left
+s 1,0 down
+---
+
+Star Stuck:10
++ 2,2 orange,orange,orange,orange up
+o 4,2 red,blue,red,blue up
+p 3,4 blue right,down
+p 3,5 red up,left
+---
+----
+
+CITY:Mississauga
+
+Warm Up:4
++ 2,6 blue,yellow,red up
++ 4,6 red,blue,yellow up
+s 3,0 down
+o 2,0 blue,blue,yellow right
+o 4,0 red,red,yellow left
+---
+
+The Numerator:5
++ 2,6 orange up
++ 4,6 green up
+o 2,0 yellow down
+o 4,0 purple down
+s 2,3 down
+s 4,3 down
+---
+
+Drone vs Probe:6
++ 6,2 blue left
+o 5,6 yellow left
+o 3,6 blue up
+s 3,5 right
+o 3,0 yellow down
+s 3,1 left
+p 1,2 yellow up,down
+* 2,2 3,3 4,4
+---
+
+Ochos Rios:7
++ 1,1 purple up
++ 5,5 green down
+o 2,3 orange,blue left
+s 3,3 right
+---
+
+Port Credit:8
++ 0,1 red down
++ 0,5 red up
+o 0,0 yellow right
+o 0,6 blue right
+p 5,1 blue left,right
+p 5,5 yellow left,right
+* 3,0 3,1 3,2 3,4 3,5 3,6
+---
+
+Turtle:9
++ 0,6 yellow right
+o 0,0 yellow right
+o 0,1 blue,red,yellow,blue right
+s 1,1 down
+
+p 4,3 red up,down
+p 4,4 purple up,down
+p 5,3 yellow up,down
+p 5,4 green up,down
+---
+
+
+Factories:10
++ 1,5 orange,orange up
++ 5,5 purple,purple up
+o 0,4 blue right
+o 6,4 green left
+p 1,3 green up,down
+p 5,1 green up,down
+p 1,1 blue up,down
+p 5,3 blue up,down
+---
+
+Tor:10
++ 0,1 red right
++ 0,3 blue right
++ 2,1 yellow right
++ 2,3 red right
++ 4,1 blue right
++ 4,3 yellow right
+o 1,0 green down
+o 3,0 purple down
+o 5,0 orange down
+---
+----
+
+
+CITY:Niagara Falls
+
+Horhey:8
++ 4,3 red,red,red,red right
+o 3,3 red up,down
+o 2,3 red left
+---
+
+Christmas Eve:6
++ 2,1 red up
++ 4,1 red up
++ 2,5 green down
++ 4,5 green down
+o 3,1 green up
+o 3,5 red down
+* 0,2 0,3 0,4
+* 2,2 2,3 2,4
+* 3,2 3,3 3,4
+* 4,2 4,3 4,4
+* 6,2 6,3 6,4
+---
+
+Candlesticks:7
++ 0,6 green up
++ 1,6 purple up
++ 2,6 orange up
++ 4,6 orange up
++ 5,6 purple up
++ 6,6 green up
+s 3,2 down
+o 0,0 blue down
+o 1,0 blue down
+o 2,0 yellow down
+o 4,0 red down
+o 5,0 red down
+o 6,0 yellow down
+* 0,3 1,3 2,3 4,3 5,3 6,3
+---
+
+Argentan:8
++ 1,1 yellow right
++ 1,2 orange right
++ 1,3 yellow right
++ 1,4 orange right
++ 1,5 yellow right
+o 5,3 yellow,orange right
+---
+
+Wagon Wheels:8
++ 3,3 brown,brown,brown,brown up
+o 3,1 green right
+o 3,5 red left
+o 1,3 yellow up
+o 5,3 blue down
+p 1,1 green right,down
+p 5,5 red up,left
+p 1,5 yellow up,right
+p 5,1 blue left,down
+---
+
+Gaius:6
++ 6,0 red left
+o 0,1 red right
+o 0,3 red right
+o 0,5 red right
+o 0,6 red right
+o 6,2 red left
+o 6,4 red left
+o 6,6 red left
+s 1,1 up
+s 1,3 up
+s 1,5 up
+s 5,2 up
+s 5,4 up
+s 5,6 up
+---
+
+Machine Gun:11
++ 5,6 red up
+s 5,4 down
+o 0,0 red down
+o 1,0 red down
+o 2,0 red down
+o 3,0 red down
+o 4,0 red down
+o 5,0 red down
+o 6,0 red down
+---
+
+Humber:9
++ 0,2 green up
++ 0,4 green down
++ 6,3 orange left
+s 3,3 down
+o 0,3 red,yellow right
+o 6,2 yellow,yellow up
+o 6,4 blue,blue down
+---
+
+Cooksville Creek:11
++ 0,0 blue right
+s 0,2 right
+s 0,5 right
+s 3,6 up
+s 6,2 left
+s 6,5 left
+o 0,3 blue,blue,blue,blue up
+o 0,6 blue,blue,blue,blue up
+o 6,0 blue,blue,blue,blue left
+o 6,3 blue,blue,blue,blue up
+o 6,6 blue,blue,blue,blue up
+---
+----
+
+CITY:Oakville
+
+Rocky Road:10
++ 0,0 yellow right
++ 0,6 blue right
+o 6,0 green left
+o 6,6 green left
+
+* 0,3 1,3
+* 3,0 3,1 3,2 3,4 3,5 3,6
+* 5,1 5,2 5,3 5,4 5,5
+* 6,1 6,2 6,3 6,4 6,5
+---
+
+Clown Car:10
++ 0,0 red down
++ 1,0 yellow down
++ 2,0 blue down
++ 6,0 red left
++ 6,1 yellow left
++ 6,2 blue left
++ 6,6 red up
++ 5,6 yellow up
++ 4,6 blue up
++ 0,6 red right
++ 0,5 yellow right
++ 0,4 blue right
+o 3,3 green,green,green,green,orange,orange,orange,orange,purple,purple,purple,purple up,left,down,right
+---
+
+Alleyway:6
++ 2,0 red down
++ 4,0 blue down
++ 3,1 yellow down
+s 3,5 up
+o 0,5 brown right
+o 6,5 brown left
+* 0,6 1,6 2,6 3,6 4,6 5,6 6,6
+* 0,4 1,4 2,4 4,4 5,4 6,4
+---
+
+Recycling Garbage:8
++ 0,0 red right
++ 6,0 green left
++ 0,6 yellow right
++ 6,6 blue left
+o 3,3 brown,brown,brown,brown up,left,down,right
+---
+
+Shanimal:11
++ 0,5 blue,blue up
++ 6,1 red,red down
+o 1,6 blue,purple right
+o 5,0 red,purple left
+* 0,6 1,5 5,1 6,0
+* 2,2 2,3 2,4 4,2 4,3 4,4
+---
+
+Cayman:11
++ 0,6 yellow right
+o 0,0 yellow right
+o 0,1 blue,red,yellow,blue,red,yellow right
+s 1,1 down
+p 4,3 red up,down
+p 4,4 blue up,down
+p 5,3 yellow up,down
+p 5,4 blue up,down
+---
+
+Pwr Ovrwhlmng:11
++ 6,3 green left
+s 2,3 right
+s 3,1 right
+s 3,5 right
+s 1,1 down
+s 1,5 up
+o 3,0 yellow down
+o 4,0 yellow down
+o 3,6 blue up
+o 4,6 blue up
+o 0,1 blue right
+o 0,5 yellow right
+---
+
+Axiom:8
++ 3,6 orange,orange,orange,orange up
+o 0,6 green up
+o 1,6 green up
+o 5,6 green up
+o 6,6 green up
+s 3,3 down
+p 2,0 blue left,down
+p 4,0 yellow right,down
+---
+
+Jagd:9
++ 1,1 yellow right
++ 1,2 purple right
++ 1,3 yellow right
++ 1,4 purple right
++ 1,5 yellow right
+* 3,1 3,2 3,3 3,4 3,5
+o 5,3 yellow,purple right
+---
+----
+
+CITY:Peterborough
+A Barrel Roll:12
++ 2,2 blue,blue,blue,blue left
++ 4,4 blue,blue,blue,blue right
++ 2,4 red,yellow,red,yellow down
++ 4,2 red,yellow,red,yellow up
+o 3,3 purple,green up,left,down,right
+---
+
+Klickers:6
++ 0,1 red,yellow,blue,red down
+o 1,0 orange,purple right
+* 0,0 1,1 2,2 3,3 4,4 5,5
+---
+
+Hazard:8
++ 1,0 yellow down
++ 0,5 yellow right
++ 6,1 yellow up
++ 6,3 yellow left
+o 6,6 yellow up
+* 0,0 0,3 3,3 2,1 4,1 6,2 5,4 5,6 3,5
+---
+
+Squelchen:11
++ 0,5 purple,purple up
++ 6,1 purple,purple down
+o 1,6 red,blue right
+o 5,0 green,yellow left
+p 2,3 blue left,right
+p 4,3 green left,right
+p 3,2 red up,down
+p 3,4 yellow up,down
+* 0,6 1,5 5,1 6,0 2,2 4,4
+---
+
+Mini-Yo-We:11
++ 0,2 green right
++ 0,3 green right
++ 0,4 green right
+o 6,2 purple left
+o 6,3 purple left
+o 6,4 purple left
+p 2,2 red left,right
+p 2,3 blue left,right
+p 2,4 red left,right
+p 3,2 blue left,right
+p 3,3 red left,right
+p 3,4 blue left,right
+---
+
+Asymmetric:11
++ 0,3 orange up
++ 6,3 orange down
+o 1,5 yellow up
+o 5,1 red down
+s 3,2 up
+s 3,4 down
+* 2,3 3,3 4,3
+---
+
+Lorne Park:12
++ 0,0 red right
++ 0,1 yellow right
++ 0,2 blue right
++ 0,6 red right
++ 0,5 yellow right
++ 0,4 blue right
++ 6,0 blue left
++ 6,1 yellow left
++ 6,2 red left
++ 6,6 blue left
++ 6,5 yellow left
++ 6,4 red left
+o 3,3 red,yellow,blue down
+---
+
+Adama:13
++ 4,0 green down
++ 6,0 orange left
+o 0,1 red right
+o 0,3 yellow right
+o 0,5 red right
+o 0,6 orange right
+o 6,2 yellow left
+o 6,4 red left
+o 6,6 blue left
+s 1,1 up
+s 1,3 up
+s 1,5 up
+s 5,2 up
+s 5,4 up
+s 5,6 up
+---
+
+Tonelympics:13
++ 0,1 red down
++ 1,2 yellow down
++ 2,3 blue down
++ 3,4 red down
+o 1,0 orange right
+o 2,1 purple right
+o 3,2 orange right
+o 4,3 purple right
+* 0,0 1,1 2,2 3,3 4,4 5,5
+---
+
+----
+CITY: Quebec
+
+Picnic:7
++ 0,2 red,red right
++ 0,3 yellow,yellow right
++ 0,4 blue,blue right
+o 6,2 orange left
+o 6,3 purple,purple left
+o 6,4 green left
+---
+
+Spindle:8
++ 3,2 red up
++ 2,3 yellow left
++ 3,4 blue down
++ 4,3 green right
+o 2,2 green up
+o 2,4 red left
+o 4,2 blue right
+o 4,4 yellow down
+* 3,3 1,2 4,1 2,5 2,6 5,4
+---
+
+Fire Eyed:7
++ 0,1 yellow up
++ 0,5 yellow down
++ 6,1 red up
++ 6,5 red down
++ 1,3 red left
++ 5,3 yellow right
+o 3,0 orange down
+o 3,6 orange up
+---
+
+Rebelt:10
++ 0,5 green right
++ 6,5 green left
+o 2,0 yellow down
+o 3,0 blue,blue down
+o 4,0 orange down
+s 3,3 down
+p 4,3 orange down,left
+---
+
+RGB:11
++ 0,3 red down
++ 1,3 green down
++ 2,3 blue down
++ 4,3 blue down
++ 5,3 green down
++ 6,3 red down
+o 0,2 blue up
+o 1,2 green up
+o 2,2 red up
+o 4,2 red up
+o 5,2 green up
+o 6,2 blue up
+---
+
+Dr. Linus:11
++ 2,4 red down
++ 4,4 blue down
++ 2,2 yellow,yellow up
++ 4,2 red,red up
+o 3,1 purple up
+o 3,5 orange,orange down
+* 1,3 2,3 3,3 4,3 5,3 3,2 3,4
+---
+
+Glockenspiel:11
++ 6,0 green,green,green down
+o 3,3 red,red,red,red,blue,blue,blue,blue,yellow,yellow,yellow,yellow up,down,left,right
+p 0,0 yellow right,down
+p 0,6 blue right,up
+p 6,6 red left,up
+s 3,0 down
+s 3,6 up
+s 0,3 right
+s 6,3 left
+---
+
+Jamboree:12
++ 3,3 red,red,red,red right
+o 2,3 green up,down
+o 1,2 blue,yellow down
+o 1,4 blue,yellow up
+s 1,3 left
+p 0,0 blue right,down
+p 0,2 blue up,down
+p 0,4 yellow up,down
+p 0,6 yellow up,right
+---
+
+Licorice Allsorts:13
++ 0,4 red down
++ 1,4 yellow down
++ 2,4 blue down
++ 3,4 orange down
++ 4,4 green down
++ 5,4 purple down
+o 0,3 purple up
+o 1,3 green up
+o 2,3 orange up
+o 3,3 blue up
+o 4,3 yellow up
+o 5,3 red up
+---
+
+----
+CITY:Debug
+
+Multiple entrances:1
++ 1,3 red right
+//5,3 red left,right
+s 1,1 right
+p 5,5 brown left,up
+p 5,4 purple down,up
+---
+
+
+Race Condition:1
++ 0,0 yellow right
++ 6,0 yellow left
+o 3,0 yellow left,right
+---
+
+Lag Anyone?:1
++ 0,0 red,green,red,green,red,green,red,green,red down
++ 1,0 red,green,red,green,red,green,red,green,red down
++ 2,0 red,green,red,green,red,green,red,green,red down
++ 3,0 red,green,red,green,red,green,red,green,red down
++ 4,0 red,green,red,green,red,green,red,green,red down
++ 5,0 red,green,red,green,red,green,red,green,red down
++ 6,0 red,green,red,green,red,green,red,green,red down
+o 0,1 red,green,red,green,red,green,red,green,red up
+o 1,1 red,green,red,green,red,green,red,green,red up
+o 2,1 red,green,red,green,red,green,red,green,red up
+o 3,1 red,green,red,green,red,green,red,green,red up
+o 4,1 red,green,red,green,red,green,red,green,red up
+o 5,1 red,green,red,green,red,green,red,green,red up
+o 6,1 red,green,red,green,red,green,red,green,red up
+
++ 0,2 red,green,red,green,red,green,red,green,red down
++ 1,2 red,green,red,green,red,green,red,green,red down
++ 2,2 red,green,red,green,red,green,red,green,red down
++ 3,2 red,green,red,green,red,green,red,green,red down
++ 4,2 red,green,red,green,red,green,red,green,red down
++ 5,2 red,green,red,green,red,green,red,green,red down
++ 6,2 red,green,red,green,red,green,red,green,red down
+o 0,4 red,green,red,green,red,green,red,green,red up
+o 1,4 red,green,red,green,red,green,red,green,red up
+o 2,4 red,green,red,green,red,green,red,green,red up
+o 3,4 red,green,red,green,red,green,red,green,red up
+o 4,4 red,green,red,green,red,green,red,green,red up
+o 5,4 red,green,red,green,red,green,red,green,red up
+o 6,4 red,green,red,green,red,green,red,green,red up
+
++ 0,5 red,green,red,green,red,green,red,green,red down
++ 1,5 red,green,red,green,red,green,red,green,red down
++ 2,5 red,green,red,green,red,green,red,green,red down
++ 3,5 red,green,red,green,red,green,red,green,red down
++ 4,5 red,green,red,green,red,green,red,green,red down
++ 5,5 red,green,red,green,red,green,red,green,red down
++ 6,5 red,green,red,green,red,green,red,green,red down
+o 0,6 red,green,red,green,red,green,red,green,red up
+o 1,6 red,green,red,green,red,green,red,green,red up
+o 2,6 red,green,red,green,red,green,red,green,red up
+o 3,6 red,green,red,green,red,green,red,green,red up
+o 4,6 red,green,red,green,red,green,red,green,red up
+o 5,6 red,green,red,green,red,green,red,green,red up
+o 6,6 red,green,red,green,red,green,red,green,red up
+---
+
+Four Sorts:1
++ 1,0 red,yellow,green,blue down
++ 2,0 red,yellow,green,blue down
++ 3,0 red,yellow,green,blue down
++ 4,0 red,yellow,green,blue down
+
+o 1,6 red,red,red,red up
+o 2,6 yellow,yellow,yellow,yellow up
+o 3,6 green,green,green,green up
+o 4,6 blue,blue,blue,blue up
+
+* 0,0 0,6 6,0 6,6
+---
+----

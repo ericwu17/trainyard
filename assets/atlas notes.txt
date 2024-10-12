@@ -1,0 +1,42 @@
+Tracktile blank   0,0,96,96 
+Tracktile b
+...
+
+
+Painter background  672, 0, 96,96
+
+Painter brush 768, 0, 96,96
+
+Rock 864, 0, 96, 96
+
+Sink satisfied 960, 0, 96,96
+
+source-sink border 1056, 0, 96,96
+
+splitter bg 1152, 0, 96, 96
+
+splitter 1248, 0, 96, 96
+
+trainsink entry 1344, 0, 96, 96
+
+trainsource exit 1440, 0, 96,96
+
+
+
+circle 0, 96, 52,52
+plus_sign 52, 96, 52, 52
+
+train 104, 96, 32,57
+
+button back to drawing: 0,1700,424,104
+button start trains: 0,1804,424,104
+button status crashed: 424, 1700, 208,168
+button status good:    424, 1868, 208,168
+button erase: 0,1908, 208,88
+button stop erase: 208,1908, 208,88
+space for speed slider: 0, 1632, 424, 68
+button speed: 424, 1632, 136, 68
+
+splitter animation: starts at 0,400, each frame is 96x96
+painter animation: starts at 0,496 each frame is 96x96
+
