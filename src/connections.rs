@@ -1,3 +1,5 @@
+use std::f32::consts::{FRAC_PI_2, PI};
+
 use bevy::prelude::*;
 
 use crate::direction::Dir;
@@ -28,7 +30,23 @@ pub enum ConnectionType {
     H,
     Z,
     M,
-    J,
+    Jc,
+    Ji,
+}
+
+impl ConnectionType {
+    pub fn get_asset_path(&self) -> &'static str {
+        match self {
+            ConnectionType::None => "sprites/Tracktile_blank.png",
+            ConnectionType::I => "sprites/Tracktile_i.png",
+            ConnectionType::C => "sprites/Tracktile_c.png",
+            ConnectionType::H => "sprites/Tracktile_h.png",
+            ConnectionType::Z => "sprites/Tracktile_z.png",
+            ConnectionType::M => "sprites/Tracktile_m.png",
+            ConnectionType::Jc => "sprites/Tracktile_jc.png",
+            ConnectionType::Ji => "sprites/Tracktile_ji.png",
+        }
+    }
 }
 
 impl TileConnections {
@@ -82,49 +100,96 @@ impl TileConnections {
         }
     }
 
-    pub fn connection_type(&self) -> ConnectionType {
+    pub fn type_and_rotation(&self) -> (ConnectionType, Quat) {
         if self.data == 0x00 {
-            return ConnectionType::None;
+            return (ConnectionType::None, Quat::from_rotation_z(0.0));
         }
         if (self.data >> 4) & 0xf == 0 {
-            if self.has_connection_up_to_rot(Connection::from_dirs(Dir::Up, Dir::Down)) != -1 {
-                return ConnectionType::I;
+            let rotation_for_type_i =
+                self.has_connection_up_to_rot(Connection::from_dirs(Dir::Up, Dir::Down));
+            if rotation_for_type_i != -1 {
+                return (
+                    ConnectionType::I,
+                    Quat::from_rotation_z(rotation_for_type_i as f32 * FRAC_PI_2),
+                );
+            } else {
+                let rotation_for_type_c =
+                    self.has_connection_up_to_rot(Connection::from_dirs(Dir::Left, Dir::Down));
+                return (
+                    ConnectionType::C,
+                    Quat::from_rotation_z(rotation_for_type_c as f32 * FRAC_PI_2),
+                );
             }
-            return ConnectionType::C;
         }
         // now we can assume that there is both an active and passive connection
         if self.has_connections(
             Connection::from_dirs(Dir::Up, Dir::Down),
             Connection::from_dirs(Dir::Left, Dir::Right),
         ) {
-            return ConnectionType::H;
+            if self.get_active_conn() == Connection::from_dirs(Dir::Up, Dir::Down) {
+                return (ConnectionType::H, Quat::from_rotation_z(0.0));
+            } else {
+                return (ConnectionType::H, Quat::from_rotation_z(FRAC_PI_2));
+            }
         }
-        if self.has_connections_up_to_rot(
+        let rot_for_z = self.has_connections_up_to_rot(
             Connection::from_dirs(Dir::Up, Dir::Right),
             Connection::from_dirs(Dir::Down, Dir::Left),
-        ) != -1
-        {
-            return ConnectionType::Z;
+        );
+        if rot_for_z != -1 {
+            return (
+                ConnectionType::Z,
+                Quat::from_rotation_z(rot_for_z as f32 * FRAC_PI_2),
+            );
         }
 
-        if self.has_connections_up_to_rot(
-            Connection::from_dirs(Dir::Up, Dir::Right),
+        let rot_for_m = self.has_connections_up_to_rot(
+            Connection::from_dirs(Dir::Left, Dir::Down),
             Connection::from_dirs(Dir::Right, Dir::Down),
-        ) != -1
-        {
-            return ConnectionType::M;
+        );
+        if rot_for_m != -1 {
+            let flip_quat = if self.get_active_conn().rotate_ccw() == self.get_passive_conn() {
+                Quat::IDENTITY
+            } else {
+                Quat::from_rotation_y(PI)
+            };
+            return (
+                ConnectionType::M,
+                Quat::from_rotation_z(rot_for_m as f32 * FRAC_PI_2) * flip_quat,
+            );
         }
 
-        if self.has_connections_up_to_rot(
-            Connection::from_dirs(Dir::Up, Dir::Right),
+        let rot_for_j_not_flipped = self.has_connections_up_to_rot(
+            Connection::from_dirs(Dir::Down, Dir::Left),
             Connection::from_dirs(Dir::Up, Dir::Down),
-        ) != -1
-            || self.has_connections_up_to_rot(
-                Connection::from_dirs(Dir::Up, Dir::Left),
-                Connection::from_dirs(Dir::Up, Dir::Down),
-            ) != -1
-        {
-            return ConnectionType::J;
+        );
+        if rot_for_j_not_flipped != -1 {
+            let conn_type = if self.get_active_conn() == Connection::from_dirs(Dir::Up, Dir::Down) {
+                ConnectionType::Ji
+            } else {
+                ConnectionType::Jc
+            };
+            return (
+                conn_type,
+                Quat::from_rotation_z(rot_for_j_not_flipped as f32 * FRAC_PI_2),
+            );
+        }
+
+        let rot_for_j_flipped = self.has_connections_up_to_rot(
+            Connection::from_dirs(Dir::Down, Dir::Right),
+            Connection::from_dirs(Dir::Up, Dir::Down),
+        );
+        if rot_for_j_flipped != -1 {
+            let conn_type = if self.get_active_conn() == Connection::from_dirs(Dir::Up, Dir::Down) {
+                ConnectionType::Ji
+            } else {
+                ConnectionType::Jc
+            };
+            return (
+                conn_type,
+                Quat::from_rotation_z(rot_for_j_flipped as f32 * FRAC_PI_2)
+                    * Quat::from_rotation_y(PI),
+            );
         }
 
         unreachable!()
@@ -149,7 +214,7 @@ impl TileConnections {
         )
     }
 
-    pub fn has_connection_up_to_rot(&self, mut c: Connection) -> i32 {
+    pub fn has_connection_up_to_rot(&self, c: Connection) -> i8 {
         // returns -1 if there is no connection, otherwise returns the rotation amount
         let mut active_conn = self.get_active_conn();
         let mut rot = 0;
@@ -162,7 +227,7 @@ impl TileConnections {
                 active_conn = active_conn.rotate_cw();
             }
         }
-        let passive_conn = self.get_passive_conn();
+        let mut passive_conn = self.get_passive_conn();
         let mut rot = 0;
         if !passive_conn.is_empty() {
             while rot < 4 {
@@ -170,18 +235,18 @@ impl TileConnections {
                     return rot;
                 }
                 rot += 1;
-                c = c.rotate_cw();
+                passive_conn = passive_conn.rotate_cw();
             }
         }
         -1
     }
 
-    pub fn has_connections_up_to_rot(&self, mut c1: Connection, mut c2: Connection) -> i8 {
+    pub fn has_connections_up_to_rot(&self, c1: Connection, c2: Connection) -> i8 {
         // returns true iff self has both an active and passive connection,
         // and the connections match c1 and c2 (regardless of active/passive)
         // after being rotated a fixed amount
-        let active = self.get_active_conn();
-        let passive = self.get_passive_conn();
+        let mut active = self.get_active_conn();
+        let mut passive = self.get_passive_conn();
         if !active.is_empty() && !passive.is_empty() {
             let mut rot = 0;
             while rot < 4 {
@@ -189,8 +254,8 @@ impl TileConnections {
                     return rot as i8;
                 }
                 rot += 1;
-                c1 = c1.rotate_cw();
-                c2 = c2.rotate_cw();
+                active = active.rotate_cw();
+                passive = passive.rotate_cw();
             }
         }
         -1

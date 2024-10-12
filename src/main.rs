@@ -39,8 +39,12 @@ fn spawn_game_tiles(mut commands: Commands) {
     for row in 0..NUM_ROWS {
         for col in 0..NUM_COLS {
             let mut connection = TileConnections::default();
-            if row == 0 && col == 0 {
-                connection = connection.add_connection(Dir::Up, Dir::Down);
+            if row == 5 && col == 0 {
+                connection = connection.add_connection(Dir::Left, Dir::Right);
+                connection = connection.add_connection(Dir::Down, Dir::Right);
+            }
+            if row == 5 && col == 1 {
+                connection = connection.add_connection(Dir::Up, Dir::Left);
             }
 
             commands.spawn((Tile, TilePosition { r: row, c: col }, connection));
@@ -57,19 +61,11 @@ fn render_game_tiles(
         let x = position.c as f32 * TILE_SIZE_PX + TILE_SIZE_PX / 2.0;
         let y = position.r as f32 * TILE_SIZE_PX + TILE_SIZE_PX / 2.0;
 
-        let texture = match connection.connection_type() {
-            connections::ConnectionType::None => asset_server.load("sprites/Tracktile_blank.png"),
-            connections::ConnectionType::I => asset_server.load("sprites/Tracktile_i.png"),
-            connections::ConnectionType::C => asset_server.load("sprites/Tracktile_c.png"),
-            connections::ConnectionType::H => asset_server.load("sprites/Tracktile_h.png"),
-            connections::ConnectionType::Z => asset_server.load("sprites/Tracktile_z.png"),
-            connections::ConnectionType::M => asset_server.load("sprites/Tracktile_m.png"),
-            connections::ConnectionType::J => asset_server.load("sprites/Tracktile_js.png"),
-        };
+        let (conn_type, rotation_quat) = connection.type_and_rotation();
 
         commands.entity(entity).insert(SpriteBundle {
-            transform: Transform::from_xyz(x, y, 0.0),
-            texture,
+            transform: Transform::from_xyz(x, y, 0.0).with_rotation(rotation_quat),
+            texture: asset_server.load(conn_type.get_asset_path()),
             ..default()
         });
     }
