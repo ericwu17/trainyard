@@ -33,13 +33,13 @@ impl Dir {
     }
 
     pub fn rotate_cw_u8(d: u8) -> u8 {
-        return (d + 1) & 0x03;
+        (d + 1) & 0x03
     }
     pub fn rotate_ccw_u8(d: u8) -> u8 {
-        return (d + 3) & 0x03;
+        (d + 3) & 0x03
     }
     pub fn flip_u8(d: u8) -> u8 {
-        return (d + 2) & 0x03;
+        (d + 2) & 0x03
     }
 }
 

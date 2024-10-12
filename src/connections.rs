@@ -11,7 +11,7 @@ use crate::direction::Dir;
 /// The active connection is represented in the least significant 4 bits, and the passive connection is represented in the most significant 4 bits.
 /// Each connection is composed of two `Dir`s
 /// A value of 0 in both dirs for either connection represents the lack of connection.
-#[derive(Component)]
+#[derive(Component, Default)]
 pub struct TileConnections {
     data: u8,
 }
@@ -63,17 +63,17 @@ impl TileConnections {
     }
 
     pub fn is_empty(&self) -> bool {
-        return self.data == 0;
+        self.data == 0
     }
     pub fn get_active_conn(&self) -> Connection {
-        return Connection {
+        Connection {
             data: self.data & 0x0f,
-        };
+        }
     }
     pub fn get_passive_conn(&self) -> Connection {
-        return Connection {
+        Connection {
             data: (self.data >> 4) & 0x0f,
-        };
+        }
     }
 
     pub fn add_connection(&self, d1: Dir, d2: Dir) -> Self {
@@ -270,12 +270,6 @@ impl TileConnections {
     }
 }
 
-impl Default for TileConnections {
-    fn default() -> Self {
-        Self { data: 0 }
-    }
-}
-
 impl Connection {
     pub fn from_dirs(d1: Dir, d2: Dir) -> Self {
         Connection {
@@ -292,16 +286,15 @@ impl Connection {
     pub fn to_normal_form(&self) -> Self {
         let dir_1 = self.data & 0x03;
         let dir_2 = (self.data >> 2) & 0x03;
-        if dir_1 == dir_2 {
-            Connection { data: 0 }
-        } else if dir_1 < dir_2 {
-            Connection {
+
+        match dir_1.cmp(&dir_2) {
+            std::cmp::Ordering::Equal => Connection { data: 0 },
+            std::cmp::Ordering::Less => Connection {
                 data: dir_1 | (dir_2 << 2),
-            }
-        } else {
-            Connection {
+            },
+            std::cmp::Ordering::Greater => Connection {
                 data: dir_2 | (dir_1 << 2),
-            }
+            },
         }
     }
 
