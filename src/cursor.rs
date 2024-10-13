@@ -1,3 +1,4 @@
+use bevy::input::common_conditions::input_just_pressed;
 use bevy::prelude::*;
 use bevy::{input::common_conditions::input_pressed, window::PrimaryWindow};
 
@@ -35,6 +36,10 @@ impl Plugin for CursorPlugin {
             )
             .add_systems(OnEnter(CursorState::Drawing), change_cursor_to_drawing)
             .add_systems(OnEnter(CursorState::Drawing), clear_cursor_old_dir)
+            .add_systems(
+                Update,
+                clear_cursor_old_dir.run_if(input_just_pressed(MouseButton::Left)),
+            )
             .add_systems(
                 OnEnter(CursorState::NotDrawing),
                 change_cursor_to_not_drawing,

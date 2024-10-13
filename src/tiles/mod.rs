@@ -74,10 +74,13 @@ fn spawn_game_tiles(
         grid.tiles[3][4],
         Dir::Right,
         vec![
-            TrainColor::Green,
+            TrainColor::Brown,
+            TrainColor::Blue,
             TrainColor::Red,
+            TrainColor::Yellow,
+            TrainColor::Orange,
             TrainColor::Green,
-            TrainColor::Red,
+            TrainColor::Purple,
         ],
         asset_server,
     );
