@@ -6,7 +6,7 @@ use crate::{direction::Dir, trains::TrainColor, NUM_COLS, NUM_ROWS, TILE_SIZE_PX
 use bevy::prelude::*;
 use connections::TileConnections;
 use rock_tile::{render_rocks, RockTile};
-use source_tile::{render_source_tiles, SourceTile, SourceTileInitialCapacity};
+use source_tile::{render_source_tiles, spawn_source_tile};
 
 #[derive(Component)]
 pub struct TilePosition {
@@ -40,15 +40,25 @@ impl Plugin for TilePlugin {
     }
 }
 
-fn spawn_game_tiles(mut commands: Commands, mut grid: ResMut<TileGrid>) {
+fn spawn_game_tiles(
+    mut commands: Commands,
+    mut grid: ResMut<TileGrid>,
+    asset_server: Res<AssetServer>,
+) {
     for row in 0..NUM_ROWS {
         let mut row_vec = Vec::new();
         for col in 0..NUM_COLS {
+            let x = col as f32 * TILE_SIZE_PX + TILE_SIZE_PX / 2.0;
+            let y = row as f32 * TILE_SIZE_PX + TILE_SIZE_PX / 2.0;
             let entity = commands
                 .spawn((
                     Tile,
                     TilePosition { r: row, c: col },
                     TileConnections::default(),
+                    SpriteBundle {
+                        transform: Transform::from_xyz(x, y, 0.0),
+                        ..default()
+                    },
                 ))
                 .id();
             row_vec.push(entity);
@@ -59,14 +69,18 @@ fn spawn_game_tiles(mut commands: Commands, mut grid: ResMut<TileGrid>) {
         .get_entity(grid.tiles[3][3])
         .unwrap()
         .insert((NonDrawableTile, RockTile));
-    commands.get_entity(grid.tiles[3][4]).unwrap().insert((
-        NonDrawableTile,
-        SourceTile {
-            out: Dir::Left,
-            trains: vec![TrainColor::Red],
-        },
-        SourceTileInitialCapacity(1),
-    ));
+    spawn_source_tile(
+        commands,
+        grid.tiles[3][4],
+        Dir::Right,
+        vec![
+            TrainColor::Green,
+            TrainColor::Red,
+            TrainColor::Green,
+            TrainColor::Red,
+        ],
+        asset_server,
+    );
 }
 
 fn render_drawable_game_tiles(
