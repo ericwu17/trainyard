@@ -1,6 +1,8 @@
 use bevy::prelude::*;
 use bevy::{input::common_conditions::input_pressed, window::PrimaryWindow};
 
+use crate::connections::TileConnections;
+use crate::TileGrid;
 use crate::{direction::Dir, TilePosition, NUM_COLS, NUM_ROWS, TILE_SIZE_PX};
 
 pub struct CursorPlugin;
@@ -23,7 +25,12 @@ impl Plugin for CursorPlugin {
                 Update,
                 move_cursor_by_mouse.run_if(input_pressed(MouseButton::Left)),
             )
+            .add_systems(
+                Update,
+                add_connections_from_cursor_movement.run_if(in_state(CursorState::Drawing)),
+            )
             .add_systems(OnEnter(CursorState::Drawing), change_cursor_to_drawing)
+            .add_systems(OnEnter(CursorState::Drawing), clear_cursor_old_dir)
             .add_systems(
                 OnEnter(CursorState::NotDrawing),
                 change_cursor_to_not_drawing,
@@ -36,12 +43,15 @@ pub struct CursorMovedEvent {
     dir: Dir,
     old_r: u8,
     old_c: u8,
-    new_r: u8,
-    new_c: u8,
 }
 
 #[derive(Component)]
 pub struct CursorComponent;
+
+#[derive(Component)]
+pub struct OldCursorMovementDir {
+    dir: Option<Dir>,
+}
 
 #[derive(States, Default, Debug, Clone, PartialEq, Eq, Hash)]
 pub enum CursorState {
@@ -63,6 +73,7 @@ fn spawn_cursor(mut commands: Commands, asset_server: Res<AssetServer>) {
     commands.spawn((
         TilePosition { r: 3, c: 3 },
         CursorComponent,
+        OldCursorMovementDir { dir: None },
         SpriteBundle {
             texture: asset_server.load("sprites/Cursor1.png"),
             transform: Transform::from_xyz(TILE_SIZE_PX * 3.5, TILE_SIZE_PX * 3.5, 1.0),
@@ -89,6 +100,12 @@ fn change_cursor_to_drawing(
 ) {
     if let Ok(mut img_handle) = query.get_single_mut() {
         *img_handle = asset_server.load("sprites/Cursor2.png");
+    }
+}
+
+fn clear_cursor_old_dir(mut query: Query<&mut OldCursorMovementDir>) {
+    if let Ok(mut old_movement_dir) = query.get_single_mut() {
+        old_movement_dir.dir = None;
     }
 }
 
@@ -127,8 +144,6 @@ fn move_cursor(
                     dir: Dir::Left,
                     old_r: *r,
                     old_c: *c,
-                    new_r: *r,
-                    new_c: *c - 1,
                 });
                 *c -= 1;
             }
@@ -136,11 +151,9 @@ fn move_cursor(
         if keyboard_input.just_pressed(KeyCode::KeyD) {
             if *c < NUM_COLS - 1 {
                 moved_events.send(CursorMovedEvent {
-                    dir: Dir::Left,
+                    dir: Dir::Right,
                     old_r: *r,
                     old_c: *c,
-                    new_r: *r,
-                    new_c: *c + 1,
                 });
                 *c += 1;
             }
@@ -148,11 +161,9 @@ fn move_cursor(
         if keyboard_input.just_pressed(KeyCode::KeyS) {
             if *r > 0 {
                 moved_events.send(CursorMovedEvent {
-                    dir: Dir::Left,
+                    dir: Dir::Down,
                     old_r: *r,
                     old_c: *c,
-                    new_r: *r - 1,
-                    new_c: *c,
                 });
                 *r -= 1;
             }
@@ -160,11 +171,9 @@ fn move_cursor(
         if keyboard_input.just_pressed(KeyCode::KeyW) {
             if *r < NUM_ROWS - 1 {
                 moved_events.send(CursorMovedEvent {
-                    dir: Dir::Left,
+                    dir: Dir::Up,
                     old_r: *r,
                     old_c: *c,
-                    new_r: *r + 1,
-                    new_c: *c,
                 });
                 *r += 1;
             }
@@ -177,11 +186,13 @@ fn move_cursor_by_mouse(
     mut next_state: ResMut<NextState<CursorState>>,
     mut q_position: Query<&mut TilePosition, With<CursorComponent>>,
     q_windows: Query<&Window, With<PrimaryWindow>>,
+    mut q_old_movement_dir: Query<&mut OldCursorMovementDir>,
     mut moved_events: EventWriter<CursorMovedEvent>,
 ) {
     let window = q_windows.single();
 
     let mut position = q_position.single_mut();
+    let mut old_movement_dir = q_old_movement_dir.single_mut();
 
     if let Some(cursor_position) = window.cursor_position() {
         // cursor is currently inside the window
@@ -233,13 +244,9 @@ fn move_cursor_by_mouse(
             }
         }
         if let Some(dir) = maybe_dir {
-            moved_events.send(CursorMovedEvent {
-                dir,
-                old_r,
-                old_c,
-                new_r: r,
-                new_c: c,
-            });
+            moved_events.send(CursorMovedEvent { dir, old_r, old_c });
+        } else if old_c != c || old_r != r {
+            old_movement_dir.dir = None;
         }
 
         position.r = r;
@@ -264,5 +271,31 @@ fn play_cursor_sounds(
             source: asset_server.load("audio/button_press.ogg"),
             ..default()
         });
+    }
+}
+
+fn add_connections_from_cursor_movement(
+    mut moved_events: EventReader<CursorMovedEvent>,
+    mut old_movement_dir_query: Query<&mut OldCursorMovementDir>,
+    mut connections_query: Query<&mut TileConnections>,
+    grid: Res<TileGrid>,
+) {
+    let old_movement = old_movement_dir_query.single_mut().into_inner();
+
+    for e in moved_events.read() {
+        let new_dir = e.dir;
+
+        if let Some(old_dir) = old_movement.dir {
+            let old_dir = old_dir.flip();
+
+            let r = e.old_r;
+            let c = e.old_c;
+
+            let entity = grid.tiles.get(r as usize).unwrap().get(c as usize).unwrap();
+            let connections = connections_query.get_mut(*entity).unwrap().into_inner();
+            *connections = connections.add_connection(new_dir, old_dir);
+        }
+
+        old_movement.dir = Some(e.dir);
     }
 }

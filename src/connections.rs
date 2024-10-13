@@ -11,7 +11,7 @@ use crate::direction::Dir;
 /// The active connection is represented in the least significant 4 bits, and the passive connection is represented in the most significant 4 bits.
 /// Each connection is composed of two `Dir`s
 /// A value of 0 in both dirs for either connection represents the lack of connection.
-#[derive(Component, Default)]
+#[derive(Component, Default, Clone, Copy, Eq, PartialEq)]
 pub struct TileConnections {
     data: u8,
 }
@@ -77,15 +77,20 @@ impl TileConnections {
     }
 
     pub fn add_connection(&self, d1: Dir, d2: Dir) -> Self {
-        let conn_new = Connection::from_dirs(d1, d2).data;
-        let conn_old = self.data & 0x0f;
+        if d1 == d2 {
+            return *self;
+        }
 
-        if conn_new == conn_old {
-            return TileConnections { data: conn_old };
+        let conn_new = Connection::from_dirs(d1, d2).data;
+        let conn_old_active = self.data & 0x0f;
+        let conn_old_passive = (self.data >> 4) & 0x0f;
+
+        if conn_new == conn_old_active || conn_new == conn_old_passive {
+            return TileConnections { data: conn_new };
         }
 
         TileConnections {
-            data: (conn_old << 4) | conn_new,
+            data: (conn_old_active << 4) | conn_new,
         }
     }
 
@@ -164,7 +169,9 @@ impl TileConnections {
             Connection::from_dirs(Dir::Up, Dir::Down),
         );
         if rot_for_j_not_flipped != -1 {
-            let conn_type = if self.get_active_conn() == Connection::from_dirs(Dir::Up, Dir::Down) {
+            let conn_type = if self.get_active_conn() == Connection::from_dirs(Dir::Up, Dir::Down)
+                || self.get_active_conn() == Connection::from_dirs(Dir::Left, Dir::Right)
+            {
                 ConnectionType::Ji
             } else {
                 ConnectionType::Jc
@@ -180,7 +187,9 @@ impl TileConnections {
             Connection::from_dirs(Dir::Up, Dir::Down),
         );
         if rot_for_j_flipped != -1 {
-            let conn_type = if self.get_active_conn() == Connection::from_dirs(Dir::Up, Dir::Down) {
+            let conn_type = if self.get_active_conn() == Connection::from_dirs(Dir::Up, Dir::Down)
+                || self.get_active_conn() == Connection::from_dirs(Dir::Left, Dir::Right)
+            {
                 ConnectionType::Ji
             } else {
                 ConnectionType::Jc
@@ -191,7 +200,7 @@ impl TileConnections {
                     * Quat::from_rotation_y(PI),
             );
         }
-
+        println!("reached unreachable code with value: {:?}", self.data);
         unreachable!()
     }
 
