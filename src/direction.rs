@@ -1,3 +1,6 @@
+use bevy::math::Quat;
+use std::f32::consts::{FRAC_PI_2, PI};
+
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub enum Dir {
     Up,
@@ -61,6 +64,17 @@ impl From<Dir> for u8 {
             Dir::Right => 1,
             Dir::Down => 2,
             Dir::Left => 3,
+        }
+    }
+}
+
+impl From<Dir> for Quat {
+    fn from(value: Dir) -> Self {
+        match value {
+            Dir::Up => Quat::IDENTITY,
+            Dir::Right => Quat::from_rotation_z(3.0 * FRAC_PI_2),
+            Dir::Down => Quat::from_rotation_z(PI),
+            Dir::Left => Quat::from_rotation_z(FRAC_PI_2),
         }
     }
 }

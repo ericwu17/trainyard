@@ -1,9 +1,9 @@
 use bevy::prelude::*;
 use bevy::{input::common_conditions::input_pressed, window::PrimaryWindow};
 
-use crate::connections::TileConnections;
-use crate::TileGrid;
-use crate::{direction::Dir, TilePosition, NUM_COLS, NUM_ROWS, TILE_SIZE_PX};
+use crate::tiles::connections::TileConnections;
+use crate::tiles::{NonDrawableTile, TileGrid, TilePosition};
+use crate::{direction::Dir, NUM_COLS, NUM_ROWS, TILE_SIZE_PX};
 
 pub struct CursorPlugin;
 
@@ -304,7 +304,7 @@ fn play_cursor_sounds(
 fn add_connections_from_cursor_movement(
     mut moved_events: EventReader<CursorMovedEvent>,
     mut old_movement_dir_query: Query<&mut OldCursorMovementDir>,
-    mut connections_query: Query<&mut TileConnections>,
+    mut connections_query: Query<&mut TileConnections, Without<NonDrawableTile>>,
     grid: Res<TileGrid>,
 ) {
     let old_movement = old_movement_dir_query.single_mut().into_inner();
@@ -319,8 +319,10 @@ fn add_connections_from_cursor_movement(
             let c = e.old_c;
 
             let entity = grid.tiles.get(r as usize).unwrap().get(c as usize).unwrap();
-            let connections = connections_query.get_mut(*entity).unwrap().into_inner();
-            *connections = connections.add_connection(new_dir, old_dir);
+            if let Ok(connections) = connections_query.get_mut(*entity) {
+                let connections = connections.into_inner();
+                *connections = connections.add_connection(new_dir, old_dir);
+            }
         }
 
         old_movement.dir = Some(e.dir);
