@@ -29,12 +29,17 @@ impl Plugin for CursorPlugin {
                 Update,
                 add_connections_from_cursor_movement.run_if(in_state(CursorState::Drawing)),
             )
+            .add_systems(
+                Update,
+                destroy_connections_under_cursor.run_if(in_state(CursorState::Erasing)),
+            )
             .add_systems(OnEnter(CursorState::Drawing), change_cursor_to_drawing)
             .add_systems(OnEnter(CursorState::Drawing), clear_cursor_old_dir)
             .add_systems(
                 OnEnter(CursorState::NotDrawing),
                 change_cursor_to_not_drawing,
-            );
+            )
+            .add_systems(OnEnter(CursorState::Erasing), change_cursor_to_erasing);
     }
 }
 
@@ -58,13 +63,23 @@ pub enum CursorState {
     Drawing,
     #[default]
     NotDrawing,
+    Erasing,
 }
 
 impl CursorState {
-    pub fn toggle(&self) -> Self {
+    pub fn toggle_draw(&self) -> Self {
         match self {
             CursorState::Drawing => CursorState::NotDrawing,
             CursorState::NotDrawing => CursorState::Drawing,
+            CursorState::Erasing => CursorState::NotDrawing,
+        }
+    }
+
+    pub fn toggle_erase(&self) -> Self {
+        match self {
+            CursorState::Drawing => CursorState::Erasing,
+            CursorState::NotDrawing => CursorState::Erasing,
+            CursorState::Erasing => CursorState::NotDrawing,
         }
     }
 }
@@ -118,13 +133,25 @@ fn change_cursor_to_not_drawing(
     }
 }
 
+fn change_cursor_to_erasing(
+    mut query: Query<&mut Handle<Image>, With<CursorComponent>>,
+    asset_server: Res<AssetServer>,
+) {
+    if let Ok(mut img_handle) = query.get_single_mut() {
+        *img_handle = asset_server.load("sprites/Cursor3.png");
+    }
+}
+
 fn toggle_cursor_drawing(
     keyboard_input: Res<ButtonInput<KeyCode>>,
     state: Res<State<CursorState>>,
     mut next_state: ResMut<NextState<CursorState>>,
 ) {
     if keyboard_input.just_pressed(KeyCode::KeyE) {
-        next_state.set(state.get().toggle())
+        next_state.set(state.get().toggle_draw())
+    }
+    if keyboard_input.just_pressed(KeyCode::KeyQ) {
+        next_state.set(state.get().toggle_erase())
     }
 }
 
@@ -297,5 +324,30 @@ fn add_connections_from_cursor_movement(
         }
 
         old_movement.dir = Some(e.dir);
+    }
+}
+
+fn destroy_connections_under_cursor(
+    cursor_query: Query<&TilePosition, With<CursorComponent>>,
+    mut connections_query: Query<&mut TileConnections>,
+    grid: Res<TileGrid>,
+    mut commands: Commands,
+    asset_server: Res<AssetServer>,
+) {
+    let cursor = cursor_query.single();
+    let entity = grid
+        .tiles
+        .get(cursor.r as usize)
+        .unwrap()
+        .get(cursor.c as usize)
+        .unwrap();
+
+    let connections = connections_query.get_mut(*entity).unwrap().into_inner();
+    if !connections.is_empty() {
+        *connections = TileConnections::empty();
+        commands.spawn(AudioBundle {
+            source: asset_server.load("audio/erase_track.ogg"),
+            ..default()
+        });
     }
 }
