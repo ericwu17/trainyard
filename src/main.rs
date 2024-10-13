@@ -1,20 +1,22 @@
 pub mod connections;
+pub mod cursor;
 pub mod direction;
 
 use bevy::prelude::*;
 use bevy::window::PrimaryWindow;
 use connections::TileConnections;
+use cursor::CursorPlugin;
 use direction::Dir;
 
-const NUM_ROWS: usize = 7;
-const NUM_COLS: usize = 7;
+const NUM_ROWS: u8 = 7;
+const NUM_COLS: u8 = 7;
 const TILE_SIZE_PX: f32 = 96.0;
 
 fn main() {
     App::new()
-        .add_plugins(DefaultPlugins)
+        .add_plugins((DefaultPlugins, CursorPlugin))
         .add_systems(Startup, spawn_camera)
-        .add_systems(Startup, (spawn_game_tiles, render_game_tiles).chain())
+        .add_systems(Startup, (spawn_game_tiles, init_render_game_tiles).chain())
         .run();
 }
 
@@ -23,8 +25,8 @@ struct Tile;
 
 #[derive(Component)]
 struct TilePosition {
-    r: usize,
-    c: usize,
+    r: u8,
+    c: u8,
 }
 
 fn spawn_camera(mut commands: Commands, window_query: Query<&Window, With<PrimaryWindow>>) {
@@ -46,13 +48,16 @@ fn spawn_game_tiles(mut commands: Commands) {
             if row == 5 && col == 1 {
                 connection = connection.add_connection(Dir::Up, Dir::Left);
             }
+            if row == 0 && col == 0 {
+                connection = connection.add_connection(Dir::Up, Dir::Left);
+            }
 
             commands.spawn((Tile, TilePosition { r: row, c: col }, connection));
         }
     }
 }
 
-fn render_game_tiles(
+fn init_render_game_tiles(
     mut commands: Commands,
     tile_query: Query<(Entity, &TilePosition, &TileConnections), With<Tile>>,
     asset_server: Res<AssetServer>,
