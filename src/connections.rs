@@ -83,9 +83,8 @@ impl TileConnections {
 
         let conn_new = Connection::from_dirs(d1, d2).data;
         let conn_old_active = self.data & 0x0f;
-        let conn_old_passive = (self.data >> 4) & 0x0f;
 
-        if conn_new == conn_old_active || conn_new == conn_old_passive {
+        if conn_new == conn_old_active {
             return TileConnections { data: conn_new };
         }
 
