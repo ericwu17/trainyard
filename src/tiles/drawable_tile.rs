@@ -1,0 +1,160 @@
+use bevy::prelude::*;
+
+use crate::direction::Dir;
+use crate::tiles::connections::{TileBorderState, TileConnections};
+use crate::tiles::tile::Tile;
+use crate::trains::TrainColor;
+
+#[derive(Component)]
+pub struct DrawableTileSpriteComponent;
+
+pub struct DrawableTile {
+    connections: TileConnections,
+    entity: Entity,
+    sprite_entity: Option<Entity>,
+}
+
+impl DrawableTile {
+    pub fn new(entity: Entity) -> Self {
+        Self {
+            connections: TileConnections::empty(),
+            entity,
+            sprite_entity: None,
+        }
+    }
+}
+
+impl Tile for DrawableTile {
+    fn add_connection(&mut self, d1: Dir, d2: Dir) {
+        self.connections = self.connections.add_connection(d1, d2);
+    }
+
+    fn erase_connections(&mut self) {
+        self.connections = TileConnections::empty();
+    }
+
+    fn switch_active_passive(&mut self) {
+        self.connections = self.connections.switch_active_passive();
+    }
+
+    fn process_and_output(&mut self, incoming: TileBorderState) -> TileBorderState {
+        let active_conn = self.connections.get_active_conn();
+        let passive_conn = self.connections.get_passive_conn();
+
+        struct TrainComingThrough {
+            color: TrainColor,
+            from: Dir,
+            to: Dir,
+        }
+
+        let mut init_trains_coming_thru: Vec<TrainComingThrough> = Vec::with_capacity(4);
+
+        for dir_u8 in 0..4 {
+            let incoming_dir = Dir::from(dir_u8);
+            if let Some(color) = incoming.get_train(incoming_dir) {
+                let outgoing_dir: Dir = if let Some(d) = active_conn.get_other_dir(incoming_dir) {
+                    d
+                } else if let Some(d) = passive_conn.get_other_dir(incoming_dir) {
+                    d
+                } else {
+                    todo!("train crashed.")
+                };
+                init_trains_coming_thru.push(TrainComingThrough {
+                    color,
+                    from: incoming_dir,
+                    to: outgoing_dir,
+                });
+            }
+        }
+
+        let mut trains_after_internal_mixing: Vec<TrainComingThrough> = Vec::with_capacity(4);
+        for train_coming_thru in init_trains_coming_thru.iter() {
+            let mut colors_to_mix: Vec<TrainColor> = Vec::with_capacity(4);
+            for other_train_coming_thru in init_trains_coming_thru.iter() {
+                if paths_collide(
+                    train_coming_thru.from,
+                    train_coming_thru.to,
+                    other_train_coming_thru.from,
+                    other_train_coming_thru.to,
+                ) {
+                    colors_to_mix.push(other_train_coming_thru.color);
+                }
+            }
+            let new_color = TrainColor::mix_many(colors_to_mix);
+            trains_after_internal_mixing.push(TrainComingThrough {
+                color: new_color,
+                from: train_coming_thru.from,
+                to: train_coming_thru.to,
+            });
+        }
+
+        let mut outgoing_border_state = TileBorderState::new();
+        for dir_u8 in 0..4 {
+            let out_dir = Dir::from(dir_u8);
+            let mut colors_to_mix: Vec<TrainColor> = Vec::with_capacity(2);
+            for train_coming_thru in trains_after_internal_mixing.iter() {
+                if train_coming_thru.to == out_dir {
+                    colors_to_mix.push(train_coming_thru.color);
+                }
+            }
+            if !colors_to_mix.is_empty() {
+                outgoing_border_state.add_train(TrainColor::mix_many(colors_to_mix), out_dir);
+            }
+        }
+
+        outgoing_border_state
+    }
+
+    fn get_entity(&self) -> Entity {
+        self.entity
+    }
+
+    fn render(&mut self, commands: &mut Commands, asset_server: &Res<AssetServer>) {
+        let (conn_type, rotation_quat) = self.connections.type_and_rotation();
+
+        let bundle = (
+            DrawableTileSpriteComponent,
+            SpriteBundle {
+                transform: Transform::from_rotation(rotation_quat),
+                texture: asset_server.load(conn_type.get_asset_path()),
+                ..default()
+            },
+        );
+
+        match self.sprite_entity {
+            Some(inner_entity) => {
+                commands.get_entity(inner_entity).unwrap().insert(bundle);
+            }
+            None => {
+                commands
+                    .get_entity(self.entity)
+                    .unwrap()
+                    .with_children(|parent| {
+                        let entity = parent
+                            .spawn((
+                                DrawableTileSpriteComponent,
+                                SpriteBundle {
+                                    transform: Transform::from_rotation(rotation_quat),
+                                    texture: asset_server.load(conn_type.get_asset_path()),
+                                    ..default()
+                                },
+                            ))
+                            .id();
+                        self.sprite_entity = Some(entity);
+                    });
+            }
+        };
+    }
+}
+
+fn paths_collide(d1: Dir, d2: Dir, d3: Dir, d4: Dir) -> bool {
+    if d1.flip() == d2 && d3.flip() == d4 {
+        // in the "H" pattern, the two connections intersect, despite having different destinations
+        return true;
+    }
+    if (d1 == d3 && d2 == d4) || (d1 == d4 && d2 == d3) {
+        // in this case, the two trains either coincide, or are "on the same track"
+        return true;
+    }
+    return false;
+}

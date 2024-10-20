@@ -3,6 +3,7 @@ pub mod direction;
 pub mod tiles;
 pub mod trains;
 
+use bevy::diagnostic::{FrameTimeDiagnosticsPlugin, LogDiagnosticsPlugin};
 use bevy::prelude::*;
 use bevy::window::PrimaryWindow;
 use cursor::CursorPlugin;
@@ -14,6 +15,8 @@ const TILE_SIZE_PX: f32 = 96.0;
 
 fn main() {
     App::new()
+        .add_plugins(FrameTimeDiagnosticsPlugin::default())
+        .add_plugins(LogDiagnosticsPlugin::default())
         .add_plugins((DefaultPlugins, CursorPlugin, TilePlugin))
         .add_systems(Startup, spawn_camera)
         .run();

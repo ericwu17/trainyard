@@ -2,7 +2,7 @@ use std::f32::consts::{FRAC_PI_2, PI};
 
 use bevy::prelude::*;
 
-use crate::direction::Dir;
+use crate::{direction::Dir, trains::TrainColor};
 
 /// A struct representing possible active and passive connections on a track, with the data represented as a single byte.
 ///
@@ -73,6 +73,16 @@ impl TileConnections {
     pub fn get_passive_conn(&self) -> Connection {
         Connection {
             data: (self.data >> 4) & 0x0f,
+        }
+    }
+
+    pub fn switch_active_passive(&self) -> Self {
+        if !self.get_active_conn().is_empty() && !self.get_passive_conn().is_empty() {
+            TileConnections {
+                data: ((self.data & 0xf) << 4) | ((self.data >> 4) & 0xf),
+            }
+        } else {
+            *self
         }
     }
 
@@ -339,5 +349,46 @@ impl Connection {
             data: (d2_new << 2) | d1_new,
         }
         .to_normal_form()
+    }
+
+    pub fn get_other_dir(&self, dir: Dir) -> Option<Dir> {
+        // returns none if this connection doesn't connect to `dir`
+        // otherwise, returns the other direction.
+
+        let dir_u8 = u8::from(dir);
+        if self.is_empty() {
+            None
+        } else if dir_u8 == self.data & 0x3 {
+            Some(Dir::from((self.data >> 2) & 0x3))
+        } else if dir_u8 == (self.data >> 2) & 0x3 {
+            Some(Dir::from(self.data & 0x3))
+        } else {
+            None
+        }
+    }
+}
+
+#[derive(Default, Debug, PartialEq, Eq, Clone)]
+pub struct TileBorderState {
+    data: [Option<TrainColor>; 4],
+}
+
+impl TileBorderState {
+    pub fn new() -> Self {
+        Self::default()
+    }
+
+    pub fn is_empty(&self) -> bool {
+        *self == Self::default()
+    }
+
+    pub fn add_train(&mut self, color: TrainColor, dir: Dir) {
+        let index = u8::from(dir);
+        self.data[index as usize] = Some(color);
+    }
+
+    pub fn get_train(&self, dir: Dir) -> Option<TrainColor> {
+        let index = u8::from(dir);
+        self.data[index as usize]
     }
 }

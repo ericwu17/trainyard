@@ -1,6 +1,6 @@
 use bevy::color::Color;
 
-#[derive(Copy, Clone, PartialEq, Eq)]
+#[derive(Copy, Clone, PartialEq, Eq, Debug)]
 pub enum TrainColor {
     Brown,
     Red,
@@ -21,6 +21,46 @@ impl From<TrainColor> for Color {
             TrainColor::Orange => Color::srgb(0.914, 0.624, 0.220),
             TrainColor::Green => Color::srgb(0.376, 0.788, 0.231),
             TrainColor::Purple => Color::srgb(0.631, 0.125, 0.773),
+        }
+    }
+}
+
+impl TrainColor {
+    pub fn mix_with(self: TrainColor, other: TrainColor) -> TrainColor {
+        if self == other {
+            return other;
+        }
+
+        if (self == TrainColor::Blue && other == TrainColor::Red)
+            || (self == TrainColor::Red && other == TrainColor::Blue)
+        {
+            return TrainColor::Purple;
+        }
+        if (self == TrainColor::Yellow && other == TrainColor::Red)
+            || (self == TrainColor::Red && other == TrainColor::Yellow)
+        {
+            return TrainColor::Orange;
+        }
+        if (self == TrainColor::Yellow && other == TrainColor::Blue)
+            || (self == TrainColor::Blue && other == TrainColor::Yellow)
+        {
+            return TrainColor::Green;
+        }
+
+        TrainColor::Brown
+    }
+    pub fn mix_many(trains: Vec<TrainColor>) -> TrainColor {
+        match trains.len() {
+            1 => trains[0],
+            2 => trains[1].mix_with(trains[0]),
+            _ => {
+                for i in 0..(trains.len() - 1) {
+                    if trains[i] != trains[i + 1] {
+                        return TrainColor::Brown;
+                    }
+                }
+                trains[0]
+            }
         }
     }
 }

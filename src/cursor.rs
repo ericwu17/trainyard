@@ -2,8 +2,8 @@ use bevy::input::common_conditions::input_just_pressed;
 use bevy::prelude::*;
 use bevy::{input::common_conditions::input_pressed, window::PrimaryWindow};
 
-use crate::tiles::connections::TileConnections;
-use crate::tiles::{NonDrawableTile, TileGrid, TilePosition};
+use crate::tiles::yard::Yard;
+use crate::tiles::TilePosition;
 use crate::{direction::Dir, NUM_COLS, NUM_ROWS, TILE_SIZE_PX};
 
 pub struct CursorPlugin;
@@ -309,10 +309,11 @@ fn play_cursor_sounds(
 fn add_connections_from_cursor_movement(
     mut moved_events: EventReader<CursorMovedEvent>,
     mut old_movement_dir_query: Query<&mut OldCursorMovementDir>,
-    mut connections_query: Query<&mut TileConnections, Without<NonDrawableTile>>,
-    grid: Res<TileGrid>,
+    mut yard_query: Query<&mut Yard>,
 ) {
     let old_movement = old_movement_dir_query.single_mut().into_inner();
+
+    let yard = yard_query.single_mut().into_inner();
 
     for e in moved_events.read() {
         let new_dir = e.dir;
@@ -323,11 +324,12 @@ fn add_connections_from_cursor_movement(
             let r = e.old_r;
             let c = e.old_c;
 
-            let entity = grid.tiles.get(r as usize).unwrap().get(c as usize).unwrap();
-            if let Ok(connections) = connections_query.get_mut(*entity) {
-                let connections = connections.into_inner();
-                *connections = connections.add_connection(new_dir, old_dir);
-            }
+            yard.tiles
+                .get_mut(r as usize)
+                .unwrap()
+                .get_mut(c as usize)
+                .unwrap()
+                .add_connection(new_dir, old_dir);
         }
 
         old_movement.dir = Some(e.dir);
@@ -336,25 +338,17 @@ fn add_connections_from_cursor_movement(
 
 fn destroy_connections_under_cursor(
     cursor_query: Query<&TilePosition, With<CursorComponent>>,
-    mut connections_query: Query<&mut TileConnections>,
-    grid: Res<TileGrid>,
-    mut commands: Commands,
-    asset_server: Res<AssetServer>,
+    mut yard_query: Query<&mut Yard>,
 ) {
     let cursor = cursor_query.single();
-    let entity = grid
+    let yard = yard_query.single_mut().into_inner();
+
+    let tile = yard
         .tiles
-        .get(cursor.r as usize)
+        .get_mut(cursor.r as usize)
         .unwrap()
-        .get(cursor.c as usize)
+        .get_mut(cursor.c as usize)
         .unwrap();
 
-    let connections = connections_query.get_mut(*entity).unwrap().into_inner();
-    if !connections.is_empty() {
-        *connections = TileConnections::empty();
-        commands.spawn(AudioBundle {
-            source: asset_server.load("audio/erase_track.ogg"),
-            ..default()
-        });
-    }
+    tile.erase_connections();
 }

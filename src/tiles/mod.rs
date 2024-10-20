@@ -1,12 +1,16 @@
 pub mod connections;
+pub mod drawable_tile;
 pub mod rock_tile;
 pub mod source_tile;
+pub mod tile;
+pub mod yard;
 
-use crate::{direction::Dir, trains::TrainColor, NUM_COLS, NUM_ROWS, TILE_SIZE_PX};
+use crate::{NUM_COLS, NUM_ROWS, TILE_SIZE_PX};
 use bevy::prelude::*;
-use connections::TileConnections;
-use rock_tile::{render_rocks, RockTile};
-use source_tile::{render_source_tiles, spawn_source_tile};
+use connections::TileBorderState;
+use drawable_tile::DrawableTile;
+use tile::Tile;
+use yard::Yard;
 
 #[derive(Component)]
 pub struct TilePosition {
@@ -14,13 +18,8 @@ pub struct TilePosition {
     pub c: u8,
 }
 
-#[derive(Resource, Default)]
-pub struct TileGrid {
-    pub tiles: Vec<Vec<Entity>>,
-}
-
 #[derive(Component)]
-pub struct Tile;
+pub struct TileComponent;
 
 #[derive(Component)]
 pub struct NonDrawableTile;
@@ -29,85 +28,69 @@ pub struct TilePlugin;
 
 impl Plugin for TilePlugin {
     fn build(&self, app: &mut App) {
-        let systems = (
-            render_drawable_game_tiles,
-            render_rocks,
-            render_source_tiles,
-        );
-        app.init_resource::<TileGrid>()
-            .add_systems(Startup, spawn_game_tiles)
-            .add_systems(Update, systems);
+        app.add_systems(Startup, spawn_game_tiles)
+            .add_systems(Update, render_yard);
     }
 }
 
-fn spawn_game_tiles(
-    mut commands: Commands,
-    mut grid: ResMut<TileGrid>,
-    asset_server: Res<AssetServer>,
-) {
+fn spawn_game_tiles(mut commands: Commands) {
+    let mut tiles: Vec<Vec<Box<dyn Tile + Send + Sync>>> = Vec::new();
+    let border_states =
+        vec![vec![TileBorderState::default(); NUM_COLS as usize]; NUM_ROWS as usize];
+
     for row in 0..NUM_ROWS {
-        let mut row_vec = Vec::new();
+        let mut row_vec: Vec<Box<dyn Tile + Send + Sync>> = Vec::new();
         for col in 0..NUM_COLS {
             let x = col as f32 * TILE_SIZE_PX + TILE_SIZE_PX / 2.0;
             let y = row as f32 * TILE_SIZE_PX + TILE_SIZE_PX / 2.0;
             let entity = commands
-                .spawn((
-                    Tile,
-                    TilePosition { r: row, c: col },
-                    TileConnections::default(),
-                    SpriteBundle {
-                        transform: Transform::from_xyz(x, y, 0.0),
-                        ..default()
-                    },
-                ))
+                .spawn((SpriteBundle {
+                    transform: Transform::from_xyz(x, y, 0.0),
+                    ..default()
+                },))
                 .id();
-            row_vec.push(entity);
+
+            let tile = DrawableTile::new(entity);
+
+            row_vec.push(Box::new(tile));
         }
-        grid.tiles.push(row_vec);
+        tiles.push(row_vec);
     }
-    commands
-        .get_entity(grid.tiles[3][3])
-        .unwrap()
-        .insert((NonDrawableTile, RockTile));
-    spawn_source_tile(
-        commands,
-        grid.tiles[3][4],
-        Dir::Right,
-        vec![
-            TrainColor::Brown,
-            TrainColor::Blue,
-            TrainColor::Red,
-            TrainColor::Yellow,
-            TrainColor::Orange,
-            TrainColor::Green,
-            TrainColor::Purple,
-        ],
-        asset_server,
-    );
+
+    let yard = Yard {
+        tiles,
+        borders: border_states,
+    };
+
+    commands.spawn(yard);
+
+    // commands
+    //     .get_entity(grid.tiles[3][3])
+    //     .unwrap()
+    //     .insert((NonDrawableTile, RockTile));
+    // spawn_source_tile(
+    //     commands,
+    //     grid.tiles[3][4],
+    //     Dir::Right,
+    //     vec![
+    //         TrainColor::Brown,
+    //         TrainColor::Blue,
+    //         TrainColor::Red,
+    //         TrainColor::Yellow,
+    //         TrainColor::Orange,
+    //         TrainColor::Green,
+    //         TrainColor::Purple,
+    //     ],
+    //     asset_server,
+    // );
 }
 
-fn render_drawable_game_tiles(
+fn render_yard(
     mut commands: Commands,
-    drawn_tiles_query: Query<
-        (Entity, &TilePosition, &TileConnections),
-        (
-            With<Tile>,
-            Without<NonDrawableTile>,
-            Changed<TileConnections>,
-        ),
-    >,
+    mut yard_query: Query<&mut Yard>,
     asset_server: Res<AssetServer>,
 ) {
-    for (entity, position, connection) in drawn_tiles_query.iter() {
-        let x = position.c as f32 * TILE_SIZE_PX + TILE_SIZE_PX / 2.0;
-        let y = position.r as f32 * TILE_SIZE_PX + TILE_SIZE_PX / 2.0;
+    let yard = yard_query.single_mut().into_inner();
 
-        let (conn_type, rotation_quat) = connection.type_and_rotation();
-
-        commands.entity(entity).insert(SpriteBundle {
-            transform: Transform::from_xyz(x, y, 0.0).with_rotation(rotation_quat),
-            texture: asset_server.load(conn_type.get_asset_path()),
-            ..default()
-        });
-    }
+    yard.render(&mut commands, &asset_server);
 }
