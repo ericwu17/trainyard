@@ -387,6 +387,11 @@ impl TileBorderState {
         self.data[index as usize] = Some(color);
     }
 
+    pub fn set_train(&mut self, color: Option<TrainColor>, dir: Dir) {
+        let index = u8::from(dir);
+        self.data[index as usize] = color;
+    }
+
     pub fn get_train(&self, dir: Dir) -> Option<TrainColor> {
         let index = u8::from(dir);
         self.data[index as usize]

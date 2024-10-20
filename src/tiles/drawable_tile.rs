@@ -67,6 +67,8 @@ impl Tile for DrawableTile {
             }
         }
 
+        let will_toggle_tracks = init_trains_coming_thru.len() % 2 == 1;
+
         let mut trains_after_internal_mixing: Vec<TrainComingThrough> = Vec::with_capacity(4);
         for train_coming_thru in init_trains_coming_thru.iter() {
             let mut colors_to_mix: Vec<TrainColor> = Vec::with_capacity(4);
@@ -100,6 +102,10 @@ impl Tile for DrawableTile {
             if !colors_to_mix.is_empty() {
                 outgoing_border_state.add_train(TrainColor::mix_many(colors_to_mix), out_dir);
             }
+        }
+
+        if will_toggle_tracks {
+            self.switch_active_passive();
         }
 
         outgoing_border_state
