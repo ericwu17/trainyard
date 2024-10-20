@@ -1,7 +1,9 @@
 use bevy::prelude::*;
 
 use super::{connections::TileBorderState, construct_new_tile, TileConstructionInfo};
+use crate::direction::Dir;
 use crate::tiles::tile::Tile;
+use crate::trains::TrainColor;
 use crate::{NUM_COLS, NUM_ROWS};
 
 #[derive(Component)]
@@ -11,7 +13,7 @@ pub struct Yard {
 }
 
 impl Yard {
-    pub fn new(commands: &mut Commands) -> Self {
+    pub fn new(commands: &mut Commands, asset_server: &Res<AssetServer>) -> Self {
         let mut tiles: Vec<Vec<Box<dyn Tile + Send + Sync>>> = Vec::new();
         let border_states =
             vec![vec![TileBorderState::default(); NUM_COLS as usize]; NUM_ROWS as usize];
@@ -19,8 +21,13 @@ impl Yard {
         for row in 0..NUM_ROWS {
             let mut row_vec: Vec<Box<dyn Tile + Send + Sync>> = Vec::new();
             for col in 0..NUM_COLS {
-                let tile =
-                    construct_new_tile(TileConstructionInfo::DrawableTile, row, col, commands);
+                let tile = construct_new_tile(
+                    TileConstructionInfo::DrawableTile,
+                    row,
+                    col,
+                    commands,
+                    asset_server,
+                );
                 row_vec.push(tile);
             }
             tiles.push(row_vec);
@@ -33,7 +40,31 @@ impl Yard {
         yard.replace_tile(
             3,
             3,
-            construct_new_tile(TileConstructionInfo::Rock, 3, 3, commands),
+            construct_new_tile(TileConstructionInfo::Rock, 3, 3, commands, asset_server),
+            commands,
+        );
+
+        yard.replace_tile(
+            3,
+            4,
+            construct_new_tile(
+                TileConstructionInfo::SourceTile {
+                    out: Dir::Right,
+                    trains: vec![
+                        TrainColor::Brown,
+                        TrainColor::Blue,
+                        TrainColor::Red,
+                        TrainColor::Yellow,
+                        TrainColor::Orange,
+                        TrainColor::Green,
+                        TrainColor::Purple,
+                    ],
+                },
+                3,
+                4,
+                commands,
+                asset_server,
+            ),
             commands,
         );
 

@@ -3,8 +3,13 @@ use bevy::prelude::*;
 use bevy::{input::common_conditions::input_pressed, window::PrimaryWindow};
 
 use crate::tiles::yard::Yard;
-use crate::tiles::TilePosition;
 use crate::{direction::Dir, NUM_COLS, NUM_ROWS, TILE_SIZE_PX};
+
+#[derive(Component)]
+pub struct TilePosition {
+    pub r: u8,
+    pub c: u8,
+}
 
 pub struct CursorPlugin;
 
