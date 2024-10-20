@@ -15,7 +15,7 @@ pub trait Tile {
     // while the output represents an __outgoing__ border state.
     fn process_and_output(&mut self, incoming: TileBorderState) -> TileBorderState;
 
-    fn get_entity(&self) -> Entity;
+    fn render(&mut self, _commands: &mut Commands, _asset_server: &Res<AssetServer>);
 
-    fn render(&mut self, _commands: &mut Commands, _asset_server: &Res<AssetServer>) {}
+    fn despawn_entities_recursive(&self, commands: &mut Commands);
 }

@@ -105,10 +105,6 @@ impl Tile for DrawableTile {
         outgoing_border_state
     }
 
-    fn get_entity(&self) -> Entity {
-        self.entity
-    }
-
     fn render(&mut self, commands: &mut Commands, asset_server: &Res<AssetServer>) {
         let (conn_type, rotation_quat) = self.connections.type_and_rotation();
 
@@ -130,20 +126,15 @@ impl Tile for DrawableTile {
                     .get_entity(self.entity)
                     .unwrap()
                     .with_children(|parent| {
-                        let entity = parent
-                            .spawn((
-                                DrawableTileSpriteComponent,
-                                SpriteBundle {
-                                    transform: Transform::from_rotation(rotation_quat),
-                                    texture: asset_server.load(conn_type.get_asset_path()),
-                                    ..default()
-                                },
-                            ))
-                            .id();
+                        let entity = parent.spawn(bundle).id();
                         self.sprite_entity = Some(entity);
                     });
             }
         };
+    }
+
+    fn despawn_entities_recursive(&self, commands: &mut Commands) {
+        commands.entity(self.entity).despawn_recursive();
     }
 }
 

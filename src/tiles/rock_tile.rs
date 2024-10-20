@@ -1,24 +1,62 @@
 use bevy::prelude::*;
 
-use crate::TILE_SIZE_PX;
+use crate::direction::Dir;
 
-use super::TilePosition;
+use super::{connections::TileBorderState, tile::Tile};
 
 #[derive(Component)]
-pub struct RockTile;
+pub struct RockTileSpriteComponent;
 
-pub fn render_rocks(
-    mut commands: Commands,
-    query: Query<(Entity, &TilePosition), With<RockTile>>,
-    asset_server: Res<AssetServer>,
-) {
-    for (entity, position) in query.iter() {
-        let x = position.c as f32 * TILE_SIZE_PX + TILE_SIZE_PX / 2.0;
-        let y = position.r as f32 * TILE_SIZE_PX + TILE_SIZE_PX / 2.0;
-        commands.entity(entity).insert(SpriteBundle {
-            transform: Transform::from_xyz(x, y, 0.0),
-            texture: asset_server.load("sprites/Rock.png"),
-            ..default()
-        });
+pub struct RockTile {
+    entity: Entity,
+    sprite_entity: Option<Entity>,
+}
+
+impl RockTile {
+    pub fn new(entity: Entity) -> Self {
+        Self {
+            entity,
+            sprite_entity: None,
+        }
+    }
+}
+
+impl Tile for RockTile {
+    fn process_and_output(&mut self, incoming: TileBorderState) -> TileBorderState {
+        for dir_u8 in 0..4 {
+            if incoming.get_train(Dir::from(dir_u8)).is_some() {
+                todo!("train crashed!");
+            }
+        }
+        TileBorderState::new()
+    }
+
+    fn render(&mut self, commands: &mut Commands, asset_server: &Res<AssetServer>) {
+        let bundle = (
+            RockTileSpriteComponent,
+            SpriteBundle {
+                texture: asset_server.load("sprites/Rock.png"),
+                ..default()
+            },
+        );
+
+        match self.sprite_entity {
+            Some(inner_entity) => {
+                commands.get_entity(inner_entity).unwrap().insert(bundle);
+            }
+            None => {
+                commands
+                    .get_entity(self.entity)
+                    .unwrap()
+                    .with_children(|parent| {
+                        let entity = parent.spawn(bundle).id();
+                        self.sprite_entity = Some(entity);
+                    });
+            }
+        };
+    }
+
+    fn despawn_entities_recursive(&self, commands: &mut Commands) {
+        commands.entity(self.entity).despawn_recursive();
     }
 }
