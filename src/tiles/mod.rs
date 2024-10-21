@@ -7,7 +7,6 @@ pub mod tile;
 pub mod yard;
 
 use crate::{direction::Dir, trains::TrainColor, TILE_SIZE_PX};
-use bevy::input::common_conditions::input_just_pressed;
 use bevy::prelude::*;
 use drawable_tile::DrawableTile;
 use rock_tile::RockTile;
@@ -21,11 +20,7 @@ pub struct TilePlugin;
 impl Plugin for TilePlugin {
     fn build(&self, app: &mut App) {
         app.add_systems(Startup, spawn_game_tiles)
-            .add_systems(Update, (despawn_train_entities, render_yard).chain())
-            .add_systems(
-                Update,
-                update_yard.run_if(input_just_pressed(KeyCode::KeyN)),
-            );
+            .add_systems(Update, (despawn_train_entities, render_yard).chain());
     }
 }
 
@@ -89,10 +84,4 @@ fn render_yard(
 
     yard.render(&mut commands, &asset_server);
     yard.render_trains(&mut commands, &asset_server);
-}
-
-fn update_yard(mut yard_query: Query<&mut Yard>) {
-    let yard = yard_query.single_mut().into_inner();
-
-    yard.tick();
 }

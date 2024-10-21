@@ -2,6 +2,7 @@ use bevy::input::common_conditions::input_just_pressed;
 use bevy::prelude::*;
 use bevy::{input::common_conditions::input_pressed, window::PrimaryWindow};
 
+use crate::level::LevelState;
 use crate::tiles::yard::Yard;
 use crate::{direction::Dir, NUM_COLS, NUM_ROWS, TILE_SIZE_PX};
 
@@ -21,29 +22,25 @@ impl Plugin for CursorPlugin {
             .add_systems(
                 Update,
                 (
-                    draw_cursor_position,
-                    move_cursor,
-                    toggle_cursor_drawing,
-                    play_cursor_sounds,
+                    (
+                        draw_cursor_position,
+                        move_cursor,
+                        toggle_cursor_drawing,
+                        play_cursor_sounds,
+                    ),
+                    move_cursor_by_mouse.run_if(input_pressed(MouseButton::Left)),
+                    clear_cursor_old_dir.run_if(input_just_pressed(MouseButton::Left)),
+                    add_connections_from_cursor_movement.run_if(
+                        in_state(CursorState::Drawing).and_then(in_state(LevelState::Editing)),
+                    ),
+                    destroy_connections_under_cursor.run_if(
+                        in_state(CursorState::Erasing).and_then(in_state(LevelState::Editing)),
+                    ),
                 ),
             )
             .add_systems(
-                Update,
-                move_cursor_by_mouse.run_if(input_pressed(MouseButton::Left)),
-            )
-            .add_systems(
-                Update,
-                add_connections_from_cursor_movement.run_if(in_state(CursorState::Drawing)),
-            )
-            .add_systems(
-                Update,
-                destroy_connections_under_cursor.run_if(in_state(CursorState::Erasing)),
-            )
-            .add_systems(OnEnter(CursorState::Drawing), change_cursor_to_drawing)
-            .add_systems(OnEnter(CursorState::Drawing), clear_cursor_old_dir)
-            .add_systems(
-                Update,
-                clear_cursor_old_dir.run_if(input_just_pressed(MouseButton::Left)),
+                OnEnter(CursorState::Drawing),
+                (change_cursor_to_drawing, clear_cursor_old_dir),
             )
             .add_systems(
                 OnEnter(CursorState::NotDrawing),

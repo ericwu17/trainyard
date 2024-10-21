@@ -6,7 +6,7 @@ use crate::tiles::tile::Tile;
 use crate::trains::TrainColor;
 use crate::{NUM_COLS, NUM_ROWS, TILE_SIZE_PX};
 
-#[derive(Component)]
+#[derive(Component, Clone)]
 pub struct Yard {
     pub tiles: Vec<Vec<Box<dyn Tile + Send + Sync>>>,
     pub borders: [[TileBorderState; NUM_COLS as usize]; NUM_ROWS as usize],
@@ -97,6 +97,14 @@ impl Yard {
         for row in &mut self.tiles {
             for tile in row {
                 tile.render(commands, asset_server);
+            }
+        }
+    }
+
+    pub fn reset_tile_inner_entities(&mut self, commands: &mut Commands) {
+        for row in &mut self.tiles {
+            for tile in row {
+                tile.reset_inner_entities(commands);
             }
         }
     }

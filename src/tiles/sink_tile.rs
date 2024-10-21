@@ -4,7 +4,7 @@ use super::source_tile::INNER_SPRITE_SIZE;
 use super::{connections::TileBorderState, tile::Tile};
 use crate::{direction::Dir, trains::TrainColor};
 
-#[derive(Component)]
+#[derive(Clone)]
 pub struct SinkTile {
     pub in_dirs: [bool; 4],
     pub trains: Vec<TrainColor>,
@@ -123,7 +123,7 @@ impl Tile for SinkTile {
                 let xf = Transform::from_xyz(
                     -(INNER_SPRITE_SIZE / 2.0) + col_size / 2.0 + col_size * curr_col as f32,
                     (INNER_SPRITE_SIZE / 2.0) - row_size / 2.0 - row_size * curr_row as f32,
-                    1.0,
+                    1.5,
                 )
                 .with_scale(Vec2::splat(1.0 / (num_cols as f32)).extend(0.0));
 
@@ -159,5 +159,18 @@ impl Tile for SinkTile {
 
     fn despawn_entities_recursive(&self, commands: &mut Commands) {
         commands.entity(self.base_entity).despawn_recursive();
+    }
+
+    fn box_clone(&self) -> Box<dyn Tile + Send + Sync> {
+        Box::new(self.clone())
+    }
+
+    fn reset_inner_entities(&mut self, commands: &mut Commands) {
+        for entity in &self.inner_entities {
+            if let Some(entity_cmds) = commands.get_entity(*entity) {
+                entity_cmds.despawn_recursive();
+            }
+        }
+        self.inner_entities = Vec::new();
     }
 }

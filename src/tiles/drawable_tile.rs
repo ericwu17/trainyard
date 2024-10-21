@@ -8,6 +8,7 @@ use crate::trains::TrainColor;
 #[derive(Component)]
 pub struct DrawableTileSpriteComponent;
 
+#[derive(Clone)]
 pub struct DrawableTile {
     connections: TileConnections,
     entity: Entity,
@@ -145,6 +146,10 @@ impl Tile for DrawableTile {
 
     fn get_entity(&self) -> Entity {
         self.entity
+    }
+
+    fn box_clone(&self) -> Box<dyn Tile + Send + Sync> {
+        Box::new(self.clone())
     }
 }
 

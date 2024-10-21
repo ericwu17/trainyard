@@ -20,4 +20,14 @@ pub trait Tile {
     fn get_entity(&self) -> Entity;
 
     fn despawn_entities_recursive(&self, commands: &mut Commands);
+
+    fn reset_inner_entities(&mut self, _commands: &mut Commands) {}
+
+    fn box_clone(&self) -> Box<dyn Tile + Send + Sync>;
+}
+
+impl Clone for Box<dyn Tile + Send + Sync> {
+    fn clone(&self) -> Box<dyn Tile + Send + Sync> {
+        self.box_clone()
+    }
 }

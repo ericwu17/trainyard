@@ -7,6 +7,7 @@ use super::{connections::TileBorderState, tile::Tile};
 #[derive(Component)]
 pub struct RockTileSpriteComponent;
 
+#[derive(Clone)]
 pub struct RockTile {
     entity: Entity,
     sprite_entity: Option<Entity>,
@@ -62,5 +63,9 @@ impl Tile for RockTile {
 
     fn get_entity(&self) -> Entity {
         self.entity
+    }
+
+    fn box_clone(&self) -> Box<dyn Tile + Send + Sync> {
+        Box::new(self.clone())
     }
 }

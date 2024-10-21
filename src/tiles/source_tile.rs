@@ -6,7 +6,7 @@ use super::{connections::TileBorderState, tile::Tile};
 
 pub const INNER_SPRITE_SIZE: f32 = 52.0;
 
-#[derive(Component)]
+#[derive(Clone)]
 pub struct SourceTile {
     pub out_dir: Dir,
     pub trains: Vec<TrainColor>,
@@ -104,7 +104,7 @@ impl Tile for SourceTile {
                 let xf = Transform::from_xyz(
                     -(INNER_SPRITE_SIZE / 2.0) + col_size / 2.0 + col_size * curr_col as f32,
                     (INNER_SPRITE_SIZE / 2.0) - row_size / 2.0 - row_size * curr_row as f32,
-                    1.0,
+                    1.5,
                 )
                 .with_scale(Vec2::splat(1.0 / (num_cols as f32)).extend(0.0));
 
@@ -140,5 +140,18 @@ impl Tile for SourceTile {
 
     fn get_entity(&self) -> Entity {
         self.base_entity
+    }
+
+    fn box_clone(&self) -> Box<dyn Tile + Send + Sync> {
+        Box::new(self.clone())
+    }
+
+    fn reset_inner_entities(&mut self, commands: &mut Commands) {
+        for entity in &self.inner_entities {
+            if let Some(entity_cmds) = commands.get_entity(*entity) {
+                entity_cmds.despawn_recursive();
+            }
+        }
+        self.inner_entities = Vec::new();
     }
 }

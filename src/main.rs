@@ -1,12 +1,12 @@
 pub mod cursor;
 pub mod direction;
+pub mod level;
 pub mod tiles;
 pub mod trains;
 
 use bevy::prelude::*;
 use bevy::window::PrimaryWindow;
-use cursor::CursorPlugin;
-use tiles::TilePlugin;
+use level::LevelPlugin;
 
 const NUM_ROWS: u8 = 7;
 const NUM_COLS: u8 = 7;
@@ -14,7 +14,7 @@ const TILE_SIZE_PX: f32 = 96.0;
 
 fn main() {
     App::new()
-        .add_plugins((DefaultPlugins, CursorPlugin, TilePlugin))
+        .add_plugins((DefaultPlugins, LevelPlugin))
         .add_systems(Startup, spawn_camera)
         .run();
 }
