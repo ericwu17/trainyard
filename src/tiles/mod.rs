@@ -1,6 +1,7 @@
 pub mod connections;
 pub mod drawable_tile;
 pub mod rock_tile;
+pub mod sink_tile;
 pub mod source_tile;
 pub mod tile;
 pub mod yard;
@@ -10,6 +11,7 @@ use bevy::input::common_conditions::input_just_pressed;
 use bevy::prelude::*;
 use drawable_tile::DrawableTile;
 use rock_tile::RockTile;
+use sink_tile::SinkTile;
 use source_tile::SourceTile;
 use tile::Tile;
 use yard::{despawn_train_entities, Yard};
@@ -30,8 +32,14 @@ impl Plugin for TilePlugin {
 pub enum TileConstructionInfo {
     DrawableTile,
     Rock,
-    SourceTile { out: Dir, trains: Vec<TrainColor> },
-    Trainsink,
+    SourceTile {
+        out: Dir,
+        trains: Vec<TrainColor>,
+    },
+    SinkTile {
+        ins: [bool; 4],
+        trains: Vec<TrainColor>,
+    },
     Painter,
     Splitter,
 }
@@ -59,7 +67,9 @@ pub fn construct_new_tile(
         TileConstructionInfo::SourceTile { out, trains } => {
             Box::new(SourceTile::new(out, trains, entity, commands, asset_server))
         }
-        TileConstructionInfo::Trainsink => todo!(),
+        TileConstructionInfo::SinkTile { ins, trains } => {
+            Box::new(SinkTile::new(ins, trains, entity, commands, asset_server))
+        }
         TileConstructionInfo::Painter => todo!(),
         TileConstructionInfo::Splitter => todo!(),
     }

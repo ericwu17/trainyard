@@ -1,33 +1,32 @@
 use bevy::prelude::*;
 
+use super::source_tile::INNER_SPRITE_SIZE;
+use super::{connections::TileBorderState, tile::Tile};
 use crate::{direction::Dir, trains::TrainColor};
 
-use super::{connections::TileBorderState, tile::Tile};
-
-pub const INNER_SPRITE_SIZE: f32 = 52.0;
-
 #[derive(Component)]
-pub struct SourceTile {
-    pub out_dir: Dir,
+pub struct SinkTile {
+    pub in_dirs: [bool; 4],
     pub trains: Vec<TrainColor>,
 
     pub base_entity: Entity,
     pub background_entity: Entity,
-    pub exit_spout_entity: Entity,
+    pub entry_spout_entities: Vec<Entity>,
     pub border_entity: Entity,
     pub inner_entities: Vec<Entity>, // these are the entities for the sprites for the small plus symbols inside the source tile
+    pub removed_entities: Vec<Entity>, // these are entities that have been removed by `process_and_output`, but still need to be despawned in the `render` function.
 }
 
-impl SourceTile {
+impl SinkTile {
     pub fn new(
-        out_dir: Dir,
+        in_dirs: [bool; 4],
         trains: Vec<TrainColor>,
         base_entity: Entity,
         commands: &mut Commands,
         asset_server: &Res<AssetServer>,
     ) -> Self {
         let mut background_entity = base_entity;
-        let mut exit_spout_entity = base_entity;
+        let mut entry_spout_entities: Vec<Entity> = Vec::new();
         let mut border_entity = base_entity;
 
         commands
@@ -40,13 +39,20 @@ impl SourceTile {
                         ..default()
                     })
                     .id();
-                exit_spout_entity = parent
-                    .spawn(SpriteBundle {
-                        transform: Transform::from_rotation(Quat::from(out_dir)),
-                        texture: asset_server.load("sprites/Trainsource_exit.png"),
-                        ..default()
-                    })
-                    .id();
+
+                for dir_u8 in 0..4 {
+                    if in_dirs[dir_u8 as usize] {
+                        let entry_spout_entity = parent
+                            .spawn(SpriteBundle {
+                                transform: Transform::from_rotation(Quat::from(Dir::from(dir_u8))),
+                                texture: asset_server.load("sprites/Trainsink_entry.png"),
+                                ..default()
+                            })
+                            .id();
+                        entry_spout_entities.push(entry_spout_entity);
+                    }
+                }
+
                 border_entity = parent
                     .spawn(SpriteBundle {
                         transform: Transform::from_xyz(0.0, 0.0, 1.0),
@@ -55,32 +61,45 @@ impl SourceTile {
                     })
                     .id();
             });
-
         Self {
-            out_dir,
+            in_dirs,
             trains,
             base_entity,
             background_entity,
-            exit_spout_entity,
+            entry_spout_entities,
             border_entity,
             inner_entities: vec![],
+            removed_entities: vec![],
         }
     }
 }
 
-impl Tile for SourceTile {
+impl Tile for SinkTile {
     fn process_and_output(&mut self, incoming: TileBorderState) -> TileBorderState {
-        for dir_u8 in 0..4 {
-            if incoming.get_train(Dir::from(dir_u8)).is_some() {
+        for dir in Dir::all_dirs() {
+            if !self.in_dirs[u8::from(dir) as usize] && incoming.get_train(dir).is_some() {
                 todo!("train crashed!");
             }
-        }
 
-        let mut output_state = TileBorderState::new();
-        if !self.trains.is_empty() {
-            output_state.add_train(self.trains.remove(0), self.out_dir);
+            if let Some(train) = incoming.get_train(dir) {
+                let mut index = 0;
+                let mut successfully_received_train = false;
+                while index < self.trains.len() {
+                    if self.trains[index] == train {
+                        self.trains.remove(index);
+                        self.removed_entities
+                            .push(self.inner_entities.remove(index));
+                        successfully_received_train = true;
+                        break;
+                    }
+                    index += 1;
+                }
+                if !successfully_received_train {
+                    todo!("train crashed!");
+                }
+            }
         }
-        return output_state;
+        TileBorderState::new()
     }
 
     fn render(&mut self, commands: &mut Commands, asset_server: &Res<AssetServer>) {
@@ -110,7 +129,7 @@ impl Tile for SourceTile {
 
                 let bundle = SpriteBundle {
                     transform: xf,
-                    texture: asset_server.load("sprites/Plus_sign.png"),
+                    texture: asset_server.load("sprites/Circle.png"),
                     sprite: Sprite {
                         color: Color::from(*color),
                         ..default()
@@ -126,19 +145,19 @@ impl Tile for SourceTile {
                         self.inner_entities.push(inner_entity);
                     });
             }
-        } else if self.inner_entities.len() > self.trains.len() {
-            while self.inner_entities.len() > self.trains.len() {
-                let entity = self.inner_entities.remove(0);
-                commands.entity(entity).despawn_recursive();
-            }
         }
-    }
 
-    fn despawn_entities_recursive(&self, commands: &mut Commands) {
-        commands.entity(self.base_entity).despawn_recursive();
+        while !self.removed_entities.is_empty() {
+            let entity = self.removed_entities.pop().unwrap();
+            commands.entity(entity).despawn_recursive();
+        }
     }
 
     fn get_entity(&self) -> Entity {
         self.base_entity
+    }
+
+    fn despawn_entities_recursive(&self, commands: &mut Commands) {
+        commands.entity(self.base_entity).despawn_recursive();
     }
 }
