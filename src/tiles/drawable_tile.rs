@@ -142,6 +142,10 @@ impl Tile for DrawableTile {
     fn despawn_entities_recursive(&self, commands: &mut Commands) {
         commands.entity(self.entity).despawn_recursive();
     }
+
+    fn get_entity(&self) -> Entity {
+        self.entity
+    }
 }
 
 fn paths_collide(d1: Dir, d2: Dir, d3: Dir, d4: Dir) -> bool {

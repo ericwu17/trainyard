@@ -4,13 +4,16 @@ use super::{connections::TileBorderState, construct_new_tile, TileConstructionIn
 use crate::direction::Dir;
 use crate::tiles::tile::Tile;
 use crate::trains::TrainColor;
-use crate::{NUM_COLS, NUM_ROWS};
+use crate::{NUM_COLS, NUM_ROWS, TILE_SIZE_PX};
 
 #[derive(Component)]
 pub struct Yard {
     pub tiles: Vec<Vec<Box<dyn Tile + Send + Sync>>>,
     pub borders: [[TileBorderState; NUM_COLS as usize]; NUM_ROWS as usize],
 }
+
+#[derive(Component)]
+pub struct TrainSprite;
 
 impl Yard {
     pub fn new(commands: &mut Commands, asset_server: &Res<AssetServer>) -> Self {
@@ -90,6 +93,37 @@ impl Yard {
         }
     }
 
+    pub fn render_trains(&mut self, commands: &mut Commands, asset_server: &Res<AssetServer>) {
+        for r in 0..(NUM_ROWS as usize) {
+            for c in 0..(NUM_COLS as usize) {
+                for dir in Dir::all_dirs() {
+                    let x = c as f32 * TILE_SIZE_PX + TILE_SIZE_PX / 2.0;
+                    let y = r as f32 * TILE_SIZE_PX + TILE_SIZE_PX / 2.0;
+
+                    let base_transform = Transform::from_xyz(x, y, 0.5);
+
+                    if let Some(train_color) = self.borders[r][c].get_train(dir) {
+                        let bundle = (
+                            SpriteBundle {
+                                transform: base_transform
+                                    * Transform::from_rotation(Quat::from(dir.flip()))
+                                    * Transform::from_xyz(0.0, -TILE_SIZE_PX / 2.0, 0.0),
+                                texture: asset_server.load("sprites/Train.png"),
+                                sprite: Sprite {
+                                    color: Color::from(train_color),
+                                    ..default()
+                                },
+                                ..default()
+                            },
+                            TrainSprite,
+                        );
+                        commands.spawn(bundle);
+                    }
+                }
+            }
+        }
+    }
+
     pub fn tick(&mut self) {
         let mut outgoing_border_states: [[TileBorderState; NUM_COLS as usize]; NUM_ROWS as usize] =
             Default::default();
@@ -124,5 +158,14 @@ impl Yard {
             }
         }
         self.borders = outgoing_border_states;
+    }
+}
+
+pub fn despawn_train_entities(
+    mut commands: Commands,
+    yard_query: Query<Entity, With<TrainSprite>>,
+) {
+    for entity in yard_query.iter() {
+        commands.entity(entity).despawn_recursive();
     }
 }

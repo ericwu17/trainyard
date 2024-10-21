@@ -17,5 +17,7 @@ pub trait Tile {
 
     fn render(&mut self, _commands: &mut Commands, _asset_server: &Res<AssetServer>);
 
+    fn get_entity(&self) -> Entity;
+
     fn despawn_entities_recursive(&self, commands: &mut Commands);
 }

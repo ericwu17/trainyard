@@ -49,7 +49,8 @@ impl SourceTile {
                     .id();
                 border_entity = parent
                     .spawn(SpriteBundle {
-                        transform: Transform::from_rotation(Quat::from(out_dir)),
+                        transform: Transform::from_xyz(0.0, 0.0, 1.0)
+                            .with_rotation(Quat::from(out_dir)),
                         texture: asset_server.load("sprites/Source_sink_border.png"),
                         ..default()
                     })
@@ -78,7 +79,7 @@ impl Tile for SourceTile {
 
         let mut output_state = TileBorderState::new();
         if !self.trains.is_empty() {
-            output_state.add_train(self.trains.pop().unwrap(), self.out_dir);
+            output_state.add_train(self.trains.remove(0), self.out_dir);
         }
         return output_state;
     }
@@ -104,7 +105,7 @@ impl Tile for SourceTile {
                 let xf = Transform::from_xyz(
                     -(INNER_SPRITE_SIZE / 2.0) + col_size / 2.0 + col_size * curr_col as f32,
                     (INNER_SPRITE_SIZE / 2.0) - row_size / 2.0 - row_size * curr_row as f32,
-                    0.0,
+                    1.0,
                 )
                 .with_scale(Vec2::splat(1.0 / (num_cols as f32)).extend(0.0));
 
@@ -126,10 +127,19 @@ impl Tile for SourceTile {
                         self.inner_entities.push(inner_entity);
                     });
             }
+        } else if self.inner_entities.len() > self.trains.len() {
+            while self.inner_entities.len() > self.trains.len() {
+                let entity = self.inner_entities.remove(0);
+                commands.entity(entity).despawn_recursive();
+            }
         }
     }
 
     fn despawn_entities_recursive(&self, commands: &mut Commands) {
         commands.entity(self.base_entity).despawn_recursive();
+    }
+
+    fn get_entity(&self) -> Entity {
+        self.base_entity
     }
 }

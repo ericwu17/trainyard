@@ -44,6 +44,10 @@ impl Dir {
     pub fn flip_u8(d: u8) -> u8 {
         (d + 2) & 0x03
     }
+
+    pub fn all_dirs() -> impl Iterator<Item = Dir> {
+        (0..4).map(|dir_u8| Dir::from(dir_u8))
+    }
 }
 
 impl From<u8> for Dir {

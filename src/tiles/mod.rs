@@ -12,14 +12,14 @@ use drawable_tile::DrawableTile;
 use rock_tile::RockTile;
 use source_tile::SourceTile;
 use tile::Tile;
-use yard::Yard;
+use yard::{despawn_train_entities, Yard};
 
 pub struct TilePlugin;
 
 impl Plugin for TilePlugin {
     fn build(&self, app: &mut App) {
         app.add_systems(Startup, spawn_game_tiles)
-            .add_systems(Update, render_yard)
+            .add_systems(Update, (despawn_train_entities, render_yard).chain())
             .add_systems(
                 Update,
                 update_yard.run_if(input_just_pressed(KeyCode::KeyN)),
@@ -78,6 +78,7 @@ fn render_yard(
     let yard = yard_query.single_mut().into_inner();
 
     yard.render(&mut commands, &asset_server);
+    yard.render_trains(&mut commands, &asset_server);
 }
 
 fn update_yard(mut yard_query: Query<&mut Yard>) {

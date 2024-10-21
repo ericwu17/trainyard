@@ -59,4 +59,8 @@ impl Tile for RockTile {
     fn despawn_entities_recursive(&self, commands: &mut Commands) {
         commands.entity(self.entity).despawn_recursive();
     }
+
+    fn get_entity(&self) -> Entity {
+        self.entity
+    }
 }
