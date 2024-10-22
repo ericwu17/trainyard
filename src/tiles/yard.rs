@@ -57,10 +57,25 @@ impl Yard {
             construct_new_tile(
                 TileConstructionInfo::SourceTile {
                     out: Dir::Right,
-                    trains: vec![TrainColor::Blue, TrainColor::Green],
+                    trains: vec![TrainColor::Blue],
                 },
                 3,
                 4,
+                commands,
+                asset_server,
+            ),
+            commands,
+        );
+        yard.replace_tile(
+            5,
+            6,
+            construct_new_tile(
+                TileConstructionInfo::SourceTile {
+                    out: Dir::Down,
+                    trains: vec![TrainColor::Red],
+                },
+                5,
+                6,
                 commands,
                 asset_server,
             ),
@@ -73,7 +88,7 @@ impl Yard {
             construct_new_tile(
                 TileConstructionInfo::SinkTile {
                     ins: [false, false, false, true],
-                    trains: vec![TrainColor::Blue, TrainColor::Green],
+                    trains: vec![TrainColor::Purple, TrainColor::Purple],
                 },
                 3,
                 2,
