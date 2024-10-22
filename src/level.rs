@@ -4,7 +4,10 @@ use bevy::prelude::*;
 
 use crate::{
     cursor::CursorPlugin,
-    tiles::{yard::Yard, TilePlugin},
+    tiles::{
+        yard::{Yard, YardTickedEvent},
+        TilePlugin,
+    },
 };
 
 #[derive(States, Default, Debug, Clone, PartialEq, Eq, Hash)]
@@ -107,6 +110,7 @@ pub fn tick_yard_tick_timer(
     mut q: Query<&mut YardTickTimer>,
     time: Res<Time>,
     mut yard_query: Query<&mut Yard>,
+    mut event_yard_ticked: EventWriter<YardTickedEvent>,
 ) {
     let yard_tick_timer = q.single_mut().into_inner();
     yard_tick_timer.timer.tick(time.delta() * 2);
@@ -114,5 +118,6 @@ pub fn tick_yard_tick_timer(
     if yard_tick_timer.timer.just_finished() {
         let yard = yard_query.single_mut().into_inner();
         yard.tick();
+        event_yard_ticked.send_default();
     }
 }

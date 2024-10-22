@@ -122,6 +122,7 @@ impl Tile for DrawableTile {
                 texture: asset_server.load(conn_type.get_asset_path()),
                 ..default()
             },
+            Name::new("drawable tile"),
         );
 
         match self.sprite_entity {

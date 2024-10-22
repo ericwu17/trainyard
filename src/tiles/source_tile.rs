@@ -35,24 +35,34 @@ impl SourceTile {
             .unwrap()
             .with_children(|parent| {
                 background_entity = parent
-                    .spawn(SpriteBundle {
-                        texture: asset_server.load("sprites/Tracktile_blank.png"),
-                        ..default()
-                    })
+                    .spawn((
+                        SpriteBundle {
+                            texture: asset_server.load("sprites/Tracktile_blank.png"),
+                            ..default()
+                        },
+                        Name::new("blank background"),
+                    ))
                     .id();
                 exit_spout_entity = parent
-                    .spawn(SpriteBundle {
-                        transform: Transform::from_rotation(Quat::from(out_dir)),
-                        texture: asset_server.load("sprites/Trainsource_exit.png"),
-                        ..default()
-                    })
+                    .spawn((
+                        SpriteBundle {
+                            transform: Transform::from_xyz(0.0, 0.0, 0.5)
+                                .with_rotation(Quat::from(out_dir)),
+                            texture: asset_server.load("sprites/Trainsource_exit.png"),
+                            ..default()
+                        },
+                        Name::new("trainsource exitway sprite"),
+                    ))
                     .id();
                 border_entity = parent
-                    .spawn(SpriteBundle {
-                        transform: Transform::from_xyz(0.0, 0.0, 1.0),
-                        texture: asset_server.load("sprites/Source_sink_border.png"),
-                        ..default()
-                    })
+                    .spawn((
+                        SpriteBundle {
+                            transform: Transform::from_xyz(0.0, 0.0, 1.0),
+                            texture: asset_server.load("sprites/Source_sink_border.png"),
+                            ..default()
+                        },
+                        Name::new("trainsource border sprite"),
+                    ))
                     .id();
             });
 
@@ -108,15 +118,18 @@ impl Tile for SourceTile {
                 )
                 .with_scale(Vec2::splat(1.0 / (num_cols as f32)).extend(0.0));
 
-                let bundle = SpriteBundle {
-                    transform: xf,
-                    texture: asset_server.load("sprites/Plus_sign.png"),
-                    sprite: Sprite {
-                        color: Color::from(*color),
+                let bundle = (
+                    SpriteBundle {
+                        transform: xf,
+                        texture: asset_server.load("sprites/Plus_sign.png"),
+                        sprite: Sprite {
+                            color: Color::from(*color),
+                            ..default()
+                        },
                         ..default()
                     },
-                    ..default()
-                };
+                    Name::new("plus sign sprite"),
+                );
 
                 commands
                     .get_entity(self.base_entity)

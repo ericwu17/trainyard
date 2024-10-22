@@ -34,31 +34,41 @@ impl SinkTile {
             .unwrap()
             .with_children(|parent| {
                 background_entity = parent
-                    .spawn(SpriteBundle {
-                        texture: asset_server.load("sprites/Tracktile_blank.png"),
-                        ..default()
-                    })
+                    .spawn((
+                        SpriteBundle {
+                            texture: asset_server.load("sprites/Tracktile_blank.png"),
+                            ..default()
+                        },
+                        Name::new("blank background"),
+                    ))
                     .id();
 
                 for dir_u8 in 0..4 {
                     if in_dirs[dir_u8 as usize] {
                         let entry_spout_entity = parent
-                            .spawn(SpriteBundle {
-                                transform: Transform::from_rotation(Quat::from(Dir::from(dir_u8))),
-                                texture: asset_server.load("sprites/Trainsink_entry.png"),
-                                ..default()
-                            })
+                            .spawn((
+                                SpriteBundle {
+                                    transform: Transform::from_xyz(0.0, 0.0, 0.5)
+                                        .with_rotation(Quat::from(Dir::from(dir_u8))),
+                                    texture: asset_server.load("sprites/Trainsink_entry.png"),
+                                    ..default()
+                                },
+                                Name::new("trainsink entryway sprite"),
+                            ))
                             .id();
                         entry_spout_entities.push(entry_spout_entity);
                     }
                 }
 
                 border_entity = parent
-                    .spawn(SpriteBundle {
-                        transform: Transform::from_xyz(0.0, 0.0, 1.0),
-                        texture: asset_server.load("sprites/Source_sink_border.png"),
-                        ..default()
-                    })
+                    .spawn((
+                        SpriteBundle {
+                            transform: Transform::from_xyz(0.0, 0.0, 1.0),
+                            texture: asset_server.load("sprites/Source_sink_border.png"),
+                            ..default()
+                        },
+                        Name::new("trainsink border sprite"),
+                    ))
                     .id();
             });
         Self {
@@ -127,15 +137,18 @@ impl Tile for SinkTile {
                 )
                 .with_scale(Vec2::splat(1.0 / (num_cols as f32)).extend(0.0));
 
-                let bundle = SpriteBundle {
-                    transform: xf,
-                    texture: asset_server.load("sprites/Circle.png"),
-                    sprite: Sprite {
-                        color: Color::from(*color),
+                let bundle = (
+                    SpriteBundle {
+                        transform: xf,
+                        texture: asset_server.load("sprites/Circle.png"),
+                        sprite: Sprite {
+                            color: Color::from(*color),
+                            ..default()
+                        },
                         ..default()
                     },
-                    ..default()
-                };
+                    Name::new("circle sprite"),
+                );
 
                 commands
                     .get_entity(self.base_entity)

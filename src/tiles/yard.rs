@@ -15,6 +15,9 @@ pub struct Yard {
 #[derive(Component)]
 pub struct TrainSprite;
 
+#[derive(Event, Default)]
+pub struct YardTickedEvent;
+
 impl Yard {
     pub fn new(commands: &mut Commands, asset_server: &Res<AssetServer>) -> Self {
         let mut tiles: Vec<Vec<Box<dyn Tile + Send + Sync>>> = Vec::new();
@@ -132,6 +135,7 @@ impl Yard {
                                 ..default()
                             },
                             TrainSprite,
+                            Name::new(format!("{} train", train_color.to_str())),
                         );
                         commands.spawn(bundle);
                     }
@@ -174,14 +178,5 @@ impl Yard {
             }
         }
         self.borders = outgoing_border_states;
-    }
-}
-
-pub fn despawn_train_entities(
-    mut commands: Commands,
-    yard_query: Query<Entity, With<TrainSprite>>,
-) {
-    for entity in yard_query.iter() {
-        commands.entity(entity).despawn_recursive();
     }
 }

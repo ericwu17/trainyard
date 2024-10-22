@@ -63,4 +63,16 @@ impl TrainColor {
             }
         }
     }
+
+    pub fn to_str(&self) -> &'static str {
+        match self {
+            TrainColor::Brown => "Brown",
+            TrainColor::Red => "Red",
+            TrainColor::Blue => "Blue",
+            TrainColor::Yellow => "Yellow",
+            TrainColor::Purple => "Purple",
+            TrainColor::Green => "Green",
+            TrainColor::Orange => "Orange",
+        }
+    }
 }

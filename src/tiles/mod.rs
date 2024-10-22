@@ -6,21 +6,30 @@ pub mod source_tile;
 pub mod tile;
 pub mod yard;
 
-use crate::{direction::Dir, trains::TrainColor, TILE_SIZE_PX};
+use crate::{direction::Dir, level::LevelState, trains::TrainColor, TILE_SIZE_PX};
 use bevy::prelude::*;
 use drawable_tile::DrawableTile;
 use rock_tile::RockTile;
 use sink_tile::SinkTile;
 use source_tile::SourceTile;
 use tile::Tile;
-use yard::{despawn_train_entities, Yard};
+use yard::{TrainSprite, Yard, YardTickedEvent};
 
 pub struct TilePlugin;
 
 impl Plugin for TilePlugin {
     fn build(&self, app: &mut App) {
-        app.add_systems(Startup, spawn_game_tiles)
-            .add_systems(Update, (despawn_train_entities, render_yard).chain());
+        app.add_event::<YardTickedEvent>()
+            .add_systems(Startup, spawn_game_tiles)
+            .add_systems(
+                Update,
+                (
+                    render_yard,
+                    refresh_yard_trains.run_if(on_event::<YardTickedEvent>()),
+                )
+                    .chain(),
+            )
+            .add_systems(OnEnter(LevelState::Editing), refresh_yard_trains);
     }
 }
 
@@ -50,10 +59,13 @@ pub fn construct_new_tile(
     let y = row as f32 * TILE_SIZE_PX + TILE_SIZE_PX / 2.0;
 
     let entity = commands
-        .spawn((SpriteBundle {
-            transform: Transform::from_xyz(x, y, 0.0),
-            ..default()
-        },))
+        .spawn((
+            SpriteBundle {
+                transform: Transform::from_xyz(x, y, 0.0),
+                ..default()
+            },
+            Name::new(format!("Base entity at row {} column {}", row, col)),
+        ))
         .id();
 
     match tile_type {
@@ -71,7 +83,10 @@ pub fn construct_new_tile(
 }
 
 fn spawn_game_tiles(mut commands: Commands, asset_server: Res<AssetServer>) {
-    let yard = Yard::new(&mut commands, &asset_server);
+    let yard = (
+        Yard::new(&mut commands, &asset_server),
+        Name::new("The Yard"),
+    );
     commands.spawn(yard);
 }
 
@@ -81,7 +96,23 @@ fn render_yard(
     asset_server: Res<AssetServer>,
 ) {
     let yard = yard_query.single_mut().into_inner();
-
     yard.render(&mut commands, &asset_server);
-    yard.render_trains(&mut commands, &asset_server);
+}
+
+fn refresh_yard_trains(
+    mut commands: Commands,
+    mut yard_query: Query<&mut Yard>,
+    trains_query: Query<Entity, With<TrainSprite>>,
+    asset_server: Res<AssetServer>,
+) {
+    if let Ok(yard) = yard_query.get_single_mut() {
+        let yard = yard.into_inner();
+        // despawn all train entities
+        for entity in trains_query.iter() {
+            commands.entity(entity).despawn_recursive();
+        }
+
+        // respawn all train entities
+        yard.render_trains(&mut commands, &asset_server);
+    }
 }

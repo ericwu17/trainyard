@@ -39,6 +39,7 @@ impl Tile for RockTile {
                 texture: asset_server.load("sprites/Rock.png"),
                 ..default()
             },
+            Name::new("Rock"),
         );
 
         match self.sprite_entity {
