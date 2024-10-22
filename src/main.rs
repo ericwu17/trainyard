@@ -4,8 +4,10 @@ pub mod level;
 pub mod tiles;
 pub mod trains;
 
+use bevy::input::common_conditions::input_toggle_active;
 use bevy::prelude::*;
 use bevy::window::PrimaryWindow;
+use bevy_inspector_egui::quick::WorldInspectorPlugin;
 use level::LevelPlugin;
 
 const NUM_ROWS: u8 = 7;
@@ -15,6 +17,9 @@ const TILE_SIZE_PX: f32 = 96.0;
 fn main() {
     App::new()
         .add_plugins((DefaultPlugins, LevelPlugin))
+        .add_plugins(
+            WorldInspectorPlugin::default().run_if(input_toggle_active(false, KeyCode::Escape)),
+        )
         .add_systems(Startup, spawn_camera)
         .run();
 }
