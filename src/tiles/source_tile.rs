@@ -168,8 +168,15 @@ impl Tile for SourceTile {
         for entity in &self.inner_entities {
             if let Some(entity_cmds) = commands.get_entity(*entity) {
                 entity_cmds.despawn_recursive();
+                commands
+                    .entity(self.base_entity)
+                    .remove_children(&[*entity]);
             }
         }
         self.inner_entities = Vec::new();
+    }
+
+    fn has_no_remaining_trains(&self) -> bool {
+        self.trains.is_empty()
     }
 }

@@ -57,7 +57,7 @@ impl Yard {
             construct_new_tile(
                 TileConstructionInfo::SourceTile {
                     out: Dir::Right,
-                    trains: vec![TrainColor::Green, TrainColor::Blue, TrainColor::Blue],
+                    trains: vec![TrainColor::Blue, TrainColor::Green],
                 },
                 3,
                 4,
@@ -73,7 +73,7 @@ impl Yard {
             construct_new_tile(
                 TileConstructionInfo::SinkTile {
                     ins: [false, false, false, true],
-                    trains: vec![TrainColor::Blue, TrainColor::Blue, TrainColor::Green],
+                    trains: vec![TrainColor::Blue, TrainColor::Green],
                 },
                 3,
                 2,
@@ -180,5 +180,20 @@ impl Yard {
             }
         }
         self.borders = outgoing_border_states;
+    }
+
+    // check if all source tiles are empty, all destination tiles are empty, and if all borders are empty.
+    pub fn has_won(&self) -> bool {
+        for row in 0..(NUM_ROWS as usize) {
+            for col in 0..(NUM_COLS as usize) {
+                if !self.tiles[row][col].has_no_remaining_trains() {
+                    return false;
+                }
+                if !self.borders[row][col].is_empty() {
+                    return false;
+                }
+            }
+        }
+        true
     }
 }

@@ -28,6 +28,10 @@ pub trait Tile {
     fn reset_inner_entities(&mut self, _commands: &mut Commands) {}
 
     fn box_clone(&self) -> Box<dyn Tile + Send + Sync>;
+
+    fn has_no_remaining_trains(&self) -> bool {
+        true
+    }
 }
 
 impl Clone for Box<dyn Tile + Send + Sync> {
