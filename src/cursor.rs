@@ -237,20 +237,11 @@ fn move_cursor_by_mouse(
         let x = cursor_position.x;
         let y = window.height() - cursor_position.y;
 
-        let mut c = (x / TILE_SIZE_PX) as i32;
-        let mut r = (y / TILE_SIZE_PX) as i32;
+        let c = (x / TILE_SIZE_PX) as i32;
+        let r = (y / TILE_SIZE_PX) as i32;
 
-        if c < 0 {
-            c = 0;
-        }
-        if c >= NUM_COLS as i32 {
-            c = NUM_COLS as i32 - 1;
-        }
-        if r < 0 {
-            r = 0;
-        }
-        if r >= NUM_ROWS as i32 {
-            r = NUM_ROWS as i32 - 1;
+        if c < 0 || c >= NUM_COLS as i32 || r < 0 || r >= NUM_ROWS as i32 {
+            return;
         }
 
         let c = c as u8;
