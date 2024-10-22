@@ -2,6 +2,7 @@ use bevy::prelude::*;
 
 use super::{connections::TileBorderState, construct_new_tile, TileConstructionInfo};
 use crate::direction::Dir;
+use crate::level::TrainCrashedEvent;
 use crate::tiles::tile::Tile;
 use crate::trains::TrainColor;
 use crate::{NUM_COLS, NUM_ROWS, TILE_SIZE_PX};
@@ -144,7 +145,7 @@ impl Yard {
         }
     }
 
-    pub fn tick(&mut self) {
+    pub fn tick(&mut self, crashed_event: &mut EventWriter<TrainCrashedEvent>) {
         let mut outgoing_border_states: [[TileBorderState; NUM_COLS as usize]; NUM_ROWS as usize] =
             Default::default();
 
@@ -153,7 +154,8 @@ impl Yard {
                 let incoming_border_state = &self.borders[row][col];
                 let tile = &mut self.tiles[row][col];
 
-                let outgoing_border_state = tile.process_and_output(incoming_border_state.clone());
+                let outgoing_border_state =
+                    tile.process_and_output(incoming_border_state.clone(), crashed_event);
                 outgoing_border_states[row][col] = outgoing_border_state;
             }
         }

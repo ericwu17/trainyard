@@ -2,6 +2,7 @@ use bevy::prelude::*;
 
 use super::source_tile::INNER_SPRITE_SIZE;
 use super::{connections::TileBorderState, tile::Tile};
+use crate::level::TrainCrashedEvent;
 use crate::{direction::Dir, trains::TrainColor};
 
 #[derive(Clone)]
@@ -85,10 +86,14 @@ impl SinkTile {
 }
 
 impl Tile for SinkTile {
-    fn process_and_output(&mut self, incoming: TileBorderState) -> TileBorderState {
+    fn process_and_output(
+        &mut self,
+        incoming: TileBorderState,
+        crashed_event: &mut EventWriter<TrainCrashedEvent>,
+    ) -> TileBorderState {
         for dir in Dir::all_dirs() {
             if !self.in_dirs[u8::from(dir) as usize] && incoming.get_train(dir).is_some() {
-                todo!("train crashed!");
+                crashed_event.send_default();
             }
 
             if let Some(train) = incoming.get_train(dir) {
@@ -105,7 +110,7 @@ impl Tile for SinkTile {
                     index += 1;
                 }
                 if !successfully_received_train {
-                    todo!("train crashed!");
+                    crashed_event.send_default();
                 }
             }
         }

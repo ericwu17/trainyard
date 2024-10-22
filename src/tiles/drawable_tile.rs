@@ -1,6 +1,7 @@
 use bevy::prelude::*;
 
 use crate::direction::Dir;
+use crate::level::TrainCrashedEvent;
 use crate::tiles::connections::{TileBorderState, TileConnections};
 use crate::tiles::tile::Tile;
 use crate::trains::TrainColor;
@@ -38,7 +39,11 @@ impl Tile for DrawableTile {
         self.connections = self.connections.switch_active_passive();
     }
 
-    fn process_and_output(&mut self, incoming: TileBorderState) -> TileBorderState {
+    fn process_and_output(
+        &mut self,
+        incoming: TileBorderState,
+        crashed_event: &mut EventWriter<TrainCrashedEvent>,
+    ) -> TileBorderState {
         let active_conn = self.connections.get_active_conn();
         let passive_conn = self.connections.get_passive_conn();
 
@@ -58,7 +63,8 @@ impl Tile for DrawableTile {
                 } else if let Some(d) = passive_conn.get_other_dir(incoming_dir) {
                     d
                 } else {
-                    todo!("train crashed.")
+                    crashed_event.send_default();
+                    incoming_dir
                 };
                 init_trains_coming_thru.push(TrainComingThrough {
                     color,

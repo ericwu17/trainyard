@@ -1,6 +1,6 @@
 use bevy::prelude::*;
 
-use crate::direction::Dir;
+use crate::{direction::Dir, level::TrainCrashedEvent};
 
 use super::connections::TileBorderState;
 
@@ -13,7 +13,11 @@ pub trait Tile {
 
     // the function argument represents an __incoming__ border state,
     // while the output represents an __outgoing__ border state.
-    fn process_and_output(&mut self, incoming: TileBorderState) -> TileBorderState;
+    fn process_and_output(
+        &mut self,
+        incoming: TileBorderState,
+        crashed_event: &mut EventWriter<TrainCrashedEvent>,
+    ) -> TileBorderState;
 
     fn render(&mut self, _commands: &mut Commands, _asset_server: &Res<AssetServer>);
 

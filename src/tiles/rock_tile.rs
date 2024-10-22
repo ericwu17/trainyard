@@ -1,6 +1,6 @@
 use bevy::prelude::*;
 
-use crate::direction::Dir;
+use crate::{direction::Dir, level::TrainCrashedEvent};
 
 use super::{connections::TileBorderState, tile::Tile};
 
@@ -23,10 +23,14 @@ impl RockTile {
 }
 
 impl Tile for RockTile {
-    fn process_and_output(&mut self, incoming: TileBorderState) -> TileBorderState {
+    fn process_and_output(
+        &mut self,
+        incoming: TileBorderState,
+        crashed_event: &mut EventWriter<TrainCrashedEvent>,
+    ) -> TileBorderState {
         for dir_u8 in 0..4 {
             if incoming.get_train(Dir::from(dir_u8)).is_some() {
-                todo!("train crashed!");
+                crashed_event.send_default();
             }
         }
         TileBorderState::new()
