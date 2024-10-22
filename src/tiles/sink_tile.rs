@@ -149,6 +149,7 @@ impl Tile for SinkTile {
 
         while !self.removed_entities.is_empty() {
             let entity = self.removed_entities.pop().unwrap();
+            commands.entity(self.base_entity).remove_children(&[entity]);
             commands.entity(entity).despawn_recursive();
         }
     }

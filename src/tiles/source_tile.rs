@@ -129,6 +129,7 @@ impl Tile for SourceTile {
         } else if self.inner_entities.len() > self.trains.len() {
             while self.inner_entities.len() > self.trains.len() {
                 let entity = self.inner_entities.remove(0);
+                commands.entity(self.base_entity).remove_children(&[entity]);
                 commands.entity(entity).despawn_recursive();
             }
         }
