@@ -3,12 +3,45 @@ use bevy::prelude::*;
 use super::{button::create_trainyard_button, UIState};
 
 #[derive(Component)]
+pub struct MainMenuPlayButton;
+#[derive(Component)]
+pub struct MainMenuCreditsButton;
+
+#[derive(Component)]
 pub struct MainMenuUIRoot;
 pub struct MainMenuUIPlugin;
 
 impl Plugin for MainMenuUIPlugin {
     fn build(&self, app: &mut App) {
-        app.add_systems(OnEnter(UIState::MainMenu), spawn_main_menu);
+        app.add_systems(OnEnter(UIState::MainMenu), spawn_main_menu)
+            .add_systems(OnExit(UIState::MainMenu), teardown_main_menu)
+            .add_systems(Update, (play_button_system, credits_button_system));
+    }
+}
+
+fn play_button_system(
+    interaction_query: Query<&Interaction, (Changed<Interaction>, With<MainMenuPlayButton>)>,
+    mut next_state: ResMut<NextState<UIState>>,
+) {
+    for interaction in interaction_query.iter() {
+        match interaction {
+            Interaction::Pressed => next_state.set(UIState::LevelPicker),
+            Interaction::Hovered => {}
+            Interaction::None => {}
+        };
+    }
+}
+
+fn credits_button_system(
+    interaction_query: Query<&Interaction, (Changed<Interaction>, With<MainMenuCreditsButton>)>,
+    mut next_state: ResMut<NextState<UIState>>,
+) {
+    for interaction in interaction_query.iter() {
+        match interaction {
+            Interaction::Pressed => next_state.set(UIState::Credits),
+            Interaction::Hovered => {}
+            Interaction::None => {}
+        };
     }
 }
 
@@ -78,6 +111,7 @@ fn spawn_main_menu(
         super::BTN_BORDER_GREEN,
         font.clone(),
     );
+    commands.entity(play_button).insert(MainMenuPlayButton);
 
     // =============================================================================================
     // "credits" button
@@ -91,6 +125,9 @@ fn spawn_main_menu(
         super::BTN_BORDER_BLUE,
         font.clone(),
     );
+    commands
+        .entity(credits_button)
+        .insert(MainMenuCreditsButton);
 
     // =============================================================================================
     // "credits" button
@@ -105,4 +142,13 @@ fn spawn_main_menu(
         .entity(main_menu_root)
         .push_children(&[title_text_box, play_button, credits_button]);
     commands.entity(title_text_box).push_children(&[title_text]);
+}
+
+fn teardown_main_menu(
+    mut commands: Commands,
+    main_menu_root_query: Query<Entity, With<MainMenuUIRoot>>,
+) {
+    for entity in main_menu_root_query.iter() {
+        commands.entity(entity).despawn_recursive();
+    }
 }
