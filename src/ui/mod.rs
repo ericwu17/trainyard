@@ -1,4 +1,6 @@
 pub mod button;
+pub mod credits;
+pub mod level_picker;
 pub mod main_menu;
 
 use bevy::prelude::*;
@@ -28,7 +30,11 @@ pub struct TrainyardUIPlugin;
 impl Plugin for TrainyardUIPlugin {
     fn build(&self, app: &mut App) {
         app.init_state::<UIState>()
-            .add_plugins(main_menu::MainMenuUIPlugin)
+            .add_plugins((
+                main_menu::MainMenuUIPlugin,
+                level_picker::LevelPickerUIPlugin,
+                credits::CreditsUIPlugin,
+            ))
             .add_systems(
                 Startup,
                 (spawn_ui_root_container, set_initial_ui_state).chain(),
@@ -37,7 +43,6 @@ impl Plugin for TrainyardUIPlugin {
 }
 
 fn spawn_ui_root_container(mut commands: Commands) {
-    println!("running spawn_ui_root_container");
     let root_container = (
         NodeBundle {
             style: Style {
