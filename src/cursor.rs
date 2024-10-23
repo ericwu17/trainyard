@@ -2,7 +2,7 @@ use bevy::input::common_conditions::input_just_pressed;
 use bevy::prelude::*;
 use bevy::{input::common_conditions::input_pressed, window::PrimaryWindow};
 
-use crate::level::LevelState;
+use crate::level::{LevelEditingSet, LevelState};
 use crate::tiles::yard::Yard;
 use crate::{direction::Dir, NUM_COLS, NUM_ROWS, TILE_SIZE_PX};
 
@@ -18,7 +18,8 @@ impl Plugin for CursorPlugin {
     fn build(&self, app: &mut App) {
         app.add_event::<CursorMovedEvent>()
             .insert_state(CursorState::NotDrawing)
-            .add_systems(Startup, spawn_cursor)
+            .add_systems(OnEnter(LevelState::Editing), spawn_cursor)
+            .add_systems(OnExit(LevelState::Editing), despawn_cursor)
             .add_systems(
                 Update,
                 (
@@ -36,7 +37,8 @@ impl Plugin for CursorPlugin {
                     destroy_connections_under_cursor.run_if(
                         in_state(CursorState::Erasing).and_then(in_state(LevelState::Editing)),
                     ),
-                ),
+                )
+                    .in_set(LevelEditingSet),
             )
             .add_systems(
                 OnEnter(CursorState::Drawing),
@@ -102,6 +104,12 @@ fn spawn_cursor(mut commands: Commands, asset_server: Res<AssetServer>) {
             ..default()
         },
     ));
+}
+
+fn despawn_cursor(mut commands: Commands, cursor_query: Query<Entity, With<CursorComponent>>) {
+    for entity in cursor_query.iter() {
+        commands.entity(entity).despawn();
+    }
 }
 
 fn draw_cursor_position(

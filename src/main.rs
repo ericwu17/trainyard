@@ -6,12 +6,9 @@ pub mod tiles;
 pub mod trains;
 pub mod ui;
 
-use crate::level_loader::level_load_info::LevelLoadInfo;
 use bevy::input::common_conditions::input_toggle_active;
 use bevy::prelude::*;
 use bevy::window::PrimaryWindow;
-use direction::Dir;
-use trains::TrainColor;
 
 const NUM_ROWS: u8 = 7;
 const NUM_COLS: u8 = 7;
@@ -22,22 +19,15 @@ fn main() {
 
     app.add_plugins((
         DefaultPlugins,
-        //ui::TrainyardUIPlugin,
-        //level::LevelPlugin,
+        ui::TrainyardUIPlugin,
+        level::LevelPlugin,
+        level_loader::LevelLoaderPlugin,
         bevy_inspector_egui::quick::WorldInspectorPlugin::default()
             .run_if(input_toggle_active(false, KeyCode::Escape)),
     ))
-    .add_systems(Startup, load_levels)
     .add_systems(Startup, spawn_camera);
 
     app.run();
-}
-
-fn load_levels() {
-    let my_levels: Vec<LevelLoadInfo> =
-        serde_json::from_str(level_loader::levels_json::LEVEL_DATA).unwrap();
-
-    println!("{:?}", my_levels);
 }
 
 fn spawn_camera(mut commands: Commands, window_query: Query<&Window, With<PrimaryWindow>>) {

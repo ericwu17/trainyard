@@ -13,6 +13,7 @@ use crate::{
 #[derive(States, Default, Debug, Clone, PartialEq, Eq, Hash)]
 pub enum LevelState {
     #[default]
+    None,
     Editing,
     Running,
     Crashed,
@@ -33,6 +34,13 @@ pub struct TrainCrashedEvent;
 #[derive(Event, Default)]
 pub struct WinLevelEvent;
 
+#[derive(SystemSet, Debug, Clone, PartialEq, Eq, Hash)]
+pub struct LevelSet;
+#[derive(SystemSet, Debug, Clone, PartialEq, Eq, Hash)]
+pub struct LevelEditingSet;
+#[derive(SystemSet, Debug, Clone, PartialEq, Eq, Hash)]
+pub struct LevelRunningSet;
+
 pub struct LevelPlugin;
 
 impl Plugin for LevelPlugin {
@@ -40,8 +48,15 @@ impl Plugin for LevelPlugin {
         app.add_plugins((CursorPlugin, TilePlugin))
             .add_event::<TrainCrashedEvent>()
             .add_event::<WinLevelEvent>()
-            .insert_state(LevelState::Editing)
-            .add_systems(Update, update_state_from_keypress)
+            .configure_sets(
+                Update,
+                (
+                    LevelSet.run_if(not(in_state(LevelState::None))),
+                    LevelEditingSet.run_if(in_state(LevelState::Editing)),
+                    LevelRunningSet.run_if(in_state(LevelState::Running)),
+                ),
+            )
+            .insert_state(LevelState::None)
             .add_systems(OnEnter(LevelState::Editing), restore_yard_edited_state)
             .add_systems(
                 OnEnter(LevelState::Running),
@@ -50,20 +65,18 @@ impl Plugin for LevelPlugin {
             .add_systems(OnExit(LevelState::Running), despawn_timer)
             .add_systems(
                 Update,
-                tick_yard_tick_timer.run_if(in_state(LevelState::Running)),
-            )
-            .add_systems(
-                Update,
-                crashed_event_handler.run_if(on_event::<TrainCrashedEvent>()),
-            )
-            .add_systems(
-                Update,
-                win_event_handler.run_if(on_event::<WinLevelEvent>()),
+                (
+                    update_level_state_from_keypress,
+                    tick_yard_tick_timer.in_set(LevelRunningSet),
+                    crashed_event_handler.run_if(on_event::<TrainCrashedEvent>()),
+                    win_event_handler.run_if(on_event::<WinLevelEvent>()),
+                )
+                    .in_set(LevelSet),
             );
     }
 }
 
-pub fn update_state_from_keypress(
+pub fn update_level_state_from_keypress(
     keyboard_input: Res<ButtonInput<KeyCode>>,
     state: Res<State<LevelState>>,
     mut next_state: ResMut<NextState<LevelState>>,
@@ -80,6 +93,9 @@ pub fn update_state_from_keypress(
                 next_state.set(LevelState::Editing);
             }
             LevelState::Won => {
+                // do nothing
+            }
+            LevelState::None => {
                 // do nothing
             }
         };
