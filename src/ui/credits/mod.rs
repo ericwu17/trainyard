@@ -22,11 +22,9 @@ fn back_button_handler(
     mut next_state: ResMut<NextState<UIState>>,
 ) {
     for interaction in interaction_query.iter() {
-        match interaction {
-            Interaction::Pressed => next_state.set(UIState::MainMenu),
-            Interaction::Hovered => {}
-            Interaction::None => {}
-        };
+        if *interaction == Interaction::Pressed {
+            next_state.set(UIState::MainMenu);
+        }
     }
 }
 
