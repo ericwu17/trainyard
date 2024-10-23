@@ -13,6 +13,7 @@ pub struct UIRootContainer;
 pub const BTN_BG: Color = Color::srgb(0.15, 0.15, 0.15);
 pub const BTN_BORDER_GREEN: Color = Color::srgb(0.365, 0.573, 0.329);
 pub const BTN_BORDER_BLUE: Color = Color::srgb(0.329, 0.412, 0.572);
+pub const BTN_BORDER_BLACK: Color = Color::BLACK;
 
 #[derive(States, Default, Debug, PartialEq, Eq, Hash, Clone)]
 pub enum UIState {

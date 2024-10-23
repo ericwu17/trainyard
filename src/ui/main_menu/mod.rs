@@ -1,7 +1,5 @@
 use bevy::prelude::*;
 
-use crate::level::LevelState;
-
 use super::{button::create_trainyard_button, UIState};
 
 #[derive(Component)]
@@ -24,12 +22,10 @@ impl Plugin for MainMenuUIPlugin {
 fn play_button_system(
     interaction_query: Query<&Interaction, (Changed<Interaction>, With<MainMenuPlayButton>)>,
     mut next_state: ResMut<NextState<UIState>>,
-    mut temp_next_level_state: ResMut<NextState<LevelState>>,
 ) {
     for interaction in interaction_query.iter() {
         if *interaction == Interaction::Pressed {
             next_state.set(UIState::LevelPicker);
-            temp_next_level_state.set(LevelState::Editing)
         }
     }
 }
