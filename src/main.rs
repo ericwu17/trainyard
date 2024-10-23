@@ -3,25 +3,29 @@ pub mod direction;
 pub mod level;
 pub mod tiles;
 pub mod trains;
+pub mod ui;
 
 use bevy::input::common_conditions::input_toggle_active;
 use bevy::prelude::*;
 use bevy::window::PrimaryWindow;
-use bevy_inspector_egui::quick::WorldInspectorPlugin;
-use level::LevelPlugin;
 
 const NUM_ROWS: u8 = 7;
 const NUM_COLS: u8 = 7;
 const TILE_SIZE_PX: f32 = 96.0;
 
 fn main() {
-    App::new()
-        .add_plugins((DefaultPlugins, LevelPlugin))
-        .add_plugins(
-            WorldInspectorPlugin::default().run_if(input_toggle_active(false, KeyCode::Escape)),
-        )
-        .add_systems(Startup, spawn_camera)
-        .run();
+    let mut app = App::new();
+
+    app.add_plugins((
+        DefaultPlugins,
+        ui::TrainyardUIPlugin,
+        //level::LevelPlugin,
+        bevy_inspector_egui::quick::WorldInspectorPlugin::default()
+            .run_if(input_toggle_active(false, KeyCode::Escape)),
+    ))
+    .add_systems(Startup, spawn_camera);
+
+    app.run();
 }
 
 fn spawn_camera(mut commands: Commands, window_query: Query<&Window, With<PrimaryWindow>>) {
