@@ -4,7 +4,6 @@ use super::{connections::TileBorderState, construct_new_tile, TileConstructionIn
 use crate::direction::Dir;
 use crate::level::TrainCrashedEvent;
 use crate::tiles::tile::Tile;
-use crate::trains::TrainColor;
 use crate::{NUM_COLS, NUM_ROWS, TILE_SIZE_PX};
 
 #[derive(Component, Clone)]
@@ -40,65 +39,10 @@ impl Yard {
             tiles.push(row_vec);
         }
 
-        let mut yard = Yard {
+        Yard {
             tiles,
             borders: border_states,
-        };
-        yard.replace_tile(
-            3,
-            3,
-            construct_new_tile(TileConstructionInfo::Rock, 3, 3, commands, asset_server),
-            commands,
-        );
-
-        yard.replace_tile(
-            3,
-            4,
-            construct_new_tile(
-                TileConstructionInfo::SourceTile {
-                    out: Dir::Right,
-                    trains: vec![TrainColor::Blue],
-                },
-                3,
-                4,
-                commands,
-                asset_server,
-            ),
-            commands,
-        );
-        yard.replace_tile(
-            5,
-            6,
-            construct_new_tile(
-                TileConstructionInfo::SourceTile {
-                    out: Dir::Down,
-                    trains: vec![TrainColor::Red],
-                },
-                5,
-                6,
-                commands,
-                asset_server,
-            ),
-            commands,
-        );
-
-        yard.replace_tile(
-            3,
-            2,
-            construct_new_tile(
-                TileConstructionInfo::SinkTile {
-                    ins: [false, false, false, true],
-                    trains: vec![TrainColor::Purple, TrainColor::Purple],
-                },
-                3,
-                2,
-                commands,
-                asset_server,
-            ),
-            commands,
-        );
-
-        return yard;
+        }
     }
 
     pub fn replace_tile(

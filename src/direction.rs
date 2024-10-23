@@ -1,7 +1,8 @@
 use bevy::math::Quat;
+use serde::{Deserialize, Serialize};
 use std::f32::consts::{FRAC_PI_2, PI};
 
-#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
 pub enum Dir {
     Up,
     Right,

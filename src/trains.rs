@@ -1,6 +1,7 @@
 use bevy::color::Color;
+use serde::{Deserialize, Serialize};
 
-#[derive(Copy, Clone, PartialEq, Eq, Debug)]
+#[derive(Copy, Clone, PartialEq, Eq, Debug, Serialize, Deserialize)]
 pub enum TrainColor {
     Brown,
     Red,
