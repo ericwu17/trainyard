@@ -18,7 +18,10 @@ fn main() {
     let mut app = App::new();
 
     app.add_plugins((
-        DefaultPlugins,
+        DefaultPlugins.set(bevy::log::LogPlugin {
+            //level: bevy::log::Level::TRACE,
+            ..default()
+        }),
         ui::TrainyardUIPlugin,
         level::LevelPlugin,
         level_loader::LevelLoaderPlugin,

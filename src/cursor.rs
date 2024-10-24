@@ -117,7 +117,7 @@ fn spawn_cursor(
 
 fn despawn_cursor(mut commands: Commands, cursor_query: Query<Entity, With<CursorComponent>>) {
     for entity in cursor_query.iter() {
-        commands.entity(entity).despawn();
+        commands.entity(entity).remove_parent().despawn();
     }
 }
 
@@ -332,28 +332,29 @@ fn add_connections_from_cursor_movement(
     mut old_movement_dir_query: Query<&mut OldCursorMovementDir>,
     mut yard_query: Query<&mut Yard>,
 ) {
-    let old_movement = old_movement_dir_query.single_mut().into_inner();
+    if let Ok(old_movement) = old_movement_dir_query.get_single_mut() {
+        let yard = yard_query.single_mut().into_inner();
+        let old_movement = old_movement.into_inner();
 
-    let yard = yard_query.single_mut().into_inner();
+        for e in moved_events.read() {
+            let new_dir = e.dir;
 
-    for e in moved_events.read() {
-        let new_dir = e.dir;
+            if let Some(old_dir) = old_movement.dir {
+                let old_dir = old_dir.flip();
 
-        if let Some(old_dir) = old_movement.dir {
-            let old_dir = old_dir.flip();
+                let r = e.old_r;
+                let c = e.old_c;
 
-            let r = e.old_r;
-            let c = e.old_c;
+                yard.tiles
+                    .get_mut(r as usize)
+                    .unwrap()
+                    .get_mut(c as usize)
+                    .unwrap()
+                    .add_connection(new_dir, old_dir);
+            }
 
-            yard.tiles
-                .get_mut(r as usize)
-                .unwrap()
-                .get_mut(c as usize)
-                .unwrap()
-                .add_connection(new_dir, old_dir);
+            old_movement.dir = Some(e.dir);
         }
-
-        old_movement.dir = Some(e.dir);
     }
 }
 

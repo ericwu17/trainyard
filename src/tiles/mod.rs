@@ -8,7 +8,7 @@ pub mod yard;
 
 use crate::{
     direction::Dir,
-    level::{restore_yard_edited_state, LevelSet, LevelState},
+    level::{restore_yard_edited_state, LevelSet, LevelState, YardEditedState},
     trains::TrainColor,
     ui::level::YardPlaceholderNode,
     NUM_COLS, NUM_ROWS, TILE_SIZE_PX,
@@ -98,8 +98,15 @@ pub fn construct_new_tile(
     }
 }
 
-fn despawn_game_tiles(mut commands: Commands, yard_query: Query<Entity, With<Yard>>) {
+fn despawn_game_tiles(
+    mut commands: Commands,
+    yard_query: Query<Entity, With<Yard>>,
+    yard_edit_state_query: Query<Entity, With<YardEditedState>>,
+) {
     for entity in yard_query.iter() {
+        commands.entity(entity).despawn_recursive();
+    }
+    for entity in yard_edit_state_query.iter() {
         commands.entity(entity).despawn_recursive();
     }
 }

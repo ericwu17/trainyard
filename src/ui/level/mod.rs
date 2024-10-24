@@ -1,5 +1,7 @@
 use bevy::prelude::*;
 
+use crate::level::LevelState;
+
 use super::{button::create_trainyard_button, UIState};
 
 #[derive(Component)]
@@ -21,7 +23,8 @@ pub struct LevelUIPlugin;
 impl Plugin for LevelUIPlugin {
     fn build(&self, app: &mut App) {
         app.add_systems(OnEnter(UIState::Level), spawn_level_ui)
-            .add_systems(OnExit(UIState::Level), teardown_level_ui);
+            .add_systems(OnExit(UIState::Level), teardown_level_ui)
+            .add_systems(Update, back_button_handler);
     }
 }
 fn spawn_level_ui(
@@ -50,37 +53,31 @@ fn spawn_level_ui(
         LevelUIRoot,
     );
 
-    let canvas_placeholder = (
-        NodeBundle {
-            style: Style {
-                width: Val::Px(672.0),
-                height: Val::Px(672.0),
-                ..default()
-            },
-            background_color: Color::srgba(1.0, 0.0, 0.0, 0.0).into(),
+    let canvas_placeholder = NodeBundle {
+        style: Style {
+            width: Val::Px(672.0),
+            height: Val::Px(672.0),
             ..default()
         },
-        LevelUIRoot,
-    );
+        background_color: Color::srgba(1.0, 0.0, 0.0, 0.0).into(),
+        ..default()
+    };
 
     // =============================================================================================
     // container for action buttons on the right
     // =============================================================================================
-    let button_container = (
-        NodeBundle {
-            style: Style {
-                width: Val::Auto,
-                height: Val::Percent(100.0),
-                justify_content: JustifyContent::Center,
-                flex_direction: FlexDirection::Column,
-                align_items: AlignItems::Center,
-                margin: UiRect::all(Val::Px(20.0)),
-                ..default()
-            },
+    let button_container = NodeBundle {
+        style: Style {
+            width: Val::Auto,
+            height: Val::Percent(100.0),
+            justify_content: JustifyContent::Center,
+            flex_direction: FlexDirection::Column,
+            align_items: AlignItems::Center,
+            margin: UiRect::all(Val::Px(20.0)),
             ..default()
         },
-        LevelUIRoot,
-    );
+        ..default()
+    };
 
     // =============================================================================================
     // buttons
@@ -148,5 +145,18 @@ fn spawn_level_ui(
 fn teardown_level_ui(mut commands: Commands, level_root_query: Query<Entity, With<LevelUIRoot>>) {
     for entity in level_root_query.iter() {
         commands.entity(entity).despawn_recursive();
+    }
+}
+
+fn back_button_handler(
+    interaction_query: Query<&Interaction, (Changed<Interaction>, With<BackButton>)>,
+    mut next_ui_state: ResMut<NextState<UIState>>,
+    mut next_level_state: ResMut<NextState<LevelState>>,
+) {
+    for interaction in interaction_query.iter() {
+        if *interaction == Interaction::Pressed {
+            next_ui_state.set(UIState::LevelPicker);
+            next_level_state.set(LevelState::None);
+        }
     }
 }
