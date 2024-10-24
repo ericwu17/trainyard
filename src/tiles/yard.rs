@@ -10,6 +10,7 @@ use crate::{NUM_COLS, NUM_ROWS, TILE_SIZE_PX};
 pub struct Yard {
     pub tiles: Vec<Vec<Box<dyn Tile + Send + Sync>>>,
     pub borders: [[TileBorderState; NUM_COLS as usize]; NUM_ROWS as usize],
+    pub base_entity: Entity,
 }
 
 #[derive(Component)]
@@ -20,6 +21,7 @@ pub struct YardTickedEvent;
 
 impl Yard {
     pub fn new(commands: &mut Commands, asset_server: &Res<AssetServer>) -> Self {
+        let base_entity = commands.spawn(SpatialBundle { ..default() }).id();
         let mut tiles: Vec<Vec<Box<dyn Tile + Send + Sync>>> = Vec::new();
         let border_states: [[TileBorderState; NUM_COLS as usize]; NUM_ROWS as usize] =
             Default::default();
@@ -34,6 +36,9 @@ impl Yard {
                     commands,
                     asset_server,
                 );
+                commands
+                    .entity(base_entity)
+                    .push_children(&[tile.get_entity()]);
                 row_vec.push(tile);
             }
             tiles.push(row_vec);
@@ -42,6 +47,7 @@ impl Yard {
         Yard {
             tiles,
             borders: border_states,
+            base_entity,
         }
     }
 
@@ -53,6 +59,9 @@ impl Yard {
         commands: &mut Commands,
     ) {
         self.tiles[row][col].despawn_entities_recursive(commands);
+        commands
+            .entity(self.base_entity)
+            .push_children(&[tile.get_entity()]);
         self.tiles[row][col] = tile;
     }
 
@@ -97,7 +106,10 @@ impl Yard {
                             TrainSprite,
                             Name::new(format!("{} train", train_color.to_str())),
                         );
-                        commands.spawn(bundle);
+                        let train_entity = commands.spawn(bundle).id();
+                        commands
+                            .entity(self.base_entity)
+                            .push_children(&[train_entity]);
                     }
                 }
             }

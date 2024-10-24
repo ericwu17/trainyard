@@ -10,7 +10,8 @@ use crate::{
     direction::Dir,
     level::{restore_yard_edited_state, LevelSet, LevelState},
     trains::TrainColor,
-    TILE_SIZE_PX,
+    ui::level::YardPlaceholderNode,
+    NUM_COLS, NUM_ROWS, TILE_SIZE_PX,
 };
 use bevy::prelude::*;
 use drawable_tile::DrawableTile;
@@ -36,10 +37,13 @@ impl Plugin for TilePlugin {
             .add_systems(
                 Update,
                 (
-                    render_yard,
-                    refresh_yard_trains.run_if(on_event::<YardTickedEvent>()),
+                    (
+                        render_yard,
+                        refresh_yard_trains.run_if(on_event::<YardTickedEvent>()),
+                    )
+                        .chain(),
+                    adjust_yard_position_to_match_placeholder,
                 )
-                    .chain()
                     .in_set(LevelSet),
             );
     }
@@ -124,5 +128,23 @@ fn refresh_yard_trains(
 
         // respawn all train entities
         yard.render_trains(&mut commands, &asset_server);
+    }
+}
+
+pub fn adjust_yard_position_to_match_placeholder(
+    yard_query: Query<Entity, With<Yard>>,
+    placeholder_query: Query<&GlobalTransform, With<YardPlaceholderNode>>,
+    mut commands: Commands,
+) {
+    if let Ok(yard_entity) = yard_query.get_single() {
+        if let Ok(placeholder_transform) = placeholder_query.get_single() {
+            let Vec2 { x, y } = placeholder_transform.translation().truncate();
+            let x = x - (NUM_COLS as f32 * TILE_SIZE_PX) / 2.0;
+            let y = y - (NUM_ROWS as f32 * TILE_SIZE_PX) / 2.0;
+            commands.entity(yard_entity).insert(TransformBundle {
+                local: Transform::from_xyz(x, y, 0.0),
+                ..default()
+            });
+        }
     }
 }

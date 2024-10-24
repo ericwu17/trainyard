@@ -1,5 +1,6 @@
 pub mod button;
 pub mod credits;
+pub mod level;
 pub mod level_picker;
 pub mod main_menu;
 
@@ -35,6 +36,7 @@ impl Plugin for TrainyardUIPlugin {
             .add_plugins((
                 main_menu::MainMenuUIPlugin,
                 level_picker::LevelPickerUIPlugin,
+                level::LevelUIPlugin,
                 credits::CreditsUIPlugin,
             ))
             .add_systems(

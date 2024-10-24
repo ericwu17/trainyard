@@ -211,10 +211,10 @@ pub fn level_start_event_handler(
         let mut found_level = false;
         for level in levels.0.iter() {
             if level.name == start_event.level_name {
-                let yard = level.to_yard(&mut commands, &asset_server);
+                let yard_entity = level.to_yard(&mut commands, &asset_server);
 
-                let yard_bundle = (yard, YardComponent, Name::new("The Yard"));
-                commands.spawn(yard_bundle);
+                let yard_bundle = (YardComponent, Name::new("The Yard"));
+                commands.entity(yard_entity).insert(yard_bundle);
                 found_level = true;
                 break;
             }

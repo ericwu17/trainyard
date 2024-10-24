@@ -93,17 +93,26 @@ impl CursorState {
     }
 }
 
-fn spawn_cursor(mut commands: Commands, asset_server: Res<AssetServer>) {
-    commands.spawn((
-        TilePosition { r: 3, c: 3 },
-        CursorComponent,
-        OldCursorMovementDir { dir: None },
-        SpriteBundle {
-            texture: asset_server.load("sprites/Cursor1.png"),
-            transform: Transform::from_xyz(TILE_SIZE_PX * 3.5, TILE_SIZE_PX * 3.5, 1.0),
-            ..default()
-        },
-    ));
+fn spawn_cursor(
+    mut commands: Commands,
+    asset_server: Res<AssetServer>,
+    yard_entity_query: Query<Entity, With<Yard>>,
+) {
+    let yard_entity = yard_entity_query.single();
+
+    let cursor = commands
+        .spawn((
+            TilePosition { r: 3, c: 3 },
+            CursorComponent,
+            OldCursorMovementDir { dir: None },
+            SpriteBundle {
+                texture: asset_server.load("sprites/Cursor1.png"),
+                transform: Transform::from_xyz(TILE_SIZE_PX * 3.5, TILE_SIZE_PX * 3.5, 1.0),
+                ..default()
+            },
+        ))
+        .id();
+    commands.entity(yard_entity).push_children(&[cursor]);
 }
 
 fn despawn_cursor(mut commands: Commands, cursor_query: Query<Entity, With<CursorComponent>>) {
@@ -230,20 +239,27 @@ fn move_cursor_by_mouse(
     q_windows: Query<&Window, With<PrimaryWindow>>,
     mut q_old_movement_dir: Query<&mut OldCursorMovementDir>,
     mut moved_events: EventWriter<CursorMovedEvent>,
+    camera_query: Query<(&Camera, &GlobalTransform)>,
+    yard_global_transform_query: Query<&GlobalTransform, With<Yard>>,
 ) {
     let window = q_windows.single();
+    let (camera, camera_transform) = camera_query.single();
+    let yard_transform = yard_global_transform_query.single();
+    let yard_transform = yard_transform.translation().truncate();
 
     let mut position = q_position.single_mut();
     let mut old_movement_dir = q_old_movement_dir.single_mut();
 
     if let Some(cursor_position) = window.cursor_position() {
         // cursor is currently inside the window
-        if *state.get() == CursorState::NotDrawing {
-            next_state.set(CursorState::Drawing);
-        }
 
-        let x = cursor_position.x;
-        let y = window.height() - cursor_position.y;
+        let world_coordinates_of_mouse = camera
+            .viewport_to_world_2d(camera_transform, cursor_position)
+            .unwrap();
+        let yard_local_coords = world_coordinates_of_mouse - yard_transform;
+
+        let x = yard_local_coords.x;
+        let y = yard_local_coords.y;
 
         let c = (x / TILE_SIZE_PX) as i32;
         let r = (y / TILE_SIZE_PX) as i32;
@@ -284,6 +300,10 @@ fn move_cursor_by_mouse(
 
         position.r = r;
         position.c = c;
+
+        if *state.get() == CursorState::NotDrawing {
+            next_state.set(CursorState::Drawing);
+        }
     }
 }
 

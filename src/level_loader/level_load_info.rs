@@ -16,8 +16,8 @@ pub struct LevelLoadInfo {
 }
 
 impl LevelLoadInfo {
-    pub fn to_yard(&self, commands: &mut Commands, asset_server: &Res<AssetServer>) -> Yard {
-        let mut yard = Yard::new(commands, asset_server);
+    pub fn to_yard(&self, commands: &mut Commands, asset_server: &Res<AssetServer>) -> Entity {
+        let mut yard: Yard = Yard::new(commands, asset_server);
 
         for source in self.sources.clone() {
             let (trains, out_dir, (row, col)) = source;
@@ -66,7 +66,6 @@ impl LevelLoadInfo {
                 commands,
             );
         }
-
-        yard
+        commands.entity(yard.base_entity).insert(yard).id()
     }
 }
