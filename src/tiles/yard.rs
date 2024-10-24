@@ -135,8 +135,13 @@ impl Yard {
         for row in 0..((NUM_ROWS - 1) as usize) {
             for col in 0..(NUM_COLS as usize) {
                 // vertical swaps:
-                let t1 = outgoing_border_states[row][col].get_train(Dir::Up);
-                let t2 = outgoing_border_states[row + 1][col].get_train(Dir::Down);
+                let mut t1 = outgoing_border_states[row][col].get_train(Dir::Up);
+                let mut t2 = outgoing_border_states[row + 1][col].get_train(Dir::Down);
+                if t1.is_some() && t2.is_some() {
+                    let new_color = t1.unwrap().mix_with(t2.unwrap());
+                    t1 = Some(new_color);
+                    t2 = Some(new_color);
+                }
                 outgoing_border_states[row][col].set_train(t2, Dir::Up);
                 outgoing_border_states[row + 1][col].set_train(t1, Dir::Down);
             }
@@ -144,8 +149,13 @@ impl Yard {
         for row in 0..(NUM_ROWS as usize) {
             for col in 0..((NUM_COLS - 1) as usize) {
                 // horizontal swaps:
-                let t1 = outgoing_border_states[row][col].get_train(Dir::Right);
-                let t2 = outgoing_border_states[row][col + 1].get_train(Dir::Left);
+                let mut t1 = outgoing_border_states[row][col].get_train(Dir::Right);
+                let mut t2 = outgoing_border_states[row][col + 1].get_train(Dir::Left);
+                if t1.is_some() && t2.is_some() {
+                    let new_color = t1.unwrap().mix_with(t2.unwrap());
+                    t1 = Some(new_color);
+                    t2 = Some(new_color);
+                }
                 outgoing_border_states[row][col].set_train(t2, Dir::Right);
                 outgoing_border_states[row][col + 1].set_train(t1, Dir::Left);
             }
