@@ -76,7 +76,7 @@ pub fn construct_new_tile(
 
     let entity = commands
         .spawn((
-            SpriteBundle {
+            SpatialBundle {
                 transform: Transform::from_xyz(x, y, 0.0),
                 ..default()
             },

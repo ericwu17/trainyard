@@ -49,7 +49,7 @@ impl SinkTile {
                         let entry_spout_entity = parent
                             .spawn((
                                 SpriteBundle {
-                                    transform: Transform::from_xyz(0.0, 0.0, 0.5)
+                                    transform: Transform::from_xyz(0.0, 0.0, 0.1)
                                         .with_rotation(Quat::from(Dir::from(dir_u8))),
                                     texture: asset_server.load("sprites/Trainsink_entry.png"),
                                     ..default()

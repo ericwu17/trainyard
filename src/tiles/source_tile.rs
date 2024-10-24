@@ -46,7 +46,7 @@ impl SourceTile {
                 exit_spout_entity = parent
                     .spawn((
                         SpriteBundle {
-                            transform: Transform::from_xyz(0.0, 0.0, 0.5)
+                            transform: Transform::from_xyz(0.0, 0.0, 0.2)
                                 .with_rotation(Quat::from(out_dir)),
                             texture: asset_server.load("sprites/Trainsource_exit.png"),
                             ..default()
