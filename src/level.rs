@@ -1,16 +1,16 @@
-use std::time::Duration;
+pub mod cursor;
+pub mod direction;
+pub mod tiles;
+pub mod trains;
+pub mod yard;
 
 use bevy::prelude::*;
+use std::time::Duration;
 
-use crate::{
-    cursor::CursorPlugin,
-    level_loader::StockLevelInfos,
-    tiles::{
-        yard::{Yard, YardTickedEvent},
-        TilePlugin, YardComponent,
-    },
-    ui::level_picker::StartLevelEvent,
-};
+use crate::{level_loader::StockLevelInfos, ui::level_picker::StartLevelEvent};
+use cursor::CursorPlugin;
+use tiles::{TilePlugin, YardComponent};
+use yard::{Yard, YardEditedState, YardTickedEvent};
 
 #[derive(States, Default, Debug, Clone, PartialEq, Eq, Hash)]
 pub enum LevelState {
@@ -26,9 +26,6 @@ pub enum LevelState {
 pub struct YardTickTimer {
     timer: Timer,
 }
-
-#[derive(Component)]
-pub struct YardEditedState(Yard);
 
 #[derive(Event, Default)]
 pub struct TrainCrashedEvent;

@@ -1,9 +1,7 @@
 use bevy::prelude::*;
 
-use super::{connections::TileBorderState, construct_new_tile, TileConstructionInfo};
-use crate::direction::Dir;
-use crate::level::TrainCrashedEvent;
-use crate::tiles::tile::Tile;
+use super::tiles::{connections::TileBorderState, construct_new_tile, TileConstructionInfo};
+use crate::level::{direction::Dir, tiles::tile::Tile, TrainCrashedEvent};
 use crate::{NUM_COLS, NUM_ROWS, TILE_SIZE_PX};
 
 #[derive(Component, Clone)]
@@ -15,6 +13,9 @@ pub struct Yard {
 
 #[derive(Component)]
 pub struct TrainSprite;
+
+#[derive(Component)]
+pub struct YardEditedState(pub Yard);
 
 #[derive(Event, Default)]
 pub struct YardTickedEvent;

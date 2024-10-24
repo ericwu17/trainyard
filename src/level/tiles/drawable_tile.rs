@@ -1,10 +1,12 @@
 use bevy::prelude::*;
 
-use crate::direction::Dir;
-use crate::level::TrainCrashedEvent;
-use crate::tiles::connections::{TileBorderState, TileConnections};
-use crate::tiles::tile::Tile;
-use crate::trains::TrainColor;
+use crate::level::{
+    direction::Dir,
+    tiles::connections::{TileBorderState, TileConnections},
+    tiles::tile::Tile,
+    trains::TrainColor,
+    TrainCrashedEvent,
+};
 
 #[derive(Component)]
 pub struct DrawableTileSpriteComponent;

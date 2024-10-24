@@ -1,6 +1,6 @@
 use bevy::prelude::*;
 
-use crate::{direction::Dir, level::TrainCrashedEvent};
+use crate::level::{direction::Dir, TrainCrashedEvent};
 
 use super::connections::TileBorderState;
 

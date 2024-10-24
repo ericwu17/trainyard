@@ -1,8 +1,7 @@
 use bevy::prelude::*;
 
-use crate::{direction::Dir, level::TrainCrashedEvent};
-
 use super::{connections::TileBorderState, tile::Tile};
+use crate::level::{direction::Dir, TrainCrashedEvent};
 
 #[derive(Component)]
 pub struct RockTileSpriteComponent;

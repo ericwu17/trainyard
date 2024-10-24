@@ -4,22 +4,26 @@ pub mod rock_tile;
 pub mod sink_tile;
 pub mod source_tile;
 pub mod tile;
-pub mod yard;
+
+use bevy::prelude::*;
 
 use crate::{
-    direction::Dir,
-    level::{restore_yard_edited_state, LevelSet, LevelState, YardEditedState},
-    trains::TrainColor,
+    level::{
+        direction::Dir,
+        restore_yard_edited_state,
+        trains::TrainColor,
+        yard::YardEditedState,
+        yard::{TrainSprite, Yard, YardTickedEvent},
+        LevelSet, LevelState,
+    },
     ui::level::YardPlaceholderNode,
     NUM_COLS, NUM_ROWS, TILE_SIZE_PX,
 };
-use bevy::prelude::*;
 use drawable_tile::DrawableTile;
 use rock_tile::RockTile;
 use sink_tile::SinkTile;
 use source_tile::SourceTile;
 use tile::Tile;
-use yard::{TrainSprite, Yard, YardTickedEvent};
 
 pub struct TilePlugin;
 

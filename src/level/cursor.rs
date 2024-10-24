@@ -2,9 +2,11 @@ use bevy::input::common_conditions::input_just_pressed;
 use bevy::prelude::*;
 use bevy::{input::common_conditions::input_pressed, window::PrimaryWindow};
 
+use crate::level::yard::Yard;
 use crate::level::{LevelEditingSet, LevelState};
-use crate::tiles::yard::Yard;
-use crate::{direction::Dir, NUM_COLS, NUM_ROWS, TILE_SIZE_PX};
+use crate::{NUM_COLS, NUM_ROWS, TILE_SIZE_PX};
+
+use super::direction::Dir;
 
 #[derive(Component)]
 pub struct TilePosition {

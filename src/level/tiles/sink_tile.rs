@@ -2,8 +2,7 @@ use bevy::prelude::*;
 
 use super::source_tile::INNER_SPRITE_SIZE;
 use super::{connections::TileBorderState, tile::Tile};
-use crate::level::TrainCrashedEvent;
-use crate::{direction::Dir, trains::TrainColor};
+use crate::level::{direction::Dir, trains::TrainColor, TrainCrashedEvent};
 
 #[derive(Clone)]
 pub struct SinkTile {

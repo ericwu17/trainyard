@@ -1,8 +1,7 @@
+use bevy::prelude::*;
 use std::f32::consts::{FRAC_PI_2, PI};
 
-use bevy::prelude::*;
-
-use crate::{direction::Dir, trains::TrainColor};
+use crate::level::{direction::Dir, trains::TrainColor};
 
 /// A struct representing possible active and passive connections on a track, with the data represented as a single byte.
 ///

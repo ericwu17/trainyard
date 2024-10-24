@@ -1,7 +1,7 @@
-use crate::direction::Dir;
-use crate::tiles::yard::Yard;
-use crate::tiles::{construct_new_tile, TileConstructionInfo};
-use crate::trains::TrainColor;
+use crate::level::direction::Dir;
+use crate::level::tiles::{construct_new_tile, TileConstructionInfo};
+use crate::level::trains::TrainColor;
+use crate::level::yard::Yard;
 use bevy::prelude::*;
 use serde::{Deserialize, Serialize};
 
