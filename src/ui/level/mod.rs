@@ -1,20 +1,12 @@
 use bevy::prelude::*;
 
-use crate::level::LevelState;
-
-use super::{button::create_trainyard_button, UIState};
+use super::{
+    button::{create_trainyard_button, TrainyardButton},
+    UIState,
+};
 
 #[derive(Component)]
 pub struct LevelUIRoot;
-
-#[derive(Component)]
-pub struct BackButton;
-
-#[derive(Component)]
-pub struct StartTrainsButton;
-
-#[derive(Component)]
-pub struct StartEraseButton;
 
 #[derive(Component)]
 pub struct YardPlaceholderNode;
@@ -23,10 +15,10 @@ pub struct LevelUIPlugin;
 impl Plugin for LevelUIPlugin {
     fn build(&self, app: &mut App) {
         app.add_systems(OnEnter(UIState::Level), spawn_level_ui)
-            .add_systems(OnExit(UIState::Level), teardown_level_ui)
-            .add_systems(Update, back_button_handler);
+            .add_systems(OnExit(UIState::Level), teardown_level_ui);
     }
 }
+
 fn spawn_level_ui(
     mut commands: Commands,
     asset_server: Res<AssetServer>,
@@ -96,8 +88,8 @@ fn spawn_level_ui(
         button_text_size,
         button_border_color,
         font.clone(),
+        TrainyardButton::LevelBackButton,
     );
-    commands.entity(back_button).insert(BackButton);
 
     let start_trains_button = create_trainyard_button(
         &mut commands,
@@ -107,10 +99,8 @@ fn spawn_level_ui(
         button_text_size,
         button_border_color,
         font.clone(),
+        TrainyardButton::LevelStartTrainsButton,
     );
-    commands
-        .entity(start_trains_button)
-        .insert(StartTrainsButton);
 
     let start_erase_button = create_trainyard_button(
         &mut commands,
@@ -120,8 +110,8 @@ fn spawn_level_ui(
         button_text_size,
         button_border_color,
         font.clone(),
+        TrainyardButton::LevelStartEraseButton,
     );
-    commands.entity(start_erase_button).insert(StartEraseButton);
 
     // putting it all together
 
@@ -145,18 +135,5 @@ fn spawn_level_ui(
 fn teardown_level_ui(mut commands: Commands, level_root_query: Query<Entity, With<LevelUIRoot>>) {
     for entity in level_root_query.iter() {
         commands.entity(entity).despawn_recursive();
-    }
-}
-
-fn back_button_handler(
-    interaction_query: Query<&Interaction, (Changed<Interaction>, With<BackButton>)>,
-    mut next_ui_state: ResMut<NextState<UIState>>,
-    mut next_level_state: ResMut<NextState<LevelState>>,
-) {
-    for interaction in interaction_query.iter() {
-        if *interaction == Interaction::Pressed {
-            next_ui_state.set(UIState::LevelPicker);
-            next_level_state.set(LevelState::None);
-        }
     }
 }

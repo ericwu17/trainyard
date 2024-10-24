@@ -2,15 +2,13 @@ use bevy::prelude::*;
 
 use crate::level_loader::StockLevelInfos;
 
-use super::{button::create_trainyard_button, UIState};
+use super::{
+    button::{create_trainyard_button, TrainyardButton},
+    UIState,
+};
 
 #[derive(Component)]
 pub struct LevelPickerUIRoot;
-
-#[derive(Component)]
-pub struct StartLevelButton {
-    pub level_name: String,
-}
 
 #[derive(Event)]
 pub struct StartLevelEvent {
@@ -22,11 +20,7 @@ impl Plugin for LevelPickerUIPlugin {
     fn build(&self, app: &mut App) {
         app.add_event::<StartLevelEvent>()
             .add_systems(OnEnter(UIState::LevelPicker), spawn_level_picker)
-            .add_systems(OnExit(UIState::LevelPicker), teardown_level_picker)
-            .add_systems(
-                Update,
-                enter_level_button_handler.run_if(in_state(UIState::LevelPicker)),
-            );
+            .add_systems(OnExit(UIState::LevelPicker), teardown_level_picker);
     }
 }
 fn spawn_level_picker(
@@ -119,11 +113,9 @@ fn spawn_level_picker(
             20.0,
             super::BTN_BORDER_GREEN,
             font.clone(),
+            TrainyardButton::LevelPickerStartLevel(name.clone()),
         );
         buttons.push(button);
-        commands.entity(button).insert(StartLevelButton {
-            level_name: name.clone(),
-        });
     }
 
     // putting it all together
@@ -148,20 +140,5 @@ fn teardown_level_picker(
 ) {
     for entity in level_picker_root_query.iter() {
         commands.entity(entity).despawn_recursive();
-    }
-}
-
-fn enter_level_button_handler(
-    interaction_query: Query<(&Interaction, &StartLevelButton), Changed<Interaction>>,
-    mut ev_writer: EventWriter<StartLevelEvent>,
-    mut next_ui_state: ResMut<NextState<UIState>>,
-) {
-    for (interaction, name) in interaction_query.iter() {
-        if *interaction == Interaction::Pressed {
-            ev_writer.send(StartLevelEvent {
-                level_name: name.level_name.clone(),
-            });
-            next_ui_state.set(UIState::Level);
-        }
     }
 }

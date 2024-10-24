@@ -5,7 +5,7 @@ pub mod level_picker;
 pub mod main_menu;
 
 use bevy::prelude::*;
-use button::button_sounds_system;
+use button::{button_sounds_system, trainyard_ui_button_handler};
 
 #[derive(Component)]
 pub struct UIRootContainer;
@@ -43,7 +43,7 @@ impl Plugin for TrainyardUIPlugin {
                 Startup,
                 (spawn_ui_root_container, set_initial_ui_state).chain(),
             )
-            .add_systems(Update, button_sounds_system);
+            .add_systems(Update, (button_sounds_system, trainyard_ui_button_handler));
     }
 }
 

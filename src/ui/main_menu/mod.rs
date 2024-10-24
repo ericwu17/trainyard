@@ -1,11 +1,9 @@
 use bevy::prelude::*;
 
-use super::{button::create_trainyard_button, UIState};
-
-#[derive(Component)]
-pub struct MainMenuPlayButton;
-#[derive(Component)]
-pub struct MainMenuCreditsButton;
+use super::{
+    button::{create_trainyard_button, TrainyardButton},
+    UIState,
+};
 
 #[derive(Component)]
 pub struct MainMenuUIRoot;
@@ -14,30 +12,7 @@ pub struct MainMenuUIPlugin;
 impl Plugin for MainMenuUIPlugin {
     fn build(&self, app: &mut App) {
         app.add_systems(OnEnter(UIState::MainMenu), spawn_main_menu)
-            .add_systems(OnExit(UIState::MainMenu), teardown_main_menu)
-            .add_systems(Update, (play_button_system, credits_button_system));
-    }
-}
-
-fn play_button_system(
-    interaction_query: Query<&Interaction, (Changed<Interaction>, With<MainMenuPlayButton>)>,
-    mut next_state: ResMut<NextState<UIState>>,
-) {
-    for interaction in interaction_query.iter() {
-        if *interaction == Interaction::Pressed {
-            next_state.set(UIState::LevelPicker);
-        }
-    }
-}
-
-fn credits_button_system(
-    interaction_query: Query<&Interaction, (Changed<Interaction>, With<MainMenuCreditsButton>)>,
-    mut next_state: ResMut<NextState<UIState>>,
-) {
-    for interaction in interaction_query.iter() {
-        if *interaction == Interaction::Pressed {
-            next_state.set(UIState::Credits);
-        }
+            .add_systems(OnExit(UIState::MainMenu), teardown_main_menu);
     }
 }
 
@@ -106,8 +81,8 @@ fn spawn_main_menu(
         50.0,
         super::BTN_BORDER_GREEN,
         font.clone(),
+        TrainyardButton::MainMenuStartGame,
     );
-    commands.entity(play_button).insert(MainMenuPlayButton);
 
     // =============================================================================================
     // "credits" button
@@ -120,13 +95,10 @@ fn spawn_main_menu(
         50.0,
         super::BTN_BORDER_BLUE,
         font.clone(),
+        TrainyardButton::MainMenuCredits,
     );
-    commands
-        .entity(credits_button)
-        .insert(MainMenuCreditsButton);
-
     // =============================================================================================
-    // "credits" button
+    // put it together
     // =============================================================================================
 
     let main_menu_root = commands.spawn(main_menu_root).id();

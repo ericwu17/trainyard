@@ -85,24 +85,27 @@ pub fn update_level_state_from_keypress(
     mut next_state: ResMut<NextState<LevelState>>,
 ) {
     if keyboard_input.just_pressed(KeyCode::Space) {
-        match state.get() {
-            LevelState::Editing => {
-                next_state.set(LevelState::Running);
-            }
-            LevelState::Running => {
-                next_state.set(LevelState::Editing);
-            }
-            LevelState::Crashed => {
-                next_state.set(LevelState::Editing);
-            }
-            LevelState::Won => {
-                // do nothing
-            }
-            LevelState::None => {
-                // do nothing
-            }
-        };
+        toggle_level_state(&state, &mut next_state);
     }
+}
+pub fn toggle_level_state(
+    state: &Res<State<LevelState>>,
+    next_state: &mut ResMut<NextState<LevelState>>,
+) {
+    match state.get() {
+        LevelState::Editing => {
+            next_state.set(LevelState::Running);
+        }
+        LevelState::Running => {
+            next_state.set(LevelState::Editing);
+        }
+        LevelState::Crashed => {
+            next_state.set(LevelState::Editing);
+        }
+        _ => {
+            // do nothing
+        }
+    };
 }
 
 pub fn save_yard_edited_state(mut commands: Commands, yard_query: Query<&Yard>) {

@@ -1,30 +1,18 @@
 use bevy::prelude::*;
 
-use super::{button::create_trainyard_button, UIState};
+use super::{
+    button::{create_trainyard_button, TrainyardButton},
+    UIState,
+};
 
 #[derive(Component)]
 pub struct CreditsUIRoot;
-
-#[derive(Component)]
-pub struct CreditsBackButton;
 
 pub struct CreditsUIPlugin;
 impl Plugin for CreditsUIPlugin {
     fn build(&self, app: &mut App) {
         app.add_systems(OnEnter(UIState::Credits), spawn_credits)
-            .add_systems(OnExit(UIState::Credits), teardown_credits)
-            .add_systems(Update, back_button_handler);
-    }
-}
-
-fn back_button_handler(
-    interaction_query: Query<&Interaction, (Changed<Interaction>, With<CreditsBackButton>)>,
-    mut next_state: ResMut<NextState<UIState>>,
-) {
-    for interaction in interaction_query.iter() {
-        if *interaction == Interaction::Pressed {
-            next_state.set(UIState::MainMenu);
-        }
+            .add_systems(OnExit(UIState::Credits), teardown_credits);
     }
 }
 
@@ -126,8 +114,8 @@ fn spawn_credits(
         50.0,
         super::BTN_BORDER_GREEN,
         font.clone(),
+        TrainyardButton::CreditsBack,
     );
-    commands.entity(back_button).insert(CreditsBackButton);
 
     let credits_root = commands.spawn(credits_root).id();
     let title_text_box = commands.spawn(title_text_box).id();

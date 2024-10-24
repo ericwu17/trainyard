@@ -1,7 +1,20 @@
 use bevy::prelude::*;
 
+use super::{level_picker::StartLevelEvent, UIState};
+use crate::level::{cursor::CursorState, toggle_level_state, LevelState};
+
 #[derive(Component)]
-pub struct TrainyardButton;
+pub enum TrainyardButton {
+    // enum variant to represent a "generic button, ignored by the button handler"
+    Unknown,
+    MainMenuStartGame,
+    MainMenuCredits,
+    CreditsBack,
+    LevelPickerStartLevel(String),
+    LevelBackButton,
+    LevelStartTrainsButton,
+    LevelStartEraseButton,
+}
 
 // util function for creating a button and getting a handle to the entity
 pub fn create_trainyard_button(
@@ -12,6 +25,7 @@ pub fn create_trainyard_button(
     text_size: f32,
     border_color: Color,
     font: Handle<Font>,
+    button_type: TrainyardButton,
 ) -> Entity {
     let button_bundle = (
         ButtonBundle {
@@ -31,7 +45,7 @@ pub fn create_trainyard_button(
             background_color: super::BTN_BG.into(),
             ..default()
         },
-        TrainyardButton,
+        button_type,
     );
 
     let text_bundle = TextBundle::from_section(
@@ -67,6 +81,49 @@ pub fn button_sounds_system(
                 source: asset_server.load("audio/button_press.ogg"),
                 ..default()
             });
+        }
+    }
+}
+
+pub fn trainyard_ui_button_handler(
+    interaction_query: Query<(&Interaction, &TrainyardButton), Changed<Interaction>>,
+    level_state: Res<State<LevelState>>,
+    cursor_state: Res<State<CursorState>>,
+    mut next_ui_state: ResMut<NextState<UIState>>,
+    mut next_level_state: ResMut<NextState<LevelState>>,
+    mut next_cursor_state: ResMut<NextState<CursorState>>,
+    mut start_lvl_ev_writer: EventWriter<StartLevelEvent>,
+) {
+    for (interaction, button) in interaction_query.iter() {
+        if *interaction == Interaction::Pressed {
+            match button {
+                TrainyardButton::Unknown => {}
+                TrainyardButton::MainMenuStartGame => {
+                    next_ui_state.set(UIState::LevelPicker);
+                }
+                TrainyardButton::MainMenuCredits => {
+                    next_ui_state.set(UIState::Credits);
+                }
+                TrainyardButton::CreditsBack => {
+                    next_ui_state.set(UIState::MainMenu);
+                }
+                TrainyardButton::LevelPickerStartLevel(level_name) => {
+                    start_lvl_ev_writer.send(StartLevelEvent {
+                        level_name: level_name.clone(),
+                    });
+                    next_ui_state.set(UIState::Level);
+                }
+                TrainyardButton::LevelBackButton => {
+                    next_ui_state.set(UIState::LevelPicker);
+                    next_level_state.set(LevelState::None);
+                }
+                TrainyardButton::LevelStartTrainsButton => {
+                    toggle_level_state(&level_state, &mut next_level_state);
+                }
+                TrainyardButton::LevelStartEraseButton => {
+                    next_cursor_state.set(cursor_state.get().toggle_erase())
+                }
+            }
         }
     }
 }
