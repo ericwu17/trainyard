@@ -9,7 +9,6 @@ pub mod yard;
 use crate::{
     direction::Dir,
     level::{restore_yard_edited_state, LevelSet, LevelState},
-    level_loader::StockLevelInfos,
     trains::TrainColor,
     TILE_SIZE_PX,
 };
@@ -29,7 +28,6 @@ pub struct YardComponent;
 impl Plugin for TilePlugin {
     fn build(&self, app: &mut App) {
         app.add_event::<YardTickedEvent>()
-            .add_systems(OnExit(LevelState::None), spawn_game_tiles)
             .add_systems(OnEnter(LevelState::None), despawn_game_tiles)
             .add_systems(
                 OnEnter(LevelState::Editing),
@@ -94,17 +92,6 @@ pub fn construct_new_tile(
         TileConstructionInfo::Painter => todo!(),
         TileConstructionInfo::Splitter => todo!(),
     }
-}
-
-fn spawn_game_tiles(
-    mut commands: Commands,
-    asset_server: Res<AssetServer>,
-    levels: Res<StockLevelInfos>,
-) {
-    let yard = levels.0[0].to_yard(&mut commands, &asset_server);
-
-    let yard_bundle = (yard, YardComponent, Name::new("The Yard"));
-    commands.spawn(yard_bundle);
 }
 
 fn despawn_game_tiles(mut commands: Commands, yard_query: Query<Entity, With<Yard>>) {

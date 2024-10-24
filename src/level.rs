@@ -4,10 +4,12 @@ use bevy::prelude::*;
 
 use crate::{
     cursor::CursorPlugin,
+    level_loader::StockLevelInfos,
     tiles::{
         yard::{Yard, YardTickedEvent},
-        TilePlugin,
+        TilePlugin, YardComponent,
     },
+    ui::level_picker::StartLevelEvent,
 };
 
 #[derive(States, Default, Debug, Clone, PartialEq, Eq, Hash)]
@@ -72,6 +74,10 @@ impl Plugin for LevelPlugin {
                     win_event_handler.run_if(on_event::<WinLevelEvent>()),
                 )
                     .in_set(LevelSet),
+            )
+            .add_systems(
+                Update,
+                level_start_event_handler.run_if(on_event::<StartLevelEvent>()),
             );
     }
 }
@@ -191,5 +197,34 @@ pub fn win_event_handler(
             source: asset_server.load("audio/win_level.ogg"),
             ..default()
         });
+    }
+}
+
+pub fn level_start_event_handler(
+    mut commands: Commands,
+    mut start_event_reader: EventReader<StartLevelEvent>,
+    mut next_level_state: ResMut<NextState<LevelState>>,
+    asset_server: Res<AssetServer>,
+    levels: Res<StockLevelInfos>,
+) {
+    for start_event in start_event_reader.read() {
+        let mut found_level = false;
+        for level in levels.0.iter() {
+            if level.name == start_event.level_name {
+                let yard = level.to_yard(&mut commands, &asset_server);
+
+                let yard_bundle = (yard, YardComponent, Name::new("The Yard"));
+                commands.spawn(yard_bundle);
+                found_level = true;
+                break;
+            }
+        }
+        if !found_level {
+            panic!(
+                "could not find a level with name {}",
+                start_event.level_name
+            );
+        }
+        next_level_state.set(LevelState::Editing);
     }
 }
