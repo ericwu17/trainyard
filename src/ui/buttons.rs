@@ -1,9 +1,12 @@
+pub mod erase;
+pub mod level_run;
+
 use bevy::prelude::*;
 
 use super::{level_picker::StartLevelEvent, UIState};
 use crate::level::{cursor::CursorState, toggle_level_state, LevelState};
 
-#[derive(Component)]
+#[derive(Component, Clone, PartialEq, Eq)]
 pub enum TrainyardButton {
     // enum variant to represent a "generic button, ignored by the button handler"
     Unknown,
@@ -14,6 +17,17 @@ pub enum TrainyardButton {
     LevelBackButton,
     LevelStartTrainsButton,
     LevelStartEraseButton,
+}
+
+pub struct ButtonPlugin;
+impl Plugin for ButtonPlugin {
+    fn build(&self, app: &mut App) {
+        app.add_systems(Update, (button_sounds_system, trainyard_ui_button_handler))
+            .add_systems(OnEnter(CursorState::Erasing), erase::on_enter_erase)
+            .add_systems(OnExit(CursorState::Erasing), erase::on_exit_erase)
+            .add_systems(OnExit(LevelState::Editing), level_run::on_enter_run)
+            .add_systems(OnEnter(LevelState::Editing), level_run::on_exit_run);
+    }
 }
 
 // util function for creating a button and getting a handle to the entity
@@ -45,10 +59,10 @@ pub fn create_trainyard_button(
             background_color: super::BTN_BG.into(),
             ..default()
         },
-        button_type,
+        button_type.clone(),
     );
 
-    let text_bundle = TextBundle::from_section(
+    let text_component = TextBundle::from_section(
         text,
         TextStyle {
             font,
@@ -63,6 +77,7 @@ pub fn create_trainyard_button(
         width: Val::Percent(100.0),
         ..default()
     });
+    let text_bundle = (text_component, button_type);
 
     let button_entity = commands.spawn(button_bundle).id();
     let text_entity = commands.spawn(text_bundle).id();
@@ -121,7 +136,9 @@ pub fn trainyard_ui_button_handler(
                     toggle_level_state(&level_state, &mut next_level_state);
                 }
                 TrainyardButton::LevelStartEraseButton => {
-                    next_cursor_state.set(cursor_state.get().toggle_erase())
+                    if *level_state.get() == LevelState::Editing {
+                        next_cursor_state.set(cursor_state.get().toggle_erase())
+                    }
                 }
             }
         }
