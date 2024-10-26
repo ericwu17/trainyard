@@ -8,6 +8,10 @@ use crate::{NUM_COLS, NUM_ROWS, TILE_SIZE_PX};
 
 use super::direction::Dir;
 
+pub const NEUTRAL_CURSOR_COLOR: Color = Color::WHITE;
+pub const DRAWING_CURSOR_COLOR: Color = Color::srgb(0.0, 0.0, 1.0);
+pub const ERASING_CURSOR_COLOR: Color = Color::srgb(0.93, 0.59, 0.51);
+
 #[derive(Component)]
 pub struct TilePosition {
     pub r: u8,
@@ -42,15 +46,11 @@ impl Plugin for CursorPlugin {
                 )
                     .in_set(LevelEditingSet),
             )
+            .add_systems(OnEnter(CursorState::Drawing), clear_cursor_old_dir)
             .add_systems(
-                OnEnter(CursorState::Drawing),
-                (change_cursor_to_drawing, clear_cursor_old_dir),
-            )
-            .add_systems(
-                OnEnter(CursorState::NotDrawing),
-                change_cursor_to_not_drawing,
-            )
-            .add_systems(OnEnter(CursorState::Erasing), change_cursor_to_erasing);
+                Update,
+                update_cursor_color.run_if(on_event::<StateTransitionEvent<CursorState>>()),
+            );
     }
 }
 
@@ -93,14 +93,25 @@ impl CursorState {
             CursorState::Erasing => CursorState::NotDrawing,
         }
     }
+
+    pub fn get_color(&self) -> Color {
+        match self {
+            CursorState::Drawing => DRAWING_CURSOR_COLOR,
+            CursorState::NotDrawing => NEUTRAL_CURSOR_COLOR,
+            CursorState::Erasing => ERASING_CURSOR_COLOR,
+        }
+    }
 }
 
 fn spawn_cursor(
     mut commands: Commands,
     asset_server: Res<AssetServer>,
+    cursor_state: Res<State<CursorState>>,
     yard_entity_query: Query<Entity, With<Yard>>,
 ) {
     let yard_entity = yard_entity_query.single();
+
+    let cursor_color = cursor_state.get().get_color();
 
     let cursor = commands
         .spawn((
@@ -108,8 +119,12 @@ fn spawn_cursor(
             CursorComponent,
             OldCursorMovementDir { dir: None },
             SpriteBundle {
-                texture: asset_server.load("sprites/Cursor1.png"),
+                texture: asset_server.load("sprites/Cursor.png"),
                 transform: Transform::from_xyz(TILE_SIZE_PX * 3.5, TILE_SIZE_PX * 3.5, 1.0),
+                sprite: Sprite {
+                    color: Color::from(cursor_color),
+                    ..default()
+                },
                 ..default()
             },
         ))
@@ -117,10 +132,15 @@ fn spawn_cursor(
     commands.entity(yard_entity).push_children(&[cursor]);
 }
 
-fn despawn_cursor(mut commands: Commands, cursor_query: Query<Entity, With<CursorComponent>>) {
+fn despawn_cursor(
+    mut commands: Commands,
+    cursor_query: Query<Entity, With<CursorComponent>>,
+    mut next_cursor_state: ResMut<NextState<CursorState>>,
+) {
     for entity in cursor_query.iter() {
         commands.entity(entity).remove_parent().despawn();
     }
+    next_cursor_state.set(CursorState::NotDrawing);
 }
 
 fn draw_cursor_position(
@@ -135,36 +155,18 @@ fn draw_cursor_position(
     }
 }
 
-fn change_cursor_to_drawing(
-    mut query: Query<&mut Handle<Image>, With<CursorComponent>>,
-    asset_server: Res<AssetServer>,
-) {
-    if let Ok(mut img_handle) = query.get_single_mut() {
-        *img_handle = asset_server.load("sprites/Cursor2.png");
-    }
-}
-
 fn clear_cursor_old_dir(mut query: Query<&mut OldCursorMovementDir>) {
     if let Ok(mut old_movement_dir) = query.get_single_mut() {
         old_movement_dir.dir = None;
     }
 }
 
-fn change_cursor_to_not_drawing(
-    mut query: Query<&mut Handle<Image>, With<CursorComponent>>,
-    asset_server: Res<AssetServer>,
+fn update_cursor_color(
+    mut query: Query<&mut Sprite, With<CursorComponent>>,
+    new_state: Res<State<CursorState>>,
 ) {
-    if let Ok(mut img_handle) = query.get_single_mut() {
-        *img_handle = asset_server.load("sprites/Cursor1.png");
-    }
-}
-
-fn change_cursor_to_erasing(
-    mut query: Query<&mut Handle<Image>, With<CursorComponent>>,
-    asset_server: Res<AssetServer>,
-) {
-    if let Ok(mut img_handle) = query.get_single_mut() {
-        *img_handle = asset_server.load("sprites/Cursor3.png");
+    if let Ok(mut sprite) = query.get_single_mut() {
+        sprite.color = new_state.get().get_color();
     }
 }
 
