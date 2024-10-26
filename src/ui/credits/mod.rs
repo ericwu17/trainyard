@@ -1,7 +1,7 @@
 use bevy::prelude::*;
 
 use super::{
-    button::{create_trainyard_button, TrainyardButton},
+    buttons::{create_trainyard_button, TrainyardButton},
     UIState,
 };
 

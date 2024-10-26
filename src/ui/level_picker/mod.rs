@@ -3,7 +3,7 @@ use bevy::prelude::*;
 use crate::level_loader::StockLevelInfos;
 
 use super::{
-    button::{create_trainyard_button, TrainyardButton},
+    buttons::{create_trainyard_button, TrainyardButton},
     UIState,
 };
 

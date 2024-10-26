@@ -1,11 +1,11 @@
-pub mod button;
+pub mod buttons;
 pub mod credits;
 pub mod level;
 pub mod level_picker;
 pub mod main_menu;
 
 use bevy::prelude::*;
-use button::{button_sounds_system, trainyard_ui_button_handler};
+use buttons::{button_sounds_system, trainyard_ui_button_handler};
 
 #[derive(Component)]
 pub struct UIRootContainer;
