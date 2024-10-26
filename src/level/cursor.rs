@@ -260,6 +260,10 @@ fn move_cursor_by_mouse(
         let world_coordinates_of_mouse = camera
             .viewport_to_world_2d(camera_transform, cursor_position)
             .unwrap();
+        info!(
+            "world coords of mouse are: {}, {}",
+            world_coordinates_of_mouse.x, world_coordinates_of_mouse.y
+        );
         let yard_local_coords = world_coordinates_of_mouse - yard_transform;
 
         let x = yard_local_coords.x;
