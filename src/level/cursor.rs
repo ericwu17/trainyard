@@ -265,6 +265,10 @@ fn move_cursor_by_mouse(
             world_coordinates_of_mouse.x, world_coordinates_of_mouse.y
         );
         let yard_local_coords = world_coordinates_of_mouse - yard_transform;
+        info!(
+            "yard coords of mouse are: {}, {}",
+            yard_local_coords.x, yard_local_coords.y
+        );
 
         let x = yard_local_coords.x;
         let y = yard_local_coords.y;

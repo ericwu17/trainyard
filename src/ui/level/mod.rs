@@ -1,3 +1,4 @@
+pub mod level_won_dialog;
 pub mod status_text;
 
 use bevy::prelude::*;
@@ -22,7 +23,8 @@ pub struct LevelStatusText;
 pub struct LevelUIPlugin;
 impl Plugin for LevelUIPlugin {
     fn build(&self, app: &mut App) {
-        app.add_systems(OnEnter(UIState::Level), spawn_level_ui)
+        app.add_plugins(level_won_dialog::LevelWonDialogPlugin)
+            .add_systems(OnEnter(UIState::Level), spawn_level_ui)
             .add_systems(OnExit(UIState::Level), teardown_level_ui)
             .add_systems(
                 Update,

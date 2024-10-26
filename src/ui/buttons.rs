@@ -17,6 +17,8 @@ pub enum TrainyardButton {
     LevelBackButton,
     LevelStartTrainsButton,
     LevelStartEraseButton,
+    LevelWinDialogNextButton,
+    LevelWinDialogBackButton,
 }
 
 pub struct ButtonPlugin;
@@ -129,8 +131,10 @@ pub fn trainyard_ui_button_handler(
                     next_ui_state.set(UIState::Level);
                 }
                 TrainyardButton::LevelBackButton => {
-                    next_ui_state.set(UIState::LevelPicker);
-                    next_level_state.set(LevelState::None);
+                    if *level_state.get() != LevelState::Won {
+                        next_ui_state.set(UIState::LevelPicker);
+                        next_level_state.set(LevelState::None);
+                    }
                 }
                 TrainyardButton::LevelStartTrainsButton => {
                     toggle_level_state(&level_state, &mut next_level_state);
@@ -139,6 +143,11 @@ pub fn trainyard_ui_button_handler(
                     if *level_state.get() == LevelState::Editing {
                         next_cursor_state.set(cursor_state.get().toggle_erase())
                     }
+                }
+                TrainyardButton::LevelWinDialogNextButton => {}
+                TrainyardButton::LevelWinDialogBackButton => {
+                    next_ui_state.set(UIState::LevelPicker);
+                    next_level_state.set(LevelState::None);
                 }
             }
         }
