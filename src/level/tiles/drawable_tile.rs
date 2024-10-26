@@ -60,19 +60,22 @@ impl Tile for DrawableTile {
         for dir_u8 in 0..4 {
             let incoming_dir = Dir::from(dir_u8);
             if let Some(color) = incoming.get_train(incoming_dir) {
-                let outgoing_dir: Dir = if let Some(d) = active_conn.get_other_dir(incoming_dir) {
-                    d
-                } else if let Some(d) = passive_conn.get_other_dir(incoming_dir) {
-                    d
-                } else {
-                    crashed_event.send_default();
-                    incoming_dir
-                };
-                init_trains_coming_thru.push(TrainComingThrough {
-                    color,
-                    from: incoming_dir,
-                    to: outgoing_dir,
-                });
+                let outgoing_dir: Option<Dir> =
+                    if let Some(d) = active_conn.get_other_dir(incoming_dir) {
+                        Some(d)
+                    } else if let Some(d) = passive_conn.get_other_dir(incoming_dir) {
+                        Some(d)
+                    } else {
+                        crashed_event.send_default();
+                        None
+                    };
+                if let Some(outgoing_dir) = outgoing_dir {
+                    init_trains_coming_thru.push(TrainComingThrough {
+                        color,
+                        from: incoming_dir,
+                        to: outgoing_dir,
+                    });
+                }
             }
         }
 

@@ -17,9 +17,25 @@ pub enum LevelState {
     #[default]
     None,
     Editing,
-    Running,
-    Crashed,
+    RunningNotCrashed,
+    RunningCrashed,
     Won,
+}
+#[derive(Clone, PartialEq, Eq, Hash, Debug)]
+pub enum LevelStateIsRunning {
+    Running,
+    NotRunning,
+}
+impl ComputedStates for LevelStateIsRunning {
+    type SourceStates = LevelState;
+
+    fn compute(sources: Self::SourceStates) -> Option<Self> {
+        if sources == LevelState::RunningCrashed || sources == LevelState::RunningNotCrashed {
+            Some(Self::Running)
+        } else {
+            Some(Self::NotRunning)
+        }
+    }
 }
 
 #[derive(Component)]
@@ -52,16 +68,17 @@ impl Plugin for LevelPlugin {
                 (
                     LevelSet.run_if(not(in_state(LevelState::None))),
                     LevelEditingSet.run_if(in_state(LevelState::Editing)),
-                    LevelRunningSet.run_if(in_state(LevelState::Running)),
+                    LevelRunningSet.run_if(in_state(LevelStateIsRunning::Running)),
                 ),
             )
             .insert_state(LevelState::None)
-            .add_systems(OnEnter(LevelState::Editing), restore_yard_edited_state)
+            .add_computed_state::<LevelStateIsRunning>()
             .add_systems(
-                OnEnter(LevelState::Running),
+                OnEnter(LevelStateIsRunning::Running),
                 (spawn_timer, save_yard_edited_state),
             )
-            .add_systems(OnExit(LevelState::Running), despawn_timer)
+            .add_systems(OnExit(LevelStateIsRunning::Running), despawn_timer)
+            .add_systems(OnEnter(LevelState::Editing), restore_yard_edited_state)
             .add_systems(
                 Update,
                 (
@@ -94,12 +111,12 @@ pub fn toggle_level_state(
 ) {
     match state.get() {
         LevelState::Editing => {
-            next_state.set(LevelState::Running);
+            next_state.set(LevelState::RunningNotCrashed);
         }
-        LevelState::Running => {
+        LevelState::RunningNotCrashed => {
             next_state.set(LevelState::Editing);
         }
-        LevelState::Crashed => {
+        LevelState::RunningCrashed => {
             next_state.set(LevelState::Editing);
         }
         _ => {
@@ -145,6 +162,7 @@ pub fn despawn_timer(mut commands: Commands, timer_query: Query<Entity, With<Yar
 pub fn tick_yard_tick_timer(
     mut q: Query<&mut YardTickTimer>,
     time: Res<Time>,
+    level_state: Res<State<LevelState>>,
     mut yard_query: Query<&mut Yard>,
     mut event_yard_ticked: EventWriter<YardTickedEvent>,
     mut crashed_event: EventWriter<TrainCrashedEvent>,
@@ -157,7 +175,8 @@ pub fn tick_yard_tick_timer(
         let yard = yard_query.single_mut().into_inner();
         yard.tick(&mut crashed_event);
         event_yard_ticked.send_default();
-        if yard.has_won() {
+
+        if *level_state.get() == LevelState::RunningNotCrashed && yard.has_won() {
             win_event.send_default();
         }
     }
@@ -176,7 +195,7 @@ pub fn crashed_event_handler(
     }
 
     if did_crash {
-        next_state.set(LevelState::Crashed);
+        next_state.set(LevelState::RunningCrashed);
         commands.spawn(AudioBundle {
             source: asset_server.load("audio/crash.ogg"),
             ..default()

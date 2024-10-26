@@ -20,5 +20,10 @@
     "sources": [[["Red"], "Right", [3, 1]]],
     "sinks": [[["Red"], ["Left"], [3, 5]]],
     "rocks": [[3, 3]]
+  },
+  {
+    "name": "A Merge",
+    "sources": [[["Yellow"], "Right", [2, 1]], [["Yellow"], "Right", [4, 1]]],
+    "sinks": [[["Yellow"], ["Left"], [3, 5]]]
   }
 ]
