@@ -7,7 +7,10 @@ pub mod yard;
 use bevy::prelude::*;
 use std::time::Duration;
 
-use crate::{level_loader::StockLevelInfos, ui::level_picker::StartLevelEvent};
+use crate::{
+    level_loader::StockLevelInfos,
+    ui::{level::speed_slider::TrainSpeed, level_picker::StartLevelEvent},
+};
 use cursor::CursorPlugin;
 use tiles::{TilePlugin, YardComponent};
 use yard::{Yard, YardEditedState, YardTickedEvent};
@@ -167,9 +170,15 @@ pub fn tick_yard_tick_timer(
     mut event_yard_ticked: EventWriter<YardTickedEvent>,
     mut crashed_event: EventWriter<TrainCrashedEvent>,
     mut win_event: EventWriter<WinLevelEvent>,
+    train_speed: Res<TrainSpeed>,
 ) {
     let yard_tick_timer = q.single_mut().into_inner();
-    yard_tick_timer.timer.tick(time.delta() * 2);
+
+    let delta_ns = time.delta().as_nanos();
+    let delta_ns_for_tick = (delta_ns as f32 * 10.0 * train_speed.0) as u64;
+    yard_tick_timer
+        .timer
+        .tick(Duration::from_nanos(delta_ns_for_tick));
 
     if yard_tick_timer.timer.just_finished() {
         let yard = yard_query.single_mut().into_inner();

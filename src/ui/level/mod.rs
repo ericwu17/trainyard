@@ -1,7 +1,9 @@
 pub mod level_won_dialog;
+pub mod speed_slider;
 pub mod status_text;
 
 use bevy::prelude::*;
+use speed_slider::{spawn_speed_slider, TrainSpeed};
 use status_text::update_status_text;
 
 use crate::level::LevelState;
@@ -23,20 +25,29 @@ pub struct LevelStatusText;
 pub struct LevelUIPlugin;
 impl Plugin for LevelUIPlugin {
     fn build(&self, app: &mut App) {
-        app.add_plugins(level_won_dialog::LevelWonDialogPlugin)
-            .add_systems(OnEnter(UIState::Level), spawn_level_ui)
-            .add_systems(OnExit(UIState::Level), teardown_level_ui)
-            .add_systems(
-                Update,
-                update_status_text.run_if(on_event::<StateTransitionEvent<LevelState>>()),
-            );
+        app.add_plugins((
+            level_won_dialog::LevelWonDialogPlugin,
+            speed_slider::SpeedSliderPlugin,
+        ))
+        .add_systems(OnEnter(UIState::Level), spawn_level_ui)
+        .add_systems(OnExit(UIState::Level), teardown_level_ui)
+        .add_systems(
+            Update,
+            update_status_text.run_if(on_event::<StateTransitionEvent<LevelState>>()),
+        );
     }
 }
+
+pub const BUTTON_WIDTH: f32 = 180.0;
+pub const BUTTON_HEIGHT: f32 = 60.0;
+pub const BUTTON_TEXT_SIZE: f32 = 23.0;
+pub const BUTTON_BORDER_COLOR: Color = super::BTN_BORDER_BLACK;
 
 fn spawn_level_ui(
     mut commands: Commands,
     asset_server: Res<AssetServer>,
     ui_root_query: Query<Entity, With<super::UIRootContainer>>,
+    mut train_speed: ResMut<TrainSpeed>,
 ) {
     let ui_root = ui_root_query.single();
     let font: Handle<Font> = asset_server.load("fonts/kenyan_coffee_rg.otf");
@@ -92,18 +103,13 @@ fn spawn_level_ui(
     // buttons
     // =============================================================================================
 
-    let button_width = 180.0;
-    let button_height = 60.0;
-    let button_text_size = 23.0;
-    let button_border_color = super::BTN_BORDER_BLACK;
-
     let back_button = create_trainyard_button(
         &mut commands,
         "Back to levels",
-        button_width,
-        button_height,
-        button_text_size,
-        button_border_color,
+        BUTTON_WIDTH,
+        BUTTON_HEIGHT,
+        BUTTON_TEXT_SIZE,
+        BUTTON_BORDER_COLOR,
         font.clone(),
         TrainyardButton::LevelBackButton,
     );
@@ -111,10 +117,10 @@ fn spawn_level_ui(
     let start_trains_button = create_trainyard_button(
         &mut commands,
         "Start trains (SPACE)",
-        button_width,
-        button_height,
-        button_text_size,
-        button_border_color,
+        BUTTON_WIDTH,
+        BUTTON_HEIGHT,
+        BUTTON_TEXT_SIZE,
+        BUTTON_BORDER_COLOR,
         font.clone(),
         TrainyardButton::LevelStartTrainsButton,
     );
@@ -122,10 +128,10 @@ fn spawn_level_ui(
     let start_erase_button = create_trainyard_button(
         &mut commands,
         "Erase (Q)",
-        button_width,
-        button_height,
-        button_text_size,
-        button_border_color,
+        BUTTON_WIDTH,
+        BUTTON_HEIGHT,
+        BUTTON_TEXT_SIZE,
+        BUTTON_BORDER_COLOR,
         font.clone(),
         TrainyardButton::LevelStartEraseButton,
     );
@@ -135,8 +141,8 @@ fn spawn_level_ui(
     // =============================================================================================
     let status_text_box = NodeBundle {
         style: Style {
-            width: Val::Px(button_width),
-            height: Val::Px(button_height),
+            width: Val::Px(BUTTON_WIDTH),
+            height: Val::Px(BUTTON_HEIGHT),
             flex_direction: FlexDirection::Row,
             justify_content: JustifyContent::Center,
             align_items: AlignItems::Center,
@@ -168,6 +174,8 @@ fn spawn_level_ui(
         .spawn((canvas_placeholder, YardPlaceholderNode))
         .id();
     let status_text_box = commands.spawn(status_text_box).id();
+    let slider = spawn_speed_slider(&mut commands, font);
+    train_speed.0 = train_speed.0;
     let status_text = commands.spawn((status_text, LevelStatusText)).id();
 
     commands.entity(ui_root).push_children(&[level_root]);
@@ -178,6 +186,7 @@ fn spawn_level_ui(
         back_button,
         start_trains_button,
         start_erase_button,
+        slider,
         status_text_box,
     ]);
     commands
