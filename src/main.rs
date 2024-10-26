@@ -27,7 +27,10 @@ fn main() {
     .add_systems(Startup, spawn_camera)
     .add_systems(
         Update,
-        keep_camera_centered.run_if(on_event::<bevy::window::WindowResized>()),
+        (
+            despawn_empty_audio_sinks,
+            keep_camera_centered.run_if(on_event::<bevy::window::WindowResized>()),
+        ),
     );
 
     app.run();
@@ -57,4 +60,15 @@ fn keep_camera_centered(
         window.height() / 2.0,
         0.0,
     ));
+}
+
+fn despawn_empty_audio_sinks(
+    mut commands: Commands,
+    audio_sink_query: Query<(Entity, &AudioSink)>,
+) {
+    for (entity, audio_sink) in audio_sink_query.iter() {
+        if audio_sink.empty() {
+            commands.entity(entity).despawn();
+        }
+    }
 }
