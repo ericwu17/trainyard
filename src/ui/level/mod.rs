@@ -1,4 +1,9 @@
+pub mod status_text;
+
 use bevy::prelude::*;
+use status_text::update_status_text;
+
+use crate::level::LevelState;
 
 use super::{
     buttons::{create_trainyard_button, TrainyardButton},
@@ -11,11 +16,18 @@ pub struct LevelUIRoot;
 #[derive(Component)]
 pub struct YardPlaceholderNode;
 
+#[derive(Component)]
+pub struct LevelStatusText;
+
 pub struct LevelUIPlugin;
 impl Plugin for LevelUIPlugin {
     fn build(&self, app: &mut App) {
         app.add_systems(OnEnter(UIState::Level), spawn_level_ui)
-            .add_systems(OnExit(UIState::Level), teardown_level_ui);
+            .add_systems(OnExit(UIState::Level), teardown_level_ui)
+            .add_systems(
+                Update,
+                update_status_text.run_if(on_event::<StateTransitionEvent<LevelState>>()),
+            );
     }
 }
 
@@ -45,6 +57,9 @@ fn spawn_level_ui(
         LevelUIRoot,
     );
 
+    // =============================================================================================
+    // canvas placeholder: a 672x672 rectangle where the trainyard yard will go
+    // =============================================================================================
     let canvas_placeholder = NodeBundle {
         style: Style {
             width: Val::Px(672.0),
@@ -113,6 +128,36 @@ fn spawn_level_ui(
         TrainyardButton::LevelStartEraseButton,
     );
 
+    // =============================================================================================
+    // Status indicator (only visible when the level is running)
+    // =============================================================================================
+    let status_text_box = NodeBundle {
+        style: Style {
+            width: Val::Px(button_width),
+            height: Val::Px(button_height),
+            flex_direction: FlexDirection::Row,
+            justify_content: JustifyContent::Center,
+            align_items: AlignItems::Center,
+            ..default()
+        },
+        ..default()
+    };
+    let status_text = TextBundle::from_section(
+        "",
+        TextStyle {
+            font: font.clone(),
+            font_size: 23.0,
+            color: Color::srgb(0.0, 1.0, 0.0),
+            ..default()
+        },
+    ) // Set the justification of the Text
+    .with_text_justify(JustifyText::Center)
+    .with_style(Style {
+        position_type: PositionType::Absolute,
+        width: Val::Percent(100.0),
+        ..default()
+    });
+
     // putting it all together
 
     let level_root = commands.spawn(level_root).id();
@@ -120,6 +165,8 @@ fn spawn_level_ui(
     let canvas_placeholder = commands
         .spawn((canvas_placeholder, YardPlaceholderNode))
         .id();
+    let status_text_box = commands.spawn(status_text_box).id();
+    let status_text = commands.spawn((status_text, LevelStatusText)).id();
 
     commands.entity(ui_root).push_children(&[level_root]);
     commands
@@ -129,7 +176,11 @@ fn spawn_level_ui(
         back_button,
         start_trains_button,
         start_erase_button,
+        status_text_box,
     ]);
+    commands
+        .entity(status_text_box)
+        .push_children(&[status_text]);
 }
 
 fn teardown_level_ui(mut commands: Commands, level_root_query: Query<Entity, With<LevelUIRoot>>) {
