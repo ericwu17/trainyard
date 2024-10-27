@@ -8,6 +8,8 @@ use crate::level::{
     TrainCrashedEvent,
 };
 
+use super::tile::TileTrainActivity;
+
 #[derive(Component)]
 pub struct DrawableTileSpriteComponent;
 
@@ -45,17 +47,11 @@ impl Tile for DrawableTile {
         &mut self,
         incoming: TileBorderState,
         crashed_event: &mut EventWriter<TrainCrashedEvent>,
-    ) -> TileBorderState {
+    ) -> Vec<TileTrainActivity> {
         let active_conn = self.connections.get_active_conn();
         let passive_conn = self.connections.get_passive_conn();
 
-        struct TrainComingThrough {
-            color: TrainColor,
-            from: Dir,
-            to: Dir,
-        }
-
-        let mut init_trains_coming_thru: Vec<TrainComingThrough> = Vec::with_capacity(4);
+        let mut init_trains_coming_thru: Vec<TileTrainActivity> = Vec::with_capacity(4);
 
         for dir_u8 in 0..4 {
             let incoming_dir = Dir::from(dir_u8);
@@ -70,10 +66,11 @@ impl Tile for DrawableTile {
                         None
                     };
                 if let Some(outgoing_dir) = outgoing_dir {
-                    init_trains_coming_thru.push(TrainComingThrough {
-                        color,
-                        from: incoming_dir,
-                        to: outgoing_dir,
+                    init_trains_coming_thru.push(TileTrainActivity {
+                        from_dir: Some(incoming_dir),
+                        to_dir: Some(outgoing_dir),
+                        start_color: color,
+                        end_color: color, // temporary placeholder, this might be changed if trains
                     });
                 }
             }
@@ -81,39 +78,26 @@ impl Tile for DrawableTile {
 
         let will_toggle_tracks = init_trains_coming_thru.len() % 2 == 1;
 
-        let mut trains_after_internal_mixing: Vec<TrainComingThrough> = Vec::with_capacity(4);
+        let mut trains_after_internal_mixing: Vec<TileTrainActivity> = Vec::with_capacity(4);
         for train_coming_thru in init_trains_coming_thru.iter() {
             let mut colors_to_mix: Vec<TrainColor> = Vec::with_capacity(4);
             for other_train_coming_thru in init_trains_coming_thru.iter() {
                 if paths_collide(
-                    train_coming_thru.from,
-                    train_coming_thru.to,
-                    other_train_coming_thru.from,
-                    other_train_coming_thru.to,
+                    train_coming_thru.from_dir.unwrap(),
+                    train_coming_thru.to_dir.unwrap(),
+                    other_train_coming_thru.from_dir.unwrap(),
+                    other_train_coming_thru.to_dir.unwrap(),
                 ) {
-                    colors_to_mix.push(other_train_coming_thru.color);
+                    colors_to_mix.push(other_train_coming_thru.start_color);
                 }
             }
             let new_color = TrainColor::mix_many(colors_to_mix);
-            trains_after_internal_mixing.push(TrainComingThrough {
-                color: new_color,
-                from: train_coming_thru.from,
-                to: train_coming_thru.to,
+            trains_after_internal_mixing.push(TileTrainActivity {
+                end_color: new_color,
+                start_color: train_coming_thru.start_color,
+                from_dir: train_coming_thru.from_dir,
+                to_dir: train_coming_thru.to_dir,
             });
-        }
-
-        let mut outgoing_border_state = TileBorderState::new();
-        for dir_u8 in 0..4 {
-            let out_dir = Dir::from(dir_u8);
-            let mut colors_to_mix: Vec<TrainColor> = Vec::with_capacity(2);
-            for train_coming_thru in trains_after_internal_mixing.iter() {
-                if train_coming_thru.to == out_dir {
-                    colors_to_mix.push(train_coming_thru.color);
-                }
-            }
-            if !colors_to_mix.is_empty() {
-                outgoing_border_state.add_train(TrainColor::mix_many(colors_to_mix), out_dir);
-            }
         }
 
         let (connection_type, _) = self.connections.type_and_rotation();
@@ -123,7 +107,7 @@ impl Tile for DrawableTile {
             self.switch_active_passive();
         }
 
-        outgoing_border_state
+        trains_after_internal_mixing
     }
 
     fn render(&mut self, commands: &mut Commands, asset_server: &Res<AssetServer>) {

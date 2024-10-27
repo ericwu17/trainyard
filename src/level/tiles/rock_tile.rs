@@ -1,6 +1,9 @@
 use bevy::prelude::*;
 
-use super::{connections::TileBorderState, tile::Tile};
+use super::{
+    connections::TileBorderState,
+    tile::{Tile, TileTrainActivity},
+};
 use crate::level::{direction::Dir, TrainCrashedEvent};
 
 #[derive(Component)]
@@ -26,13 +29,13 @@ impl Tile for RockTile {
         &mut self,
         incoming: TileBorderState,
         crashed_event: &mut EventWriter<TrainCrashedEvent>,
-    ) -> TileBorderState {
+    ) -> Vec<TileTrainActivity> {
         for dir_u8 in 0..4 {
             if incoming.get_train(Dir::from(dir_u8)).is_some() {
                 crashed_event.send_default();
             }
         }
-        TileBorderState::new()
+        Vec::new()
     }
 
     fn render(&mut self, commands: &mut Commands, asset_server: &Res<AssetServer>) {

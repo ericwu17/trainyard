@@ -1,6 +1,7 @@
 use bevy::prelude::*;
 
 use super::source_tile::INNER_SPRITE_SIZE;
+use super::tile::TileTrainActivity;
 use super::{connections::TileBorderState, tile::Tile};
 use crate::level::{direction::Dir, trains::TrainColor, TrainCrashedEvent};
 
@@ -89,7 +90,9 @@ impl Tile for SinkTile {
         &mut self,
         incoming: TileBorderState,
         crashed_event: &mut EventWriter<TrainCrashedEvent>,
-    ) -> TileBorderState {
+    ) -> Vec<TileTrainActivity> {
+        let mut train_activity = Vec::new();
+
         for dir in Dir::all_dirs() {
             if !self.in_dirs[u8::from(dir) as usize] && incoming.get_train(dir).is_some() {
                 crashed_event.send_default();
@@ -111,10 +114,17 @@ impl Tile for SinkTile {
                 }
                 if !successfully_received_train {
                     crashed_event.send_default();
+                } else {
+                    train_activity.push(TileTrainActivity {
+                        from_dir: Some(dir),
+                        to_dir: None,
+                        start_color: train,
+                        end_color: train,
+                    });
                 }
             }
         }
-        TileBorderState::new()
+        train_activity
     }
 
     fn render(&mut self, commands: &mut Commands, asset_server: &Res<AssetServer>) {

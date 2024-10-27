@@ -3,6 +3,7 @@ use bevy::prelude::*;
 use super::persistence::LevelProgress;
 use super::tiles::connections::TileConnections;
 use super::tiles::{connections::TileBorderState, construct_new_tile, TileConstructionInfo};
+use super::trains::TrainColor;
 use crate::level::{direction::Dir, tiles::tile::Tile, TrainCrashedEvent};
 use crate::{NUM_COLS, NUM_ROWS, TILE_SIZE_PX};
 
@@ -128,8 +129,23 @@ impl Yard {
                 let incoming_border_state = &self.borders[row][col];
                 let tile = &mut self.tiles[row][col];
 
-                let outgoing_border_state =
+                let train_tile_activity =
                     tile.process_and_output(incoming_border_state.clone(), crashed_event);
+                let mut outgoing_border_state = TileBorderState::new();
+
+                for dir_u8 in 0..4 {
+                    let out_dir = Dir::from(dir_u8);
+                    let mut colors_to_mix: Vec<TrainColor> = Vec::with_capacity(2);
+                    for train_coming_thru in train_tile_activity.iter() {
+                        if train_coming_thru.to_dir == Some(out_dir) {
+                            colors_to_mix.push(train_coming_thru.end_color);
+                        }
+                    }
+                    if !colors_to_mix.is_empty() {
+                        outgoing_border_state
+                            .add_train(TrainColor::mix_many(colors_to_mix), out_dir);
+                    }
+                }
                 outgoing_border_states[row][col] = outgoing_border_state;
             }
         }

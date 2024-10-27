@@ -1,8 +1,16 @@
 use bevy::prelude::*;
 
-use crate::level::{direction::Dir, TrainCrashedEvent};
+use crate::level::{direction::Dir, trains::TrainColor, TrainCrashedEvent};
 
 use super::connections::TileBorderState;
+
+/// A struct to represent how trains are moving within a tile,
+pub struct TileTrainActivity {
+    pub from_dir: Option<Dir>,
+    pub to_dir: Option<Dir>,
+    pub start_color: TrainColor,
+    pub end_color: TrainColor,
+}
 
 pub trait Tile {
     fn add_connection(&mut self, _d1: Dir, _d2: Dir) {}
@@ -17,7 +25,7 @@ pub trait Tile {
         &mut self,
         incoming: TileBorderState,
         crashed_event: &mut EventWriter<TrainCrashedEvent>,
-    ) -> TileBorderState;
+    ) -> Vec<TileTrainActivity>;
 
     fn render(&mut self, _commands: &mut Commands, _asset_server: &Res<AssetServer>);
 
