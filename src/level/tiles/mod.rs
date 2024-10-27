@@ -125,15 +125,18 @@ fn persist_yard_and_despawn_game_tiles(
     for (entity, yard) in yard_query.iter() {
         commands.entity(entity).despawn_recursive();
         if let Some(name) = curr_lvl_name.0.as_ref() {
-            let name = name.to_string();
-            let has_won = *lvl_state.get() == LevelState::Won;
+            let mut has_won = *lvl_state.get() == LevelState::Won;
             let drawn_tracks = yard.get_progress();
+
+            if persistence.0.remove(name).unwrap_or_default().has_won {
+                has_won = true;
+            }
 
             let progress = LevelProgress {
                 has_won,
                 drawn_tracks,
             };
-            persistence.0.insert(name, progress);
+            persistence.0.insert(name.to_string(), progress);
         }
     }
     for entity in yard_edit_state_query.iter() {

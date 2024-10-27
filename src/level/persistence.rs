@@ -3,6 +3,7 @@ use bevy::{prelude::*, utils::HashMap};
 #[derive(Resource, Default)]
 pub struct GameLevelProgress(pub HashMap<String, LevelProgress>);
 
+#[derive(Default)]
 pub struct LevelProgress {
     pub has_won: bool,
     pub drawn_tracks: Vec<u8>,

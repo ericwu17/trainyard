@@ -1,6 +1,6 @@
 use bevy::prelude::*;
 
-use crate::level::loader::StockLevelInfos;
+use crate::level::{loader::StockLevelInfos, persistence::GameLevelProgress};
 
 use super::{
     buttons::{create_trainyard_button, TrainyardButton},
@@ -28,6 +28,7 @@ fn spawn_level_picker(
     asset_server: Res<AssetServer>,
     ui_root_query: Query<Entity, With<super::UIRootContainer>>,
     level_names: Res<StockLevelInfos>,
+    progress: Res<GameLevelProgress>,
 ) {
     let ui_root = ui_root_query.single();
     let font: Handle<Font> = asset_server.load("fonts/kenyan_coffee_rg.otf");
@@ -105,13 +106,25 @@ fn spawn_level_picker(
 
     let mut buttons: Vec<Entity> = Vec::new();
     for name in level_names {
+        let mut has_won_this_level = false;
+
+        if progress.0.contains_key(name) {
+            has_won_this_level = progress.0.get(name).unwrap().has_won;
+        }
+
+        let border_color = if has_won_this_level {
+            super::BTN_BORDER_GREEN
+        } else {
+            super::BTN_BORDER_BLACK
+        };
+
         let button = create_trainyard_button(
             &mut commands,
             &name,
             200.0,
             90.0,
             20.0,
-            super::BTN_BORDER_GREEN,
+            border_color,
             font.clone(),
             TrainyardButton::LevelPickerStartLevel(name.clone()),
         );
