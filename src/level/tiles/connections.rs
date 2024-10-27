@@ -46,6 +46,13 @@ impl ConnectionType {
             ConnectionType::Ji => "sprites/Tracktile_ji.png",
         }
     }
+
+    pub fn should_toggle_active_and_passive_when_trains_pass(&self) -> bool {
+        match self {
+            ConnectionType::M | ConnectionType::Jc | ConnectionType::Ji => true,
+            _ => false,
+        }
+    }
 }
 
 impl TileConnections {

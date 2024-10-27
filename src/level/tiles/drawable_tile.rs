@@ -116,7 +116,10 @@ impl Tile for DrawableTile {
             }
         }
 
-        if will_toggle_tracks {
+        let (connection_type, _) = self.connections.type_and_rotation();
+
+        if will_toggle_tracks && connection_type.should_toggle_active_and_passive_when_trains_pass()
+        {
             self.switch_active_passive();
         }
 
