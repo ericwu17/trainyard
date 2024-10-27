@@ -55,6 +55,13 @@ impl TileConnections {
     pub fn from_active(active: Connection) -> Self {
         Self { data: active.data }
     }
+    pub fn from_data(data: u8) -> Self {
+        let connections = Self { data };
+        connections.to_normal_form()
+    }
+    pub fn get_data(&self) -> u8 {
+        self.data
+    }
     pub fn from_active_passive(active: Connection, passive: Connection) -> Self {
         Self {
             data: active.data | (passive.data << 4),
@@ -364,6 +371,12 @@ impl Connection {
         } else {
             None
         }
+    }
+
+    pub fn get_dirs(&self) -> (Dir, Dir) {
+        let d1 = Dir::from(self.data & 0x3);
+        let d2 = Dir::from((self.data >> 2) & 0x3);
+        (d1, d2)
     }
 }
 

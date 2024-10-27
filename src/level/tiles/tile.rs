@@ -32,6 +32,9 @@ pub trait Tile {
     fn has_no_remaining_trains(&self) -> bool {
         true
     }
+    fn get_connection_data(&self) -> u8 {
+        0
+    }
 }
 
 impl Clone for Box<dyn Tile + Send + Sync> {

@@ -163,6 +163,9 @@ impl Tile for DrawableTile {
     fn box_clone(&self) -> Box<dyn Tile + Send + Sync> {
         Box::new(self.clone())
     }
+    fn get_connection_data(&self) -> u8 {
+        self.connections.get_data()
+    }
 }
 
 fn paths_collide(d1: Dir, d2: Dir, d3: Dir, d4: Dir) -> bool {

@@ -1,4 +1,5 @@
 use crate::level::direction::Dir;
+use crate::level::persistence::LevelProgress;
 use crate::level::tiles::{construct_new_tile, TileConstructionInfo};
 use crate::level::trains::TrainColor;
 use crate::level::yard::Yard;
@@ -16,7 +17,12 @@ pub struct LevelLoadInfo {
 }
 
 impl LevelLoadInfo {
-    pub fn to_yard(&self, commands: &mut Commands, asset_server: &Res<AssetServer>) -> Entity {
+    pub fn to_yard(
+        &self,
+        commands: &mut Commands,
+        asset_server: &Res<AssetServer>,
+        progress: Option<&LevelProgress>,
+    ) -> Entity {
         let mut yard: Yard = Yard::new(commands, asset_server);
 
         for source in self.sources.clone() {
@@ -66,6 +72,11 @@ impl LevelLoadInfo {
                 commands,
             );
         }
+
+        if let Some(progress) = progress {
+            yard.apply_progress(progress);
+        }
+
         commands.entity(yard.base_entity).insert(yard).id()
     }
 }

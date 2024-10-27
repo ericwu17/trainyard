@@ -1,5 +1,7 @@
 use bevy::prelude::*;
 
+use super::persistence::LevelProgress;
+use super::tiles::connections::TileConnections;
 use super::tiles::{connections::TileBorderState, construct_new_tile, TileConstructionInfo};
 use crate::level::{direction::Dir, tiles::tile::Tile, TrainCrashedEvent};
 use crate::{NUM_COLS, NUM_ROWS, TILE_SIZE_PX};
@@ -177,5 +179,34 @@ impl Yard {
             }
         }
         true
+    }
+
+    pub fn apply_progress(&mut self, progress: &LevelProgress) {
+        for row in 0..NUM_ROWS {
+            for col in 0..NUM_COLS {
+                let index = row * NUM_ROWS + col;
+
+                let conns = TileConnections::from_data(progress.drawn_tracks[index as usize]);
+
+                if !conns.get_active_conn().is_empty() {
+                    let (d1, d2) = conns.get_passive_conn().get_dirs();
+                    self.tiles[row as usize][col as usize].add_connection(d1, d2);
+                }
+                if !conns.get_active_conn().is_empty() {
+                    let (d1, d2) = conns.get_active_conn().get_dirs();
+                    self.tiles[row as usize][col as usize].add_connection(d1, d2);
+                }
+            }
+        }
+    }
+
+    pub fn get_progress(&self) -> Vec<u8> {
+        let mut res = Vec::new();
+        for row in 0..NUM_ROWS {
+            for col in 0..NUM_COLS {
+                res.push(self.tiles[row as usize][col as usize].get_connection_data());
+            }
+        }
+        res
     }
 }

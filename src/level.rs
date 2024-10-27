@@ -1,17 +1,18 @@
 pub mod cursor;
 pub mod direction;
 pub mod loader;
+pub mod persistence;
 pub mod tiles;
 pub mod trains;
 pub mod yard;
 
 use bevy::prelude::*;
-use std::time::Duration;
+use persistence::{GameLevelProgress, LevelProgress};
 
 use crate::ui::{level::speed_slider::TrainSpeed, level_picker::StartLevelEvent};
-use cursor::CursorPlugin;
 use loader::StockLevelInfos;
-use tiles::{TilePlugin, YardComponent};
+use std::time::Duration;
+use tiles::YardComponent;
 use yard::{Yard, YardEditedState, YardTickedEvent};
 
 #[derive(States, Default, Debug, Clone, PartialEq, Eq, Hash)]
@@ -65,42 +66,45 @@ pub struct LevelPlugin;
 
 impl Plugin for LevelPlugin {
     fn build(&self, app: &mut App) {
-        app.add_plugins((CursorPlugin, TilePlugin))
-            .add_event::<TrainCrashedEvent>()
-            .add_event::<WinLevelEvent>()
-            .configure_sets(
-                Update,
-                (
-                    LevelSet.run_if(not(in_state(LevelState::None))),
-                    LevelEditingSet.run_if(in_state(LevelState::Editing)),
-                    LevelRunningSet.run_if(in_state(LevelStateIsRunning::Running)),
-                ),
+        app.add_plugins((
+            cursor::CursorPlugin,
+            tiles::TilePlugin,
+            persistence::PersistencePlugin,
+        ))
+        .add_event::<TrainCrashedEvent>()
+        .add_event::<WinLevelEvent>()
+        .configure_sets(
+            Update,
+            (
+                LevelSet.run_if(not(in_state(LevelState::None))),
+                LevelEditingSet.run_if(in_state(LevelState::Editing)),
+                LevelRunningSet.run_if(in_state(LevelStateIsRunning::Running)),
+            ),
+        )
+        .insert_state(LevelState::None)
+        .add_computed_state::<LevelStateIsRunning>()
+        .add_systems(
+            OnEnter(LevelStateIsRunning::Running),
+            (spawn_timer, save_yard_edited_state),
+        )
+        .add_systems(OnExit(LevelStateIsRunning::Running), despawn_timer)
+        .add_systems(
+            Update,
+            (
+                update_level_state_from_keypress,
+                tick_yard_tick_timer.in_set(LevelRunningSet),
+                crashed_event_handler.run_if(on_event::<TrainCrashedEvent>()),
+                win_event_handler.run_if(on_event::<WinLevelEvent>()),
             )
-            .insert_state(LevelState::None)
-            .add_computed_state::<LevelStateIsRunning>()
-            .add_systems(
-                OnEnter(LevelStateIsRunning::Running),
-                (spawn_timer, save_yard_edited_state),
-            )
-            .add_systems(OnExit(LevelStateIsRunning::Running), despawn_timer)
-            .add_systems(OnEnter(LevelState::Editing), restore_yard_edited_state)
-            .add_systems(
-                Update,
-                (
-                    update_level_state_from_keypress,
-                    tick_yard_tick_timer.in_set(LevelRunningSet),
-                    crashed_event_handler.run_if(on_event::<TrainCrashedEvent>()),
-                    win_event_handler.run_if(on_event::<WinLevelEvent>()),
-                )
-                    .in_set(LevelSet),
-            )
-            .add_systems(
-                Update,
-                level_start_event_handler
-                    .after(LevelSet)
-                    .run_if(on_event::<StartLevelEvent>()),
-            )
-            .init_resource::<CurrentLevelName>();
+                .in_set(LevelSet),
+        )
+        .add_systems(
+            Update,
+            level_start_event_handler
+                .after(LevelSet)
+                .run_if(on_event::<StartLevelEvent>()),
+        )
+        .init_resource::<CurrentLevelName>();
     }
 }
 
@@ -223,13 +227,32 @@ pub fn win_event_handler(
     mut next_state: ResMut<NextState<LevelState>>,
     mut commands: Commands,
     asset_server: Res<AssetServer>,
+    mut persistence: ResMut<GameLevelProgress>,
+    curr_lvl_name: Res<CurrentLevelName>,
+    yard_edit_state_query: Query<&YardEditedState>,
 ) {
     if win_event.read().count() > 0 && crashed_event.read().count() == 0 {
+        let yard = yard_edit_state_query.single();
+
         next_state.set(LevelState::Won);
         commands.spawn(AudioBundle {
             source: asset_server.load("audio/win_level.ogg"),
             ..default()
         });
+
+        // persist current level progress
+        if let Some(name) = curr_lvl_name.0.as_ref() {
+            let name = name.to_string();
+            let has_won = true;
+
+            let drawn_tracks = yard.0.get_progress();
+
+            let progress = LevelProgress {
+                has_won,
+                drawn_tracks,
+            };
+            persistence.0.insert(name, progress);
+        }
     }
 }
 
@@ -239,6 +262,7 @@ pub fn level_start_event_handler(
     mut next_level_state: ResMut<NextState<LevelState>>,
     asset_server: Res<AssetServer>,
     levels: Res<StockLevelInfos>,
+    persistence: Res<GameLevelProgress>,
     mut level_name: ResMut<CurrentLevelName>,
     yard_query: Query<Entity, With<Yard>>,
     yard_edit_state_query: Query<Entity, With<YardEditedState>>,
@@ -254,7 +278,11 @@ pub fn level_start_event_handler(
         let mut found_level = false;
         for level in levels.0.iter() {
             if level.name == start_event.level_name {
-                let yard_entity = level.to_yard(&mut commands, &asset_server);
+                let yard_entity = level.to_yard(
+                    &mut commands,
+                    &asset_server,
+                    persistence.0.get(&start_event.level_name),
+                );
 
                 let yard_bundle = (YardComponent, Name::new("The Yard"));
                 commands.entity(yard_entity).insert(yard_bundle);

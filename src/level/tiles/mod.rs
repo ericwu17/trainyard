@@ -25,6 +25,11 @@ use sink_tile::SinkTile;
 use source_tile::SourceTile;
 use tile::Tile;
 
+use super::{
+    persistence::{GameLevelProgress, LevelProgress},
+    CurrentLevelName,
+};
+
 pub struct TilePlugin;
 
 #[derive(Component)]
@@ -33,10 +38,17 @@ pub struct YardComponent;
 impl Plugin for TilePlugin {
     fn build(&self, app: &mut App) {
         app.add_event::<YardTickedEvent>()
-            .add_systems(OnEnter(LevelState::None), despawn_game_tiles)
+            .add_systems(
+                OnEnter(LevelState::None),
+                (
+                    restore_yard_edited_state,
+                    persist_yard_and_despawn_game_tiles,
+                )
+                    .chain(),
+            )
             .add_systems(
                 OnEnter(LevelState::Editing),
-                refresh_yard_trains.after(restore_yard_edited_state),
+                (restore_yard_edited_state, refresh_yard_trains).chain(),
             )
             .add_systems(
                 Update,
@@ -102,13 +114,27 @@ pub fn construct_new_tile(
     }
 }
 
-fn despawn_game_tiles(
+fn persist_yard_and_despawn_game_tiles(
     mut commands: Commands,
-    yard_query: Query<Entity, With<Yard>>,
+    yard_query: Query<(Entity, &Yard)>,
     yard_edit_state_query: Query<Entity, With<YardEditedState>>,
+    mut persistence: ResMut<GameLevelProgress>,
+    curr_lvl_name: Res<CurrentLevelName>,
+    lvl_state: Res<State<LevelState>>,
 ) {
-    for entity in yard_query.iter() {
+    for (entity, yard) in yard_query.iter() {
         commands.entity(entity).despawn_recursive();
+        if let Some(name) = curr_lvl_name.0.as_ref() {
+            let name = name.to_string();
+            let has_won = *lvl_state.get() == LevelState::Won;
+            let drawn_tracks = yard.get_progress();
+
+            let progress = LevelProgress {
+                has_won,
+                drawn_tracks,
+            };
+            persistence.0.insert(name, progress);
+        }
     }
     for entity in yard_edit_state_query.iter() {
         commands.entity(entity).despawn_recursive();
