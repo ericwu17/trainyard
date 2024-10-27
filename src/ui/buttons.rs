@@ -4,7 +4,10 @@ pub mod level_run;
 use bevy::prelude::*;
 
 use super::{level_picker::StartLevelEvent, UIState};
-use crate::level::{cursor::CursorState, toggle_level_state, LevelState};
+use crate::{
+    level::{cursor::CursorState, toggle_level_state, CurrentLevelName, LevelState},
+    level_loader::StockLevelInfos,
+};
 
 #[derive(Component, Clone, PartialEq, Eq)]
 pub enum TrainyardButton {
@@ -110,6 +113,8 @@ pub fn trainyard_ui_button_handler(
     mut next_level_state: ResMut<NextState<LevelState>>,
     mut next_cursor_state: ResMut<NextState<CursorState>>,
     mut start_lvl_ev_writer: EventWriter<StartLevelEvent>,
+    curr_lvl_name: Res<CurrentLevelName>,
+    levels: Res<StockLevelInfos>,
 ) {
     for (interaction, button) in interaction_query.iter() {
         if *interaction == Interaction::Pressed {
@@ -144,7 +149,11 @@ pub fn trainyard_ui_button_handler(
                         next_cursor_state.set(cursor_state.get().toggle_erase())
                     }
                 }
-                TrainyardButton::LevelWinDialogNextButton => {}
+                TrainyardButton::LevelWinDialogNextButton => {
+                    start_lvl_ev_writer.send(StartLevelEvent {
+                        level_name: find_next_level(curr_lvl_name.0.as_deref().unwrap(), &levels),
+                    });
+                }
                 TrainyardButton::LevelWinDialogBackButton => {
                     next_ui_state.set(UIState::LevelPicker);
                     next_level_state.set(LevelState::None);
@@ -152,4 +161,13 @@ pub fn trainyard_ui_button_handler(
             }
         }
     }
+}
+
+fn find_next_level(curr_lvl_name: &str, levels: &Res<StockLevelInfos>) -> String {
+    for (index, level) in levels.0.iter().enumerate() {
+        if level.name == curr_lvl_name {
+            return levels.0[index + 1].name.clone();
+        }
+    }
+    panic!("could not find the next level.");
 }

@@ -41,6 +41,9 @@ impl ComputedStates for LevelStateIsRunning {
     }
 }
 
+#[derive(Default, Resource)]
+pub struct CurrentLevelName(pub Option<String>);
+
 #[derive(Component)]
 pub struct YardTickTimer {
     timer: Timer,
@@ -94,8 +97,11 @@ impl Plugin for LevelPlugin {
             )
             .add_systems(
                 Update,
-                level_start_event_handler.run_if(on_event::<StartLevelEvent>()),
-            );
+                level_start_event_handler
+                    .after(LevelSet)
+                    .run_if(on_event::<StartLevelEvent>()),
+            )
+            .init_resource::<CurrentLevelName>();
     }
 }
 
@@ -234,7 +240,17 @@ pub fn level_start_event_handler(
     mut next_level_state: ResMut<NextState<LevelState>>,
     asset_server: Res<AssetServer>,
     levels: Res<StockLevelInfos>,
+    mut level_name: ResMut<CurrentLevelName>,
+    yard_query: Query<Entity, With<Yard>>,
+    yard_edit_state_query: Query<Entity, With<YardEditedState>>,
 ) {
+    for entity in yard_query.iter() {
+        commands.entity(entity).despawn_recursive();
+    }
+    for entity in yard_edit_state_query.iter() {
+        commands.entity(entity).despawn_recursive();
+    }
+
     for start_event in start_event_reader.read() {
         let mut found_level = false;
         for level in levels.0.iter() {
@@ -254,5 +270,6 @@ pub fn level_start_event_handler(
             );
         }
         next_level_state.set(LevelState::Editing);
+        level_name.0 = Some(start_event.level_name.clone());
     }
 }
