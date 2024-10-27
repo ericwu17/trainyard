@@ -1,5 +1,4 @@
 pub mod level;
-pub mod level_loader;
 pub mod ui;
 
 use bevy::input::common_conditions::input_toggle_active;
@@ -20,7 +19,7 @@ fn main() {
         }),
         ui::TrainyardUIPlugin,
         level::LevelPlugin,
-        level_loader::LevelLoaderPlugin,
+        level::loader::LevelLoaderPlugin,
         bevy_inspector_egui::quick::WorldInspectorPlugin::default()
             .run_if(input_toggle_active(false, KeyCode::Escape)),
     ))

@@ -1,6 +1,6 @@
 use bevy::prelude::*;
 
-use crate::level_loader::StockLevelInfos;
+use crate::level::loader::StockLevelInfos;
 
 use super::{
     buttons::{create_trainyard_button, TrainyardButton},

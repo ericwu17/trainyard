@@ -4,9 +4,8 @@ pub mod level_run;
 use bevy::prelude::*;
 
 use super::{level_picker::StartLevelEvent, UIState};
-use crate::{
-    level::{cursor::CursorState, toggle_level_state, CurrentLevelName, LevelState},
-    level_loader::StockLevelInfos,
+use crate::level::{
+    cursor::CursorState, loader::StockLevelInfos, toggle_level_state, CurrentLevelName, LevelState,
 };
 
 #[derive(Component, Clone, PartialEq, Eq)]

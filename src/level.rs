@@ -1,5 +1,6 @@
 pub mod cursor;
 pub mod direction;
+pub mod loader;
 pub mod tiles;
 pub mod trains;
 pub mod yard;
@@ -7,11 +8,9 @@ pub mod yard;
 use bevy::prelude::*;
 use std::time::Duration;
 
-use crate::{
-    level_loader::StockLevelInfos,
-    ui::{level::speed_slider::TrainSpeed, level_picker::StartLevelEvent},
-};
+use crate::ui::{level::speed_slider::TrainSpeed, level_picker::StartLevelEvent};
 use cursor::CursorPlugin;
+use loader::StockLevelInfos;
 use tiles::{TilePlugin, YardComponent};
 use yard::{Yard, YardEditedState, YardTickedEvent};
 
