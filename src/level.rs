@@ -6,7 +6,7 @@ pub mod tiles;
 pub mod trains;
 pub mod yard;
 
-use bevy::prelude::*;
+use bevy::{audio::Volume, prelude::*};
 use persistence::{GameLevelProgress, LevelProgress};
 
 use crate::ui::{level::speed_slider::TrainSpeed, level_picker::StartLevelEvent};
@@ -145,12 +145,16 @@ pub fn save_yard_edited_state(mut commands: Commands, yard_query: Query<&Yard>) 
 pub fn restore_yard_edited_state(
     mut commands: Commands,
     mut yard_query: Query<&mut Yard>,
-    yard_edited_state_query: Query<(&YardEditedState, Entity)>,
+    mut yard_edited_state_query: Query<(&mut YardEditedState, Entity)>,
 ) {
-    if let Ok((old_yard, old_yard_entity)) = yard_edited_state_query.get_single() {
+    if let Ok((mut old_yard, old_yard_entity)) = yard_edited_state_query.get_single_mut() {
         let yard = yard_query.single_mut().into_inner();
+        old_yard
+            .0
+            .reset_tile_inner_entities_and_train_entities(&mut commands);
+        yard.despawn_trains(&mut commands);
+
         *yard = old_yard.0.clone();
-        yard.reset_tile_inner_entities(&mut commands);
 
         commands.entity(old_yard_entity).despawn();
     }
@@ -160,9 +164,10 @@ pub fn spawn_timer(mut commands: Commands, timer_query: Query<Entity, With<YardT
     for entity in timer_query.iter() {
         commands.entity(entity).despawn();
     }
-    commands.spawn((YardTickTimer {
-        timer: Timer::new(Duration::from_secs(1), TimerMode::Repeating),
-    },));
+
+    let mut timer = Timer::new(Duration::from_secs(1), TimerMode::Repeating);
+    timer.tick(Duration::from_micros(999999)); // make the timer just about to expire
+    commands.spawn((YardTickTimer { timer },));
 }
 
 pub fn despawn_timer(mut commands: Commands, timer_query: Query<Entity, With<YardTickTimer>>) {
@@ -237,6 +242,10 @@ pub fn win_event_handler(
         next_state.set(LevelState::Won);
         commands.spawn(AudioBundle {
             source: asset_server.load("audio/win_level.ogg"),
+            settings: PlaybackSettings {
+                volume: Volume::new(0.2),
+                ..default()
+            },
             ..default()
         });
 

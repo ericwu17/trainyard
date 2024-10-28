@@ -13,7 +13,7 @@ use crate::{
         restore_yard_edited_state,
         trains::TrainColor,
         yard::YardEditedState,
-        yard::{TrainSprite, Yard, YardTickedEvent},
+        yard::{Yard, YardTickedEvent},
         LevelSet, LevelState,
     },
     ui::level::YardPlaceholderNode,
@@ -48,14 +48,14 @@ impl Plugin for TilePlugin {
             )
             .add_systems(
                 OnEnter(LevelState::Editing),
-                (restore_yard_edited_state, refresh_yard_trains).chain(),
+                (restore_yard_edited_state, render_yard_trains).chain(),
             )
             .add_systems(
                 Update,
                 (
                     (
                         render_yard,
-                        refresh_yard_trains.run_if(on_event::<YardTickedEvent>()),
+                        render_yard_trains.run_if(on_event::<YardTickedEvent>()),
                     )
                         .chain(),
                     adjust_yard_position_to_match_placeholder,
@@ -153,19 +153,13 @@ fn render_yard(
     yard.render(&mut commands, &asset_server);
 }
 
-fn refresh_yard_trains(
+fn render_yard_trains(
     mut commands: Commands,
     mut yard_query: Query<&mut Yard>,
-    trains_query: Query<Entity, With<TrainSprite>>,
     asset_server: Res<AssetServer>,
 ) {
     if let Ok(yard) = yard_query.get_single_mut() {
         let yard = yard.into_inner();
-        // despawn all train entities
-        for entity in trains_query.iter() {
-            commands.entity(entity).despawn_recursive();
-        }
-
         // respawn all train entities
         yard.render_trains(&mut commands, &asset_server);
     }

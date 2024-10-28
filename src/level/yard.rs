@@ -2,16 +2,26 @@ use bevy::prelude::*;
 
 use super::persistence::LevelProgress;
 use super::tiles::connections::TileConnections;
+use super::tiles::tile::TileTrainActivity;
 use super::tiles::{connections::TileBorderState, construct_new_tile, TileConstructionInfo};
 use super::trains::TrainColor;
 use crate::level::{direction::Dir, tiles::tile::Tile, TrainCrashedEvent};
 use crate::{NUM_COLS, NUM_ROWS, TILE_SIZE_PX};
+
+#[derive(Clone)]
+pub struct TrainActivityWithLocation {
+    row: usize,
+    col: usize,
+    activity: TileTrainActivity,
+}
 
 #[derive(Component, Clone)]
 pub struct Yard {
     pub tiles: Vec<Vec<Box<dyn Tile + Send + Sync>>>,
     pub borders: [[TileBorderState; NUM_COLS as usize]; NUM_ROWS as usize],
     pub base_entity: Entity,
+    pub train_entities: Vec<Entity>,
+    pub train_activity: Vec<TrainActivityWithLocation>,
 }
 
 #[derive(Component)]
@@ -52,6 +62,8 @@ impl Yard {
             tiles,
             borders: border_states,
             base_entity,
+            train_entities: Vec::new(),
+            train_activity: Vec::new(),
         }
     }
 
@@ -77,52 +89,66 @@ impl Yard {
         }
     }
 
-    pub fn reset_tile_inner_entities(&mut self, commands: &mut Commands) {
+    pub fn reset_tile_inner_entities_and_train_entities(&mut self, commands: &mut Commands) {
+        // restore inner entities
         for row in &mut self.tiles {
             for tile in row {
                 tile.reset_inner_entities(commands);
             }
         }
+        self.despawn_trains(commands);
+    }
+
+    pub fn despawn_trains(&mut self, commands: &mut Commands) {
+        while let Some(entity) = self.train_entities.pop() {
+            commands.entity(self.base_entity).remove_children(&[entity]);
+            commands.entity(entity).despawn();
+        }
     }
 
     pub fn render_trains(&mut self, commands: &mut Commands, asset_server: &Res<AssetServer>) {
-        for r in 0..(NUM_ROWS as usize) {
-            for c in 0..(NUM_COLS as usize) {
-                for dir in Dir::all_dirs() {
-                    let x = c as f32 * TILE_SIZE_PX + TILE_SIZE_PX / 2.0;
-                    let y = r as f32 * TILE_SIZE_PX + TILE_SIZE_PX / 2.0;
+        self.despawn_trains(commands);
 
-                    let base_transform = Transform::from_xyz(x, y, 0.5);
+        for train_activity in self.train_activity.iter() {
+            let r = train_activity.row;
+            let c = train_activity.col;
+            let Some(dir) = train_activity.activity.to_dir else {
+                continue;
+            };
+            let train_color = train_activity.activity.end_color;
 
-                    if let Some(train_color) = self.borders[r][c].get_train(dir) {
-                        let bundle = (
-                            SpriteBundle {
-                                transform: base_transform
-                                    * Transform::from_rotation(Quat::from(dir.flip()))
-                                    * Transform::from_xyz(0.0, -TILE_SIZE_PX / 2.0, 0.0),
-                                texture: asset_server.load("sprites/Train.png"),
-                                sprite: Sprite {
-                                    color: Color::from(train_color),
-                                    ..default()
-                                },
-                                ..default()
-                            },
-                            TrainSprite,
-                            Name::new(format!("{} train", train_color.to_str())),
-                        );
-                        let train_entity = commands.spawn(bundle).id();
-                        commands
-                            .entity(self.base_entity)
-                            .push_children(&[train_entity]);
-                    }
-                }
-            }
+            let x = c as f32 * TILE_SIZE_PX + TILE_SIZE_PX / 2.0;
+            let y = r as f32 * TILE_SIZE_PX + TILE_SIZE_PX / 2.0;
+
+            let base_transform = Transform::from_xyz(x, y, 0.5);
+
+            let bundle = (
+                SpriteBundle {
+                    transform: base_transform
+                        * Transform::from_rotation(Quat::from(dir))
+                        * Transform::from_xyz(0.0, TILE_SIZE_PX / 2.0, 0.0),
+                    texture: asset_server.load("sprites/Train.png"),
+                    sprite: Sprite {
+                        color: Color::from(train_color),
+                        ..default()
+                    },
+                    ..default()
+                },
+                TrainSprite,
+                Name::new(format!("{} train", train_color.to_str())),
+            );
+            let train_entity = commands.spawn(bundle).id();
+            commands
+                .entity(self.base_entity)
+                .push_children(&[train_entity]);
+            self.train_entities.push(train_entity);
         }
     }
 
     pub fn tick(&mut self, crashed_event: &mut EventWriter<TrainCrashedEvent>) {
         let mut outgoing_border_states: [[TileBorderState; NUM_COLS as usize]; NUM_ROWS as usize] =
             Default::default();
+        self.train_activity = Vec::new();
 
         for row in 0..(NUM_ROWS as usize) {
             for col in 0..(NUM_COLS as usize) {
@@ -145,6 +171,13 @@ impl Yard {
                         outgoing_border_state
                             .add_train(TrainColor::mix_many(colors_to_mix), out_dir);
                     }
+                }
+                for train_activity in train_tile_activity {
+                    self.train_activity.push(TrainActivityWithLocation {
+                        row,
+                        col,
+                        activity: train_activity,
+                    });
                 }
                 outgoing_border_states[row][col] = outgoing_border_state;
             }
