@@ -25,5 +25,15 @@
     "name": "A Merge",
     "sources": [[["Yellow"], "Right", [2, 1]], [["Yellow"], "Right", [4, 1]]],
     "sinks": [[["Yellow"], ["Left"], [3, 5]]]
+  },
+  {
+    "name": "Laser Master",
+    "sources": [[["Blue", "Red", "Blue", "Red"], "Up", [0, 3]]],
+    "sinks": [[["Purple", "Purple", "Purple", "Purple"], ["Down"], [6, 3]]]
+  },
+  {
+    "name": "Magical Trains",
+    "sources": [[["Blue"], "Up", [0, 3]], [["Yellow"], "Down", [6, 3]]],
+    "sinks": [[["Green", "Green"], ["Right"], [3, 0]]]
   }
 ]

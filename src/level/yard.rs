@@ -1,3 +1,5 @@
+use std::f32::consts::FRAC_PI_2;
+
 use bevy::prelude::*;
 
 use super::persistence::LevelProgress;
@@ -106,42 +108,85 @@ impl Yard {
         }
     }
 
-    pub fn render_trains(&mut self, commands: &mut Commands, asset_server: &Res<AssetServer>) {
-        self.despawn_trains(commands);
+    /// time_within_tick is a float from 0 to 1
+    pub fn render_trains(
+        &mut self,
+        commands: &mut Commands,
+        asset_server: &Res<AssetServer>,
+        time_within_tick: f32,
+    ) {
+        if self.train_entities.len() != self.train_activity.len() {
+            self.despawn_trains(commands);
 
-        for train_activity in self.train_activity.iter() {
-            let r = train_activity.row;
-            let c = train_activity.col;
-            let Some(dir) = train_activity.activity.to_dir else {
-                continue;
-            };
-            let train_color = train_activity.activity.end_color;
-
-            let x = c as f32 * TILE_SIZE_PX + TILE_SIZE_PX / 2.0;
-            let y = r as f32 * TILE_SIZE_PX + TILE_SIZE_PX / 2.0;
-
-            let base_transform = Transform::from_xyz(x, y, 0.5);
-
-            let bundle = (
-                SpriteBundle {
-                    transform: base_transform
-                        * Transform::from_rotation(Quat::from(dir))
-                        * Transform::from_xyz(0.0, TILE_SIZE_PX / 2.0, 0.0),
-                    texture: asset_server.load("sprites/Train.png"),
-                    sprite: Sprite {
-                        color: Color::from(train_color),
+            for _ in self.train_activity.iter() {
+                let bundle = (
+                    SpriteBundle {
+                        texture: asset_server.load("sprites/Train.png"),
+                        sprite: Sprite {
+                            color: Color::srgba(0.0, 0.0, 0.0, 0.0),
+                            ..default()
+                        },
                         ..default()
                     },
+                    TrainSprite,
+                    Name::new("train"),
+                );
+                let train_entity = commands.spawn(bundle).id();
+                commands
+                    .entity(self.base_entity)
+                    .push_children(&[train_entity]);
+                self.train_entities.push(train_entity);
+            }
+        }
+        for (entity, activity) in self.train_entities.iter().zip(self.train_activity.iter()) {
+            let r = activity.row;
+            let c = activity.col;
+            let x = c as f32 * TILE_SIZE_PX + TILE_SIZE_PX / 2.0;
+            let y = r as f32 * TILE_SIZE_PX + TILE_SIZE_PX / 2.0;
+            let t = time_within_tick;
+            let base_transform = Transform::from_xyz(x, y, 0.5);
+
+            let to_dir = activity.activity.to_dir;
+            let from_dir = activity.activity.from_dir;
+            if to_dir.is_none() && time_within_tick > 0.5 {
+                continue;
+            }
+            if from_dir.is_none() && time_within_tick < 0.5 {
+                continue;
+            }
+            let (to_dir, from_dir) = match (to_dir, from_dir) {
+                (None, None) => {
+                    continue;
+                }
+                (None, Some(from_dir)) => (from_dir.flip(), from_dir),
+                (Some(to_dir), None) => (to_dir, to_dir.flip()),
+                (Some(to_dir), Some(from_dir)) => (to_dir, from_dir),
+            };
+
+            if to_dir == from_dir {
+                panic!("a train cannot go from one direction in a tile to itself");
+            }
+            // the transform to place the train, within a single tile
+            let local_transform;
+            if to_dir == from_dir.flip() {
+                local_transform = Transform::from_rotation(Quat::from(to_dir))
+                    * Transform::from_xyz(0.0, (t - 0.5) * TILE_SIZE_PX, 0.0);
+            } else {
+                local_transform = get_local_transform_in_turn(from_dir, to_dir, time_within_tick);
+            }
+
+            let train_color = if time_within_tick < 0.5 {
+                activity.activity.start_color
+            } else {
+                activity.activity.end_color
+            };
+            commands.entity(*entity).insert((
+                base_transform * local_transform,
+                Sprite {
+                    color: Color::from(train_color),
                     ..default()
                 },
-                TrainSprite,
-                Name::new(format!("{} train", train_color.to_str())),
-            );
-            let train_entity = commands.spawn(bundle).id();
-            commands
-                .entity(self.base_entity)
-                .push_children(&[train_entity]);
-            self.train_entities.push(train_entity);
+            ));
         }
     }
 
@@ -258,4 +303,48 @@ impl Yard {
         }
         res
     }
+}
+
+fn get_local_transform_in_turn(from_dir: Dir, to_dir: Dir, time_within_tick: f32) -> Transform {
+    let turning_counter_clockwise = to_dir == from_dir.rotate_cw();
+
+    let rotation_amount = if turning_counter_clockwise {
+        FRAC_PI_2 * time_within_tick
+    } else {
+        -FRAC_PI_2 * time_within_tick
+    };
+
+    let mut initial_rotation = Transform::from_rotation(Quat::from(from_dir.flip()));
+    if turning_counter_clockwise {
+        // not sure why this if statement is needed, but it makes all the calculations appear to work.
+        initial_rotation.rotate(Quat::from(Dir::Right));
+    }
+
+    let transform_to_point_of_rotation = if from_dir == Dir::Down && to_dir == Dir::Right
+        || from_dir == Dir::Right && to_dir == Dir::Down
+    {
+        Transform::from_xyz(TILE_SIZE_PX / 2.0, -TILE_SIZE_PX / 2.0, 0.0)
+    } else if from_dir == Dir::Down && to_dir == Dir::Left
+        || from_dir == Dir::Left && to_dir == Dir::Down
+    {
+        Transform::from_xyz(-TILE_SIZE_PX / 2.0, -TILE_SIZE_PX / 2.0, 0.0)
+    } else if from_dir == Dir::Up && to_dir == Dir::Left
+        || from_dir == Dir::Left && to_dir == Dir::Up
+    {
+        Transform::from_xyz(-TILE_SIZE_PX / 2.0, TILE_SIZE_PX / 2.0, 0.0)
+    } else {
+        Transform::from_xyz(TILE_SIZE_PX / 2.0, TILE_SIZE_PX / 2.0, 0.0)
+    };
+
+    let transform_after_rotation = if turning_counter_clockwise {
+        Transform::from_xyz(0.0, TILE_SIZE_PX / 2.0, 0.0)
+            .with_rotation(Quat::from_rotation_z(FRAC_PI_2))
+    } else {
+        Transform::from_xyz(-TILE_SIZE_PX / 2.0, 0.0, 0.0)
+    };
+
+    transform_to_point_of_rotation
+        * initial_rotation
+        * Transform::from_rotation(Quat::from_rotation_z(rotation_amount))
+        * transform_after_rotation
 }

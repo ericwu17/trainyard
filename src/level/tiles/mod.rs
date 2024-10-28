@@ -27,7 +27,7 @@ use tile::Tile;
 
 use super::{
     persistence::{GameLevelProgress, LevelProgress},
-    CurrentLevelName,
+    CurrentLevelName, LevelStateIsRunning, YardTickTimer,
 };
 
 pub struct TilePlugin;
@@ -46,16 +46,13 @@ impl Plugin for TilePlugin {
                 )
                     .chain(),
             )
-            .add_systems(
-                OnEnter(LevelState::Editing),
-                (restore_yard_edited_state, render_yard_trains).chain(),
-            )
+            .add_systems(OnEnter(LevelState::Editing), restore_yard_edited_state)
             .add_systems(
                 Update,
                 (
                     (
                         render_yard,
-                        render_yard_trains.run_if(on_event::<YardTickedEvent>()),
+                        render_yard_trains.run_if(in_state(LevelStateIsRunning::Running)),
                     )
                         .chain(),
                     adjust_yard_position_to_match_placeholder,
@@ -157,11 +154,16 @@ fn render_yard_trains(
     mut commands: Commands,
     mut yard_query: Query<&mut Yard>,
     asset_server: Res<AssetServer>,
+    timer_q: Query<&YardTickTimer>,
 ) {
     if let Ok(yard) = yard_query.get_single_mut() {
         let yard = yard.into_inner();
-        // respawn all train entities
-        yard.render_trains(&mut commands, &asset_server);
+
+        let mut time_within_tick = 0.0;
+        if let Ok(yard_tick_timer) = timer_q.get_single() {
+            time_within_tick = yard_tick_timer.timer.elapsed().as_micros() as f32 / 1000000.0;
+        }
+        yard.render_trains(&mut commands, &asset_server, time_within_tick);
     }
 }
 

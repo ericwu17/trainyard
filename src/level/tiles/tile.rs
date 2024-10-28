@@ -5,7 +5,7 @@ use crate::level::{direction::Dir, trains::TrainColor, TrainCrashedEvent};
 use super::connections::TileBorderState;
 
 /// A struct to represent how trains are moving within a tile,
-#[derive(Clone)]
+#[derive(Clone, Debug)]
 pub struct TileTrainActivity {
     pub from_dir: Option<Dir>,
     pub to_dir: Option<Dir>,
