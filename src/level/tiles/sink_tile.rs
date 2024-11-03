@@ -2,6 +2,7 @@ use bevy::prelude::*;
 
 use super::source_tile::INNER_SPRITE_SIZE;
 use super::tile::TileTrainActivity;
+use super::tile_animations::SrinkToNoneAnimationComponent;
 use super::{connections::TileBorderState, tile::Tile};
 use crate::level::{direction::Dir, trains::TrainColor, TrainCrashedEvent};
 
@@ -177,8 +178,10 @@ impl Tile for SinkTile {
 
         while !self.removed_entities.is_empty() {
             let entity = self.removed_entities.pop().unwrap();
-            commands.entity(self.base_entity).remove_children(&[entity]);
-            commands.entity(entity).despawn_recursive();
+            commands
+                .entity(entity)
+                .insert(SrinkToNoneAnimationComponent(1.0));
+            // note that the ShrinkToNoneAnimationComponent will handle the despawning of the entity after it is too small to see.
         }
     }
 

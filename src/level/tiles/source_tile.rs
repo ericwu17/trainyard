@@ -5,6 +5,7 @@ use crate::level::{direction::Dir, trains::TrainColor, TrainCrashedEvent};
 use super::{
     connections::TileBorderState,
     tile::{Tile, TileTrainActivity},
+    tile_animations::SrinkToNoneAnimationComponent,
 };
 
 pub const INNER_SPRITE_SIZE: f32 = 52.0;
@@ -155,8 +156,10 @@ impl Tile for SourceTile {
         } else if self.inner_entities.len() > self.trains.len() {
             while self.inner_entities.len() > self.trains.len() {
                 let entity = self.inner_entities.remove(0);
-                commands.entity(self.base_entity).remove_children(&[entity]);
-                commands.entity(entity).despawn_recursive();
+                commands
+                    .entity(entity)
+                    .insert(SrinkToNoneAnimationComponent(1.0));
+                // note that the ShrinkToNoneAnimationComponent will handle the despawning of the entity after it is too small to see.
             }
         }
     }

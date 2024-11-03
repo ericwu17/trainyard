@@ -4,6 +4,7 @@ pub mod rock_tile;
 pub mod sink_tile;
 pub mod source_tile;
 pub mod tile;
+pub mod tile_animations;
 
 use bevy::prelude::*;
 
@@ -29,7 +30,6 @@ use super::{
     persistence::{GameLevelProgress, LevelProgress},
     CurrentLevelName, LevelStateIsRunning, YardTickTimer,
 };
-
 pub struct TilePlugin;
 
 #[derive(Component)]
@@ -38,6 +38,7 @@ pub struct YardComponent;
 impl Plugin for TilePlugin {
     fn build(&self, app: &mut App) {
         app.add_event::<YardTickedEvent>()
+            .add_plugins(tile_animations::TileAnimationPlugin)
             .add_systems(
                 OnEnter(LevelState::None),
                 (
