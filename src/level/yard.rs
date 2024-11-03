@@ -262,6 +262,9 @@ impl Yard {
 
     // check if all source tiles are empty, all destination tiles are empty, and if all borders are empty.
     pub fn has_won(&self) -> bool {
+        if self.train_activity.len() > 0 {
+            return false;
+        }
         for row in 0..(NUM_ROWS as usize) {
             for col in 0..(NUM_COLS as usize) {
                 if !self.tiles[row][col].has_no_remaining_trains() {
