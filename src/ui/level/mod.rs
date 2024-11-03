@@ -3,7 +3,7 @@ pub mod speed_slider;
 pub mod status_text;
 
 use bevy::prelude::*;
-use speed_slider::{spawn_speed_slider, TrainSpeed};
+use speed_slider::spawn_speed_slider;
 use status_text::update_status_text;
 
 use crate::level::LevelState;
@@ -47,7 +47,6 @@ fn spawn_level_ui(
     mut commands: Commands,
     asset_server: Res<AssetServer>,
     ui_root_query: Query<Entity, With<super::UIRootContainer>>,
-    mut train_speed: ResMut<TrainSpeed>,
 ) {
     let ui_root = ui_root_query.single();
     let font: Handle<Font> = asset_server.load("fonts/kenyan_coffee_rg.otf");
@@ -175,7 +174,6 @@ fn spawn_level_ui(
         .id();
     let status_text_box = commands.spawn(status_text_box).id();
     let slider = spawn_speed_slider(&mut commands, font);
-    train_speed.0 = train_speed.0;
     let status_text = commands.spawn((status_text, LevelStatusText)).id();
 
     commands.entity(ui_root).push_children(&[level_root]);
