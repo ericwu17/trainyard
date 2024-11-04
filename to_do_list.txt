@@ -1,0 +1,23 @@
+Here's a list of things that still need to be done:
+
+Better sounds and animations
+    - animations when trains merge, mix, or crash
+    - sounds for mixing/merging
+
+Need UI for what happens if the number of levels overflows one page
+    Do I scroll? Or maybe organize levels by city? Maybe both?
+
+Need more levels
+    Should write a quick python script to port the stuff from my old trainyard to the new json format
+
+Need a tutorial system
+    How should I handle this? Maybe just a wall of text? Text and pictures? How to interleave tutorials and levels?
+
+Need a level editor
+    Probably gotta still brainstorm this one, and take inspiration from old youtube videos (https://www.youtube.com/watch?v=XbyT_pRzoDs) about trainyard's editor
+
+Need a cool background on title screen (screen saver mode for trainyard)
+    Randomly procedurally generated tracks and kind of random trains going through them?
+
+
+
