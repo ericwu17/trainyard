@@ -272,14 +272,6 @@ fn move_cursor_by_mouse(
         if c < 0 || c >= NUM_COLS as i32 || r < 0 || r >= NUM_ROWS as i32 {
             return;
         }
-        info!(
-            "world coords of mouse are: {}, {}",
-            world_coordinates_of_mouse.x, world_coordinates_of_mouse.y
-        );
-        info!(
-            "yard coords of mouse are: {}, {}",
-            yard_local_coords.x, yard_local_coords.y
-        );
 
         let c = c as u8;
         let r = r as u8;
