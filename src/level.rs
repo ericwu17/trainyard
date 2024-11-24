@@ -8,12 +8,20 @@ pub mod yard;
 
 use bevy::{audio::Volume, prelude::*};
 use persistence::{GameLevelProgress, LevelProgress};
+use trains::TrainColor;
 
-use crate::ui::{level::speed_slider::TrainSpeed, level_picker::StartLevelEvent};
+use crate::{
+    ui::{level::speed_slider::TrainSpeed, level_picker::StartLevelEvent},
+    TILE_SIZE_PX,
+};
 use loader::StockLevelInfos;
 use std::time::Duration;
-use tiles::YardComponent;
-use yard::{Yard, YardEditedState, YardTickedEvent};
+use tiles::{
+    tile::TileEvent,
+    tile_animations::{FloatingFadingAnimationComponent, SrinkToNoneAnimationComponent},
+    YardComponent,
+};
+use yard::{TileEventWithLocation, Yard, YardEditedState, YardMidTickEvent, YardTickedEvent};
 
 #[derive(States, Default, Debug, Clone, PartialEq, Eq, Hash)]
 pub enum LevelState {
@@ -47,10 +55,8 @@ pub struct CurrentLevelName(pub Option<String>);
 #[derive(Component)]
 pub struct YardTickTimer {
     timer: Timer,
+    half_timer: Timer,
 }
-
-#[derive(Event, Default)]
-pub struct TrainCrashedEvent;
 
 #[derive(Event, Default)]
 pub struct WinLevelEvent;
@@ -62,6 +68,15 @@ pub struct LevelEditingSet;
 #[derive(SystemSet, Debug, Clone, PartialEq, Eq, Hash)]
 pub struct LevelRunningSet;
 
+#[derive(Component)]
+pub struct EndTickEvent;
+
+#[derive(Component)]
+pub struct MidTickEvent;
+
+#[derive(Component)]
+pub struct StartTickEvent;
+
 pub struct LevelPlugin;
 
 impl Plugin for LevelPlugin {
@@ -71,8 +86,8 @@ impl Plugin for LevelPlugin {
             tiles::TilePlugin,
             persistence::PersistencePlugin,
         ))
-        .add_event::<TrainCrashedEvent>()
         .add_event::<WinLevelEvent>()
+        .add_event::<TileEventWithLocation>()
         .configure_sets(
             Update,
             (
@@ -93,7 +108,6 @@ impl Plugin for LevelPlugin {
             (
                 update_level_state_from_keypress,
                 tick_yard_tick_timer.in_set(LevelRunningSet),
-                crashed_event_handler.run_if(on_event::<TrainCrashedEvent>()),
                 win_event_handler.run_if(on_event::<WinLevelEvent>()),
             )
                 .in_set(LevelSet),
@@ -165,25 +179,188 @@ pub fn spawn_timer(mut commands: Commands, timer_query: Query<Entity, With<YardT
         commands.entity(entity).despawn();
     }
 
-    let mut timer = Timer::new(Duration::from_secs(1), TimerMode::Repeating);
+    let mut timer: Timer = Timer::new(Duration::from_secs(1), TimerMode::Repeating);
+    let half_timer = Timer::new(Duration::from_millis(500), TimerMode::Once);
     timer.tick(Duration::from_micros(999999)); // make the timer just about to expire
-    commands.spawn((YardTickTimer { timer },));
+    commands.spawn(YardTickTimer { timer, half_timer });
 }
 
-pub fn despawn_timer(mut commands: Commands, timer_query: Query<Entity, With<YardTickTimer>>) {
+pub fn despawn_timer(
+    mut commands: Commands,
+    timer_query: Query<Entity, Or<(With<YardTickTimer>, With<MidTickEvent>, With<EndTickEvent>)>>,
+) {
     for entity in timer_query.iter() {
         commands.entity(entity).despawn();
     }
 }
 
+pub fn handle_tile_event(
+    commands: &mut Commands,
+    asset_server: &Res<AssetServer>,
+    event: &TileEventWithLocation,
+    yard: &mut Yard,
+    next_state: &mut ResMut<NextState<LevelState>>,
+    has_crashed: &mut bool,
+) {
+    info!("handling event {:?}", event);
+    match event.event {
+        TileEvent::SinkReceivedTrain(train_color) => {
+            play_color_sound(commands, asset_server, train_color);
+        }
+        TileEvent::MixColors(train_color, (dx, dy)) => {
+            play_color_sound(commands, asset_server, train_color);
+            spawn_sparkles(
+                commands,
+                asset_server,
+                yard.base_entity,
+                event.row,
+                event.col,
+                (dx, dy),
+                train_color,
+            );
+        }
+        TileEvent::CrashedOnEdge(train_color, dir) => {
+            next_state.set(LevelState::RunningCrashed);
+            *has_crashed = true;
+            commands.spawn(AudioBundle {
+                source: asset_server.load("audio/crash.ogg"),
+                ..default()
+            });
+            spawn_smoke(
+                commands,
+                asset_server,
+                yard.base_entity,
+                event.row,
+                event.col,
+                dir.to_local_coords_of_edge(),
+                train_color,
+            );
+        }
+        TileEvent::ShrinkAwayInnerEntity(entity) => {
+            commands
+                .entity(entity)
+                .insert(SrinkToNoneAnimationComponent(1.0));
+        }
+        TileEvent::SwitchActivePassive => {
+            yard.switch_active_passive(event.row, event.col);
+            commands.spawn(AudioBundle {
+                source: asset_server.load("audio/switch_track.ogg"),
+                ..default()
+            });
+        }
+    };
+}
+
+pub fn play_color_sound(
+    commands: &mut Commands,
+    asset_server: &Res<AssetServer>,
+    color: TrainColor,
+) {
+    let asset_path = match color {
+        TrainColor::Brown => "audio/train_brown.ogg",
+        TrainColor::Red => "audio/train_red.ogg",
+        TrainColor::Blue => "audio/train_blue.ogg",
+        TrainColor::Yellow => "audio/train_yellow.ogg",
+        TrainColor::Purple => "audio/train_purple.ogg",
+        TrainColor::Green => "audio/train_green.ogg",
+        TrainColor::Orange => "audio/train_orange.ogg",
+    };
+    commands.spawn(AudioBundle {
+        source: asset_server.load(asset_path),
+        ..default()
+    });
+}
+
+pub fn spawn_smoke(
+    commands: &mut Commands,
+    asset_server: &Res<AssetServer>,
+    yard_entity: Entity,
+    row: usize,
+    col: usize,
+    dir: (f32, f32),
+    color: TrainColor,
+) {
+    let y = TILE_SIZE_PX * (row as f32) + TILE_SIZE_PX * dir.1;
+    let x = TILE_SIZE_PX * (col as f32) + TILE_SIZE_PX * dir.0;
+
+    let color: Color = color.into();
+
+    for _ in 0..8 {
+        let id = commands
+            .spawn((
+                SpriteBundle {
+                    texture: asset_server.load("sprites/Smoke.png"),
+                    transform: Transform::from_xyz(x, y, 5.0),
+                    sprite: Sprite { color, ..default() },
+                    ..default()
+                },
+                FloatingFadingAnimationComponent::new(),
+            ))
+            .id();
+        commands.entity(yard_entity).push_children(&[id]);
+    }
+}
+
+pub fn spawn_sparkles(
+    commands: &mut Commands,
+    asset_server: &Res<AssetServer>,
+    yard_entity: Entity,
+    row: usize,
+    col: usize,
+    dir: (f32, f32),
+    color: TrainColor,
+) {
+    let y = TILE_SIZE_PX * (row as f32) + TILE_SIZE_PX * dir.1;
+    let x = TILE_SIZE_PX * (col as f32) + TILE_SIZE_PX * dir.0;
+
+    let color: Color = color.into();
+
+    for _ in 0..5 {
+        let id = commands
+            .spawn((
+                SpriteBundle {
+                    texture: asset_server.load("sprites/Fire_small.png"),
+                    transform: Transform::from_xyz(x, y, 5.0),
+                    sprite: Sprite { color, ..default() },
+                    ..default()
+                },
+                FloatingFadingAnimationComponent::new(),
+            ))
+            .id();
+        commands.entity(yard_entity).push_children(&[id]);
+    }
+    for _ in 0..5 {
+        let id = commands
+            .spawn((
+                SpriteBundle {
+                    texture: asset_server.load("sprites/Fire.png"),
+                    transform: Transform::from_xyz(x, y, 5.0),
+                    sprite: Sprite { color, ..default() },
+                    ..default()
+                },
+                FloatingFadingAnimationComponent::new(),
+            ))
+            .id();
+        commands.entity(yard_entity).push_children(&[id]);
+    }
+}
+
 pub fn tick_yard_tick_timer(
+    mut commands: Commands,
+    asset_server: Res<AssetServer>,
+
     mut q: Query<&mut YardTickTimer>,
     time: Res<Time>,
-    level_state: Res<State<LevelState>>,
+    level_state: ResMut<State<LevelState>>,
+    mut next_state: ResMut<NextState<LevelState>>,
     mut yard_query: Query<&mut Yard>,
     mut event_yard_ticked: EventWriter<YardTickedEvent>,
-    mut crashed_event: EventWriter<TrainCrashedEvent>,
+    mut event_yard_mid_tick: EventWriter<YardMidTickEvent>,
     mut win_event: EventWriter<WinLevelEvent>,
+
+    mid_tick_events_q: Query<(Entity, &TileEventWithLocation), With<MidTickEvent>>,
+    end_tick_events_q: Query<(Entity, &TileEventWithLocation), With<EndTickEvent>>,
+
     train_speed: Res<TrainSpeed>,
 ) {
     let yard_tick_timer = q.single_mut().into_inner();
@@ -193,42 +370,73 @@ pub fn tick_yard_tick_timer(
     yard_tick_timer
         .timer
         .tick(Duration::from_nanos(delta_ns_for_tick));
+    yard_tick_timer
+        .half_timer
+        .tick(Duration::from_nanos(delta_ns_for_tick));
+
+    let mut has_crashed = false;
 
     if yard_tick_timer.timer.just_finished() {
         let yard = yard_query.single_mut().into_inner();
-        yard.tick(&mut crashed_event);
+
+        for (entity, ev) in end_tick_events_q.iter() {
+            commands.entity(entity).despawn();
+            handle_tile_event(
+                &mut commands,
+                &asset_server,
+                ev,
+                yard,
+                &mut next_state,
+                &mut has_crashed,
+            );
+        }
+
+        let process_tick_results = yard.tick();
+
+        for e in process_tick_results.start_tick_events {
+            handle_tile_event(
+                &mut commands,
+                &asset_server,
+                &e,
+                yard,
+                &mut next_state,
+                &mut has_crashed,
+            );
+        }
+
+        for e in process_tick_results.mid_tick_events {
+            commands.spawn((MidTickEvent, e));
+        }
+        for e in process_tick_results.end_tick_events {
+            commands.spawn((EndTickEvent, e));
+        }
+
         event_yard_ticked.send_default();
 
-        if *level_state.get() == LevelState::RunningNotCrashed && yard.has_won() {
+        if !has_crashed && *level_state.get() == LevelState::RunningNotCrashed && yard.has_won() {
             win_event.send_default();
         }
-    }
-}
+        yard_tick_timer.half_timer.reset();
+    } else if yard_tick_timer.half_timer.just_finished() {
+        let yard = yard_query.single_mut().into_inner();
+        for (entity, ev) in mid_tick_events_q.iter() {
+            commands.entity(entity).despawn();
+            handle_tile_event(
+                &mut commands,
+                &asset_server,
+                ev,
+                yard,
+                &mut next_state,
+                &mut has_crashed,
+            );
+        }
 
-pub fn crashed_event_handler(
-    mut crashed_event: EventReader<TrainCrashedEvent>,
-    mut next_state: ResMut<NextState<LevelState>>,
-    mut commands: Commands,
-    asset_server: Res<AssetServer>,
-) {
-    let mut did_crash = false;
-
-    for _ in crashed_event.read() {
-        did_crash = true;
-    }
-
-    if did_crash {
-        next_state.set(LevelState::RunningCrashed);
-        commands.spawn(AudioBundle {
-            source: asset_server.load("audio/crash.ogg"),
-            ..default()
-        });
+        event_yard_mid_tick.send_default();
     }
 }
 
 pub fn win_event_handler(
     mut win_event: EventReader<WinLevelEvent>,
-    mut crashed_event: EventReader<TrainCrashedEvent>,
     mut next_state: ResMut<NextState<LevelState>>,
     mut commands: Commands,
     asset_server: Res<AssetServer>,
@@ -236,7 +444,7 @@ pub fn win_event_handler(
     curr_lvl_name: Res<CurrentLevelName>,
     yard_edit_state_query: Query<&YardEditedState>,
 ) {
-    if win_event.read().count() > 0 && crashed_event.read().count() == 0 {
+    if win_event.read().count() > 0 {
         let yard = yard_edit_state_query.single();
 
         next_state.set(LevelState::Won);

@@ -1,6 +1,6 @@
 use bevy::prelude::*;
 
-use crate::level::{direction::Dir, trains::TrainColor, TrainCrashedEvent};
+use crate::level::{direction::Dir, trains::TrainColor};
 
 use super::connections::TileBorderState;
 
@@ -13,6 +13,22 @@ pub struct TileTrainActivity {
     pub end_color: TrainColor,
 }
 
+#[derive(Clone, Debug, Default)]
+pub struct TileProcessTickResult {
+    pub trains: Vec<TileTrainActivity>,
+    pub start_tick_events: Vec<TileEvent>,
+    pub mid_tick_events: Vec<TileEvent>,
+    pub end_tick_events: Vec<TileEvent>,
+}
+
+#[derive(Clone, Debug)]
+pub enum TileEvent {
+    MixColors(TrainColor, (f32, f32)),
+    CrashedOnEdge(TrainColor, Dir),
+    ShrinkAwayInnerEntity(Entity),
+    SinkReceivedTrain(TrainColor),
+    SwitchActivePassive,
+}
 pub trait Tile {
     fn add_connection(&mut self, _d1: Dir, _d2: Dir) {}
 
@@ -22,11 +38,7 @@ pub trait Tile {
 
     // the function argument represents an __incoming__ border state,
     // while the output represents an __outgoing__ border state.
-    fn process_and_output(
-        &mut self,
-        incoming: TileBorderState,
-        crashed_event: &mut EventWriter<TrainCrashedEvent>,
-    ) -> Vec<TileTrainActivity>;
+    fn process_and_output(&mut self, incoming: TileBorderState) -> TileProcessTickResult;
 
     fn render(&mut self, _commands: &mut Commands, _asset_server: &Res<AssetServer>);
 

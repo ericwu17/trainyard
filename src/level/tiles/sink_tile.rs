@@ -1,10 +1,9 @@
 use bevy::prelude::*;
 
 use super::source_tile::INNER_SPRITE_SIZE;
-use super::tile::TileTrainActivity;
-use super::tile_animations::SrinkToNoneAnimationComponent;
+use super::tile::{TileEvent, TileProcessTickResult, TileTrainActivity};
 use super::{connections::TileBorderState, tile::Tile};
-use crate::level::{direction::Dir, trains::TrainColor, TrainCrashedEvent};
+use crate::level::{direction::Dir, trains::TrainColor};
 
 #[derive(Clone)]
 pub struct SinkTile {
@@ -16,7 +15,6 @@ pub struct SinkTile {
     pub entry_spout_entities: Vec<Entity>,
     pub border_entity: Entity,
     pub inner_entities: Vec<Entity>, // these are the entities for the sprites for the small plus symbols inside the source tile
-    pub removed_entities: Vec<Entity>, // these are entities that have been removed by `process_and_output`, but still need to be despawned in the `render` function.
 }
 
 impl SinkTile {
@@ -81,51 +79,57 @@ impl SinkTile {
             entry_spout_entities,
             border_entity,
             inner_entities: vec![],
-            removed_entities: vec![],
         }
     }
 }
 
 impl Tile for SinkTile {
-    fn process_and_output(
-        &mut self,
-        incoming: TileBorderState,
-        crashed_event: &mut EventWriter<TrainCrashedEvent>,
-    ) -> Vec<TileTrainActivity> {
+    fn process_and_output(&mut self, incoming: TileBorderState) -> TileProcessTickResult {
         let mut train_activity = Vec::new();
+        let mut mid_tick_events = Vec::new();
+        let mut start_tick_events = Vec::new();
 
         for dir in Dir::all_dirs() {
-            if !self.in_dirs[u8::from(dir) as usize] && incoming.get_train(dir).is_some() {
-                crashed_event.send_default();
-                continue;
+            if !self.in_dirs[u8::from(dir) as usize] {
+                if let Some(color) = incoming.get_train(dir) {
+                    start_tick_events.push(TileEvent::CrashedOnEdge(color, dir));
+                    continue;
+                }
             }
 
             if let Some(train) = incoming.get_train(dir) {
                 let mut index = 0;
-                let mut successfully_received_train = false;
+                let mut inner_entity_to_remove = None;
                 while index < self.trains.len() {
                     if self.trains[index] == train {
                         self.trains.remove(index);
-                        self.removed_entities
-                            .push(self.inner_entities.remove(index));
-                        successfully_received_train = true;
+                        inner_entity_to_remove = Some(self.inner_entities.remove(index));
                         break;
                     }
                     index += 1;
                 }
-                if !successfully_received_train {
-                    crashed_event.send_default();
-                } else {
+
+                if let Some(entity) = inner_entity_to_remove {
                     train_activity.push(TileTrainActivity {
                         from_dir: Some(dir),
                         to_dir: None,
                         start_color: train,
                         end_color: train,
                     });
+                    mid_tick_events.push(TileEvent::ShrinkAwayInnerEntity(entity));
+                    mid_tick_events.push(TileEvent::SinkReceivedTrain(train));
+                } else {
+                    start_tick_events.push(TileEvent::CrashedOnEdge(train, dir));
                 }
             }
         }
-        train_activity
+
+        TileProcessTickResult {
+            trains: train_activity,
+            mid_tick_events,
+            start_tick_events,
+            ..default()
+        }
     }
 
     fn render(&mut self, commands: &mut Commands, asset_server: &Res<AssetServer>) {
@@ -174,14 +178,6 @@ impl Tile for SinkTile {
                         self.inner_entities.push(inner_entity);
                     });
             }
-        }
-
-        while !self.removed_entities.is_empty() {
-            let entity = self.removed_entities.pop().unwrap();
-            commands
-                .entity(entity)
-                .insert(SrinkToNoneAnimationComponent(1.0));
-            // note that the ShrinkToNoneAnimationComponent will handle the despawning of the entity after it is too small to see.
         }
     }
 

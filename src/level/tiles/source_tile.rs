@@ -1,10 +1,10 @@
 use bevy::prelude::*;
 
-use crate::level::{direction::Dir, trains::TrainColor, TrainCrashedEvent};
+use crate::level::{direction::Dir, trains::TrainColor};
 
 use super::{
     connections::TileBorderState,
-    tile::{Tile, TileTrainActivity},
+    tile::{Tile, TileEvent, TileProcessTickResult, TileTrainActivity},
     tile_animations::SrinkToNoneAnimationComponent,
 };
 
@@ -83,28 +83,36 @@ impl SourceTile {
 }
 
 impl Tile for SourceTile {
-    fn process_and_output(
-        &mut self,
-        incoming: TileBorderState,
-        crashed_event: &mut EventWriter<TrainCrashedEvent>,
-    ) -> Vec<TileTrainActivity> {
+    fn process_and_output(&mut self, incoming: TileBorderState) -> TileProcessTickResult {
+        let mut start_tick_events = Vec::new();
+
         for dir_u8 in 0..4 {
-            if incoming.get_train(Dir::from(dir_u8)).is_some() {
-                crashed_event.send_default();
+            if let Some(color) = incoming.get_train(Dir::from(dir_u8)) {
+                start_tick_events.push(TileEvent::CrashedOnEdge(color, dir_u8.into()))
             }
         }
 
-        let mut train_activity = Vec::new();
         if !self.trains.is_empty() {
             let outgoing_train_color = self.trains.remove(0);
-            train_activity.push(TileTrainActivity {
+            let trains = vec![TileTrainActivity {
                 from_dir: None,
                 to_dir: Some(self.out_dir),
                 start_color: outgoing_train_color,
                 end_color: outgoing_train_color,
-            });
+            }];
+            return TileProcessTickResult {
+                trains,
+                mid_tick_events: vec![TileEvent::ShrinkAwayInnerEntity(
+                    self.inner_entities.remove(0),
+                )],
+                start_tick_events,
+                ..default()
+            };
         }
-        return train_activity;
+        return TileProcessTickResult {
+            start_tick_events,
+            ..default()
+        };
     }
 
     fn render(&mut self, commands: &mut Commands, asset_server: &Res<AssetServer>) {

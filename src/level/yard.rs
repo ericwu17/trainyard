@@ -4,10 +4,10 @@ use bevy::prelude::*;
 
 use super::persistence::LevelProgress;
 use super::tiles::connections::TileConnections;
-use super::tiles::tile::TileTrainActivity;
+use super::tiles::tile::{TileEvent, TileTrainActivity};
 use super::tiles::{connections::TileBorderState, construct_new_tile, TileConstructionInfo};
 use super::trains::TrainColor;
-use crate::level::{direction::Dir, tiles::tile::Tile, TrainCrashedEvent};
+use crate::level::{direction::Dir, tiles::tile::Tile};
 use crate::{NUM_COLS, NUM_ROWS, TILE_SIZE_PX};
 
 #[derive(Clone)]
@@ -15,6 +15,20 @@ pub struct TrainActivityWithLocation {
     row: usize,
     col: usize,
     activity: TileTrainActivity,
+}
+
+#[derive(Clone, Debug, Event)]
+pub struct TileEventWithLocation {
+    pub row: usize,
+    pub col: usize,
+    pub event: TileEvent,
+}
+
+#[derive(Clone)]
+pub struct YardProcessTickResult {
+    pub start_tick_events: Vec<TileEventWithLocation>,
+    pub mid_tick_events: Vec<TileEventWithLocation>,
+    pub end_tick_events: Vec<TileEventWithLocation>,
 }
 
 #[derive(Component, Clone)]
@@ -34,6 +48,9 @@ pub struct YardEditedState(pub Yard);
 
 #[derive(Event, Default)]
 pub struct YardTickedEvent;
+
+#[derive(Event, Default)]
+pub struct YardMidTickEvent;
 
 impl Yard {
     pub fn new(commands: &mut Commands, asset_server: &Res<AssetServer>) -> Self {
@@ -190,7 +207,11 @@ impl Yard {
         }
     }
 
-    pub fn tick(&mut self, crashed_event: &mut EventWriter<TrainCrashedEvent>) {
+    pub fn tick(&mut self) -> YardProcessTickResult {
+        let mut start_tick_events = Vec::new();
+        let mut mid_tick_events = Vec::new();
+        let mut end_tick_events = Vec::new();
+
         let mut outgoing_border_states: [[TileBorderState; NUM_COLS as usize]; NUM_ROWS as usize] =
             Default::default();
         self.train_activity = Vec::new();
@@ -200,21 +221,43 @@ impl Yard {
                 let incoming_border_state = &self.borders[row][col];
                 let tile = &mut self.tiles[row][col];
 
-                let train_tile_activity =
-                    tile.process_and_output(incoming_border_state.clone(), crashed_event);
+                let tile_process_tick_result =
+                    tile.process_and_output(incoming_border_state.clone());
+                let train_tile_activity = tile_process_tick_result.trains;
+
+                for e in tile_process_tick_result.start_tick_events {
+                    start_tick_events.push(TileEventWithLocation { event: e, row, col });
+                }
+                for e in tile_process_tick_result.mid_tick_events {
+                    mid_tick_events.push(TileEventWithLocation { event: e, row, col });
+                }
+                for e in tile_process_tick_result.end_tick_events {
+                    end_tick_events.push(TileEventWithLocation { event: e, row, col });
+                }
+
                 let mut outgoing_border_state = TileBorderState::new();
 
                 for dir_u8 in 0..4 {
                     let out_dir = Dir::from(dir_u8);
-                    let mut colors_to_mix: Vec<TrainColor> = Vec::with_capacity(2);
+                    let mut colors_to_mix: Vec<TrainColor> = Vec::new();
                     for train_coming_thru in train_tile_activity.iter() {
                         if train_coming_thru.to_dir == Some(out_dir) {
                             colors_to_mix.push(train_coming_thru.end_color);
                         }
                     }
                     if !colors_to_mix.is_empty() {
-                        outgoing_border_state
-                            .add_train(TrainColor::mix_many(colors_to_mix), out_dir);
+                        let new_train_color = TrainColor::mix_many(&colors_to_mix);
+                        outgoing_border_state.add_train(new_train_color, out_dir);
+                        if colors_to_mix.len() > 1 {
+                            end_tick_events.push(TileEventWithLocation {
+                                event: TileEvent::MixColors(
+                                    new_train_color,
+                                    out_dir.to_local_coords_of_edge(),
+                                ),
+                                row,
+                                col,
+                            });
+                        }
                     }
                 }
                 for train_activity in train_tile_activity {
@@ -238,6 +281,11 @@ impl Yard {
                     let new_color = t1.unwrap().mix_with(t2.unwrap());
                     t1 = Some(new_color);
                     t2 = Some(new_color);
+                    end_tick_events.push(TileEventWithLocation {
+                        event: TileEvent::MixColors(new_color, Dir::Up.to_local_coords_of_edge()),
+                        row,
+                        col,
+                    })
                 }
                 outgoing_border_states[row][col].set_train(t2, Dir::Up);
                 outgoing_border_states[row + 1][col].set_train(t1, Dir::Down);
@@ -252,12 +300,26 @@ impl Yard {
                     let new_color = t1.unwrap().mix_with(t2.unwrap());
                     t1 = Some(new_color);
                     t2 = Some(new_color);
+                    end_tick_events.push(TileEventWithLocation {
+                        event: TileEvent::MixColors(
+                            new_color,
+                            Dir::Right.to_local_coords_of_edge(),
+                        ),
+                        row,
+                        col,
+                    })
                 }
                 outgoing_border_states[row][col].set_train(t2, Dir::Right);
                 outgoing_border_states[row][col + 1].set_train(t1, Dir::Left);
             }
         }
         self.borders = outgoing_border_states;
+
+        YardProcessTickResult {
+            start_tick_events,
+            mid_tick_events,
+            end_tick_events,
+        }
     }
 
     // check if all source tiles are empty, all destination tiles are empty, and if all borders are empty.
@@ -305,6 +367,10 @@ impl Yard {
             }
         }
         res
+    }
+
+    pub fn switch_active_passive(&mut self, row: usize, col: usize) {
+        self.tiles[row][col].switch_active_passive();
     }
 }
 

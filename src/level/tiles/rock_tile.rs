@@ -2,9 +2,9 @@ use bevy::prelude::*;
 
 use super::{
     connections::TileBorderState,
-    tile::{Tile, TileTrainActivity},
+    tile::{Tile, TileEvent, TileProcessTickResult},
 };
-use crate::level::{direction::Dir, TrainCrashedEvent};
+use crate::level::direction::Dir;
 
 #[derive(Component)]
 pub struct RockTileSpriteComponent;
@@ -25,17 +25,19 @@ impl RockTile {
 }
 
 impl Tile for RockTile {
-    fn process_and_output(
-        &mut self,
-        incoming: TileBorderState,
-        crashed_event: &mut EventWriter<TrainCrashedEvent>,
-    ) -> Vec<TileTrainActivity> {
+    fn process_and_output(&mut self, incoming: TileBorderState) -> TileProcessTickResult {
+        let mut start_tick_events = Vec::new();
+
         for dir_u8 in 0..4 {
-            if incoming.get_train(Dir::from(dir_u8)).is_some() {
-                crashed_event.send_default();
+            if let Some(color) = incoming.get_train(Dir::from(dir_u8)) {
+                start_tick_events.push(TileEvent::CrashedOnEdge(color, dir_u8.into()));
             }
         }
-        Vec::new()
+
+        TileProcessTickResult {
+            start_tick_events,
+            ..default()
+        }
     }
 
     fn render(&mut self, commands: &mut Commands, asset_server: &Res<AssetServer>) {

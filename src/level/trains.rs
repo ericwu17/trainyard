@@ -50,7 +50,7 @@ impl TrainColor {
 
         TrainColor::Brown
     }
-    pub fn mix_many(trains: Vec<TrainColor>) -> TrainColor {
+    pub fn mix_many(trains: &Vec<TrainColor>) -> TrainColor {
         match trains.len() {
             1 => trains[0],
             2 => trains[1].mix_with(trains[0]),

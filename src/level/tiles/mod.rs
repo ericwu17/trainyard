@@ -28,6 +28,7 @@ use tile::Tile;
 
 use super::{
     persistence::{GameLevelProgress, LevelProgress},
+    yard::YardMidTickEvent,
     CurrentLevelName, LevelStateIsRunning, YardTickTimer,
 };
 pub struct TilePlugin;
@@ -38,6 +39,7 @@ pub struct YardComponent;
 impl Plugin for TilePlugin {
     fn build(&self, app: &mut App) {
         app.add_event::<YardTickedEvent>()
+            .add_event::<YardMidTickEvent>()
             .add_plugins(tile_animations::TileAnimationPlugin)
             .add_systems(
                 OnEnter(LevelState::None),

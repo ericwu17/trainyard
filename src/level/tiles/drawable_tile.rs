@@ -5,10 +5,9 @@ use crate::level::{
     tiles::connections::{TileBorderState, TileConnections},
     tiles::tile::Tile,
     trains::TrainColor,
-    TrainCrashedEvent,
 };
 
-use super::tile::TileTrainActivity;
+use super::tile::{TileEvent, TileProcessTickResult, TileTrainActivity};
 
 #[derive(Component)]
 pub struct DrawableTileSpriteComponent;
@@ -43,15 +42,15 @@ impl Tile for DrawableTile {
         self.connections = self.connections.switch_active_passive();
     }
 
-    fn process_and_output(
-        &mut self,
-        incoming: TileBorderState,
-        crashed_event: &mut EventWriter<TrainCrashedEvent>,
-    ) -> Vec<TileTrainActivity> {
+    fn process_and_output(&mut self, incoming: TileBorderState) -> TileProcessTickResult {
         let active_conn = self.connections.get_active_conn();
         let passive_conn = self.connections.get_passive_conn();
 
         let mut init_trains_coming_thru: Vec<TileTrainActivity> = Vec::with_capacity(4);
+
+        let mut start_tick_events = Vec::new();
+        let mut end_tick_events = Vec::new();
+        let mut mid_tick_mixed_colors: Vec<(TrainColor, (Dir, Dir))> = Vec::new();
 
         for dir_u8 in 0..4 {
             let incoming_dir = Dir::from(dir_u8);
@@ -62,7 +61,7 @@ impl Tile for DrawableTile {
                     } else if let Some(d) = passive_conn.get_other_dir(incoming_dir) {
                         Some(d)
                     } else {
-                        crashed_event.send_default();
+                        start_tick_events.push(TileEvent::CrashedOnEdge(color, incoming_dir));
                         None
                     };
                 if let Some(outgoing_dir) = outgoing_dir {
@@ -70,7 +69,7 @@ impl Tile for DrawableTile {
                         from_dir: Some(incoming_dir),
                         to_dir: Some(outgoing_dir),
                         start_color: color,
-                        end_color: color, // temporary placeholder, this might be changed if trains
+                        end_color: color, // temporary placeholder, this might be changed if trains mix
                     });
                 }
             }
@@ -91,7 +90,22 @@ impl Tile for DrawableTile {
                     colors_to_mix.push(other_train_coming_thru.start_color);
                 }
             }
-            let new_color = TrainColor::mix_many(colors_to_mix);
+            let new_color = TrainColor::mix_many(&colors_to_mix);
+            if colors_to_mix.len() > 1 {
+                if !mid_tick_mixed_colors
+                    .iter()
+                    .map(|x| x.0)
+                    .any(|x| x == new_color)
+                {
+                    mid_tick_mixed_colors.push((
+                        new_color,
+                        (
+                            train_coming_thru.from_dir.unwrap(),
+                            train_coming_thru.to_dir.unwrap(),
+                        ),
+                    ));
+                }
+            }
             trains_after_internal_mixing.push(TileTrainActivity {
                 end_color: new_color,
                 start_color: train_coming_thru.start_color,
@@ -104,10 +118,18 @@ impl Tile for DrawableTile {
 
         if will_toggle_tracks && connection_type.should_toggle_active_and_passive_when_trains_pass()
         {
-            self.switch_active_passive();
+            end_tick_events.push(TileEvent::SwitchActivePassive);
         }
 
-        trains_after_internal_mixing
+        TileProcessTickResult {
+            trains: trains_after_internal_mixing,
+            start_tick_events,
+            mid_tick_events: mid_tick_mixed_colors
+                .iter()
+                .map(|x| TileEvent::MixColors(x.0, Dir::pair_to_local_coords(x.1 .0, x.1 .1)))
+                .collect(),
+            end_tick_events,
+        }
     }
 
     fn render(&mut self, commands: &mut Commands, asset_server: &Res<AssetServer>) {
