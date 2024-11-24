@@ -37,7 +37,11 @@ impl Plugin for SpeedSliderPlugin {
     }
 }
 
-pub fn spawn_speed_slider(commands: &mut Commands, font: Handle<Font>) -> Entity {
+pub fn spawn_speed_slider(
+    commands: &mut Commands,
+    font: Handle<Font>,
+    current_train_speed: &TrainSpeed,
+) -> Entity {
     let slider_button_width = SLIDER_BUTTON_WIDTH;
     let slider_width = super::BUTTON_WIDTH;
     let slider_height = 30.0;
@@ -65,7 +69,7 @@ pub fn spawn_speed_slider(commands: &mut Commands, font: Handle<Font>) -> Entity
     let slider_spacer = (
         NodeBundle {
             style: Style {
-                width: Val::Px(0.0),
+                width: Val::Px(calculate_spacer_size(current_train_speed)),
                 height: Val::Percent(100.0),
                 ..default()
             },
@@ -165,12 +169,15 @@ fn update_speed_slider_position(
     speed: Res<TrainSpeed>,
     mut spacer_query: Query<&mut Style, With<SpeedSliderSpacer>>,
 ) {
-    let slider_border_size = 3.0;
-
-    let new_spacer_size =
-        speed.0 * (super::BUTTON_WIDTH - SLIDER_BUTTON_WIDTH - 2.0 * slider_border_size);
+    let new_spacer_size = calculate_spacer_size(&speed);
 
     for mut spacer_style in spacer_query.iter_mut() {
         spacer_style.width = Val::Px(new_spacer_size);
     }
+}
+
+fn calculate_spacer_size(speed: &TrainSpeed) -> f32 {
+    let slider_border_size = 3.0;
+
+    speed.0 * (super::BUTTON_WIDTH - SLIDER_BUTTON_WIDTH - 2.0 * slider_border_size)
 }
