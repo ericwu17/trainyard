@@ -35,10 +35,7 @@ impl SinkTile {
             .with_children(|parent| {
                 background_entity = parent
                     .spawn((
-                        SpriteBundle {
-                            texture: asset_server.load("sprites/Tracktile_blank.png"),
-                            ..default()
-                        },
+                        Sprite::from_image(asset_server.load("sprites/Tracktile_blank.png")),
                         Name::new("blank background"),
                     ))
                     .id();
@@ -47,12 +44,11 @@ impl SinkTile {
                     if in_dirs[dir_u8 as usize] {
                         let entry_spout_entity = parent
                             .spawn((
-                                SpriteBundle {
-                                    transform: Transform::from_xyz(0.0, 0.0, 0.1)
-                                        .with_rotation(Quat::from(Dir::from(dir_u8))),
-                                    texture: asset_server.load("sprites/Trainsink_entry.png"),
-                                    ..default()
-                                },
+                                Transform::from_xyz(0.0, 0.0, 0.1)
+                                    .with_rotation(Quat::from(Dir::from(dir_u8))),
+                                Sprite::from_image(
+                                    asset_server.load("sprites/Trainsink_entry.png"),
+                                ),
                                 Name::new("trainsink entryway sprite"),
                             ))
                             .id();
@@ -62,11 +58,8 @@ impl SinkTile {
 
                 border_entity = parent
                     .spawn((
-                        SpriteBundle {
-                            transform: Transform::from_xyz(0.0, 0.0, 1.0),
-                            texture: asset_server.load("sprites/Source_sink_border.png"),
-                            ..default()
-                        },
+                        Transform::from_xyz(0.0, 0.0, 1.0),
+                        Sprite::from_image(asset_server.load("sprites/Source_sink_border.png")),
                         Name::new("trainsink border sprite"),
                     ))
                     .id();
@@ -158,13 +151,10 @@ impl Tile for SinkTile {
                 .with_scale(Vec2::splat(1.0 / (num_cols as f32)).extend(0.0));
 
                 let bundle = (
-                    SpriteBundle {
-                        transform: xf,
-                        texture: asset_server.load("sprites/Circle.png"),
-                        sprite: Sprite {
-                            color: Color::from(*color),
-                            ..default()
-                        },
+                    xf,
+                    Sprite {
+                        image: asset_server.load("sprites/Circle.png"),
+                        color: Color::from(*color),
                         ..default()
                     },
                     Name::new("circle sprite"),

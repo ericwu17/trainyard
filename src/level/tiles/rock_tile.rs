@@ -43,10 +43,7 @@ impl Tile for RockTile {
     fn render(&mut self, commands: &mut Commands, asset_server: &Res<AssetServer>) {
         let bundle = (
             RockTileSpriteComponent,
-            SpriteBundle {
-                texture: asset_server.load("sprites/Rock.png"),
-                ..default()
-            },
+            Sprite::from_image(asset_server.load("sprites/Rock.png")),
             Name::new("Rock"),
         );
 

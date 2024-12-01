@@ -92,10 +92,8 @@ pub fn construct_new_tile(
 
     let entity = commands
         .spawn((
-            SpatialBundle {
-                transform: Transform::from_xyz(x, y, 0.0),
-                ..default()
-            },
+            Transform::from_xyz(x, y, 0.0),
+            Visibility::default(),
             Name::new(format!("Base entity at row {} column {}", row, col)),
         ))
         .id();
@@ -180,10 +178,9 @@ pub fn adjust_yard_position_to_match_placeholder(
             let Vec2 { x, y } = placeholder_transform.translation().truncate();
             let x = x - (NUM_COLS as f32 * TILE_SIZE_PX) / 2.0;
             let y = y - (NUM_ROWS as f32 * TILE_SIZE_PX) / 2.0;
-            commands.entity(yard_entity).insert(TransformBundle {
-                local: Transform::from_xyz(x, y, 0.0),
-                ..default()
-            });
+            commands
+                .entity(yard_entity)
+                .insert(Transform::from_xyz(x, y, 0.0));
         }
     }
 }

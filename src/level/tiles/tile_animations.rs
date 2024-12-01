@@ -43,7 +43,7 @@ fn shrink_to_zero_animation_system(
     time: Res<Time>,
 ) {
     for (parent, entity, mut xf, mut shrink) in query.iter_mut() {
-        let scale = f32::powf(0.00005, time.delta_seconds());
+        let scale = f32::powf(0.00005, time.delta_secs());
         *xf = xf.mul_transform(Transform::from_scale(Vec3::new(scale, scale, 1.0)));
 
         shrink.0 *= scale;
@@ -68,12 +68,12 @@ fn float_fade_animation_system(
     time: Res<Time>,
 ) {
     for (parent, entity, mut xf, mut sprite, mut fade) in query.iter_mut() {
-        let dx = fade.v_x * time.delta_seconds();
-        let dy = fade.v_y * time.delta_seconds();
+        let dx = fade.v_x * time.delta_secs();
+        let dy = fade.v_y * time.delta_secs();
 
         *xf = *xf * Transform::from_xyz(dx, dy, 0.0);
 
-        fade.ttl -= time.delta_seconds() * 0.7;
+        fade.ttl -= time.delta_secs() * 0.7;
 
         let mut color = sprite.color.to_srgba();
         color.alpha = fade.ttl;

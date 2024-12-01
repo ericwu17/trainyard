@@ -48,12 +48,9 @@ impl Plugin for TrainyardUIPlugin {
 
 fn spawn_ui_root_container(mut commands: Commands) {
     let root_container = (
-        NodeBundle {
-            style: Style {
-                width: Val::Percent(100.0),
-                height: Val::Percent(100.0),
-                ..default()
-            },
+        Node {
+            width: Val::Percent(100.0),
+            height: Val::Percent(100.0),
             ..default()
         },
         UIRootContainer,

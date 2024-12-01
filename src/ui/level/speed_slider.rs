@@ -47,8 +47,8 @@ pub fn spawn_speed_slider(
     let slider_height = 30.0;
     let slider_text_size = 19.0;
 
-    let slider_background = NodeBundle {
-        style: Style {
+    let slider_background = (
+        Node {
             width: Val::Px(slider_width),
             height: Val::Px(slider_height),
             flex_direction: FlexDirection::Row,
@@ -57,79 +57,73 @@ pub fn spawn_speed_slider(
             border: UiRect::all(Val::Px(2.0)),
             ..default()
         },
-        border_color: Color::WHITE.into(),
-        border_radius: BorderRadius::all(Val::Px(12.0)),
-        background_color: Color::BLACK.into(),
-        ..default()
-    };
+        BorderColor(Color::WHITE),
+        BorderRadius::all(Val::Px(12.0)),
+        BackgroundColor(Color::BLACK),
+    );
 
     // =============================================================================================
     // spacer (to control slider's horizontal position)
     // =============================================================================================
     let slider_spacer = (
-        NodeBundle {
-            style: Style {
-                width: Val::Px(calculate_spacer_size(current_train_speed)),
-                height: Val::Percent(100.0),
-                ..default()
-            },
-            background_color: Color::srgba(0.0, 0.0, 0.0, 0.0).into(),
+        Node {
+            width: Val::Px(calculate_spacer_size(current_train_speed)),
+            height: Val::Percent(100.0),
             ..default()
         },
+        BackgroundColor(Color::srgba(0.0, 0.0, 0.0, 0.0)),
         SpeedSliderSpacer,
     );
 
     // =============================================================================================
     // button_bundle bundle (for the part of the slider that moves)
     // =============================================================================================
-    let button_bundle = (
-        ButtonBundle {
-            style: Style {
-                width: Val::Px(slider_button_width),
-                height: Val::Px(slider_height),
-                border: UiRect::all(Val::Px(3.0)),
-                justify_content: JustifyContent::Center,
-                align_items: AlignItems::Center,
-                ..default()
-            },
-            border_color: BTN_BORDER_BLUE.into(),
-            border_radius: BorderRadius::all(Val::Px(12.0)),
-            background_color: BTN_BG.into(),
+    let button_node = (
+        Node {
+            width: Val::Px(slider_button_width),
+            height: Val::Px(slider_height),
+            border: UiRect::all(Val::Px(3.0)),
+            justify_content: JustifyContent::Center,
+            align_items: AlignItems::Center,
             ..default()
         },
+        BorderColor(BTN_BORDER_BLUE),
+        BorderRadius::all(Val::Px(12.0)),
+        BackgroundColor(BTN_BG),
         RelativeCursorPosition::default(),
         SpeedSliderButton,
+        Button,
     );
     // =============================================================================================
     // slider text "SPEED"
     // =============================================================================================
-    let text_component = TextBundle::from_section(
-        "SPEED",
-        TextStyle {
+    let text_component = (
+        Text::new("SPEED"),
+        TextFont {
             font,
             font_size: slider_text_size,
-            color: Color::srgb(1.0, 1.0, 1.0),
             ..default()
         },
-    )
-    .with_text_justify(JustifyText::Center)
-    .with_style(Style {
-        position_type: PositionType::Absolute,
-        width: Val::Percent(100.0),
-        ..default()
-    });
+        TextColor(Color::WHITE),
+        TextLayout::new_with_justify(JustifyText::Center),
+        Node {
+            position_type: PositionType::Absolute,
+            width: Val::Percent(100.0),
+            ..default()
+        },
+    );
 
     let slider_background = commands.spawn(slider_background).id();
     let slider_spacer = commands.spawn(slider_spacer).id();
-    let button_bundle = commands.spawn(button_bundle).id();
+    let button_bundle = commands.spawn(button_node).id();
     let text_component = commands.spawn(text_component).id();
 
     commands
         .entity(slider_background)
-        .push_children(&[slider_spacer, button_bundle]);
+        .add_children(&[slider_spacer, button_bundle]);
     commands
         .entity(button_bundle)
-        .push_children(&[text_component]);
+        .add_children(&[text_component]);
 
     slider_background
 }
@@ -167,7 +161,7 @@ fn handle_change_speed_events(
 
 fn update_speed_slider_position(
     speed: Res<TrainSpeed>,
-    mut spacer_query: Query<&mut Style, With<SpeedSliderSpacer>>,
+    mut spacer_query: Query<&mut Node, With<SpeedSliderSpacer>>,
 ) {
     let new_spacer_size = calculate_spacer_size(&speed);
 

@@ -37,19 +37,17 @@ impl Plugin for CursorPlugin {
                     ),
                     move_cursor_by_mouse.run_if(input_pressed(MouseButton::Left)),
                     clear_cursor_old_dir.run_if(input_just_pressed(MouseButton::Left)),
-                    add_connections_from_cursor_movement.run_if(
-                        in_state(CursorState::Drawing).and_then(in_state(LevelState::Editing)),
-                    ),
-                    destroy_connections_under_cursor.run_if(
-                        in_state(CursorState::Erasing).and_then(in_state(LevelState::Editing)),
-                    ),
+                    add_connections_from_cursor_movement
+                        .run_if(in_state(CursorState::Drawing).and(in_state(LevelState::Editing))),
+                    destroy_connections_under_cursor
+                        .run_if(in_state(CursorState::Erasing).and(in_state(LevelState::Editing))),
                 )
                     .in_set(LevelEditingSet),
             )
             .add_systems(OnEnter(CursorState::Drawing), clear_cursor_old_dir)
             .add_systems(
                 Update,
-                update_cursor_color.run_if(on_event::<StateTransitionEvent<CursorState>>()),
+                update_cursor_color.run_if(on_event::<StateTransitionEvent<CursorState>>),
             );
     }
 }
@@ -118,18 +116,15 @@ fn spawn_cursor(
             TilePosition { r: 3, c: 3 },
             CursorComponent,
             OldCursorMovementDir { dir: None },
-            SpriteBundle {
-                texture: asset_server.load("sprites/Cursor.png"),
-                transform: Transform::from_xyz(TILE_SIZE_PX * 3.5, TILE_SIZE_PX * 3.5, 1.0),
-                sprite: Sprite {
-                    color: Color::from(cursor_color),
-                    ..default()
-                },
+            Transform::from_xyz(TILE_SIZE_PX * 3.5, TILE_SIZE_PX * 3.5, 1.0),
+            Sprite {
+                image: asset_server.load("sprites/Cursor.png"),
+                color: Color::from(cursor_color),
                 ..default()
             },
         ))
         .id();
-    commands.entity(yard_entity).push_children(&[cursor]);
+    commands.entity(yard_entity).add_children(&[cursor]);
 }
 
 fn despawn_cursor(
@@ -319,16 +314,14 @@ fn play_cursor_sounds(
     asset_server: Res<AssetServer>,
 ) {
     if moved_events.read().count() > 0 {
-        commands.spawn(AudioBundle {
-            source: asset_server.load("audio/draw_track.ogg"),
-            ..default()
-        });
+        commands.spawn(AudioPlayer::<AudioSource>(
+            asset_server.load("audio/draw_track.ogg"),
+        ));
     }
     if state_events.read().count() > 0 {
-        commands.spawn(AudioBundle {
-            source: asset_server.load("audio/button_press.ogg"),
-            ..default()
-        });
+        commands.spawn(AudioPlayer::<AudioSource>(
+            asset_server.load("audio/button_press.ogg"),
+        ));
     }
 }
 

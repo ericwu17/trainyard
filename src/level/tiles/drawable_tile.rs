@@ -137,11 +137,8 @@ impl Tile for DrawableTile {
 
         let bundle = (
             DrawableTileSpriteComponent,
-            SpriteBundle {
-                transform: Transform::from_rotation(rotation_quat),
-                texture: asset_server.load(conn_type.get_asset_path()),
-                ..default()
-            },
+            Transform::from_rotation(rotation_quat),
+            Sprite::from_image(asset_server.load(conn_type.get_asset_path())),
             Name::new("drawable tile"),
         );
 

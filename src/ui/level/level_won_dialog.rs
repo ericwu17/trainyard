@@ -31,22 +31,19 @@ fn spawn_level_won_dialog(mut commands: Commands, asset_server: Res<AssetServer>
     // root container for the level UI
     // =============================================================================================
     let dialog_box_root = (
-        NodeBundle {
-            style: Style {
-                width: Val::Percent(100.0),
-                height: Val::Percent(100.0),
-                overflow: Overflow {
-                    x: OverflowAxis::Visible,
-                    y: OverflowAxis::Hidden,
-                },
-                justify_content: JustifyContent::Center,
-                flex_direction: FlexDirection::Column,
-                align_items: AlignItems::Center,
-                ..default()
+        Node {
+            width: Val::Percent(100.0),
+            height: Val::Percent(100.0),
+            overflow: Overflow {
+                x: OverflowAxis::Visible,
+                y: OverflowAxis::Hidden,
             },
-            background_color: Color::srgba(0.0, 0.0, 0.0, 0.85).into(),
+            justify_content: JustifyContent::Center,
+            flex_direction: FlexDirection::Column,
+            align_items: AlignItems::Center,
             ..default()
         },
+        BackgroundColor(Color::srgba(0.0, 0.0, 0.0, 0.85)),
         LevelWonDialogRoot,
     );
     // =============================================================================================
@@ -54,26 +51,23 @@ fn spawn_level_won_dialog(mut commands: Commands, asset_server: Res<AssetServer>
     // =============================================================================================
     let initial_spacer_displacement = 2500.0;
     let dialog_box_spacer = (
-        NodeBundle {
-            style: Style {
-                width: Val::Percent(100.0),
-                height: Val::Px(initial_spacer_displacement),
-                justify_content: JustifyContent::Center,
-                flex_direction: FlexDirection::Column,
-                align_items: AlignItems::Center,
-                ..default()
-            },
-            background_color: Color::srgba(0.0, 0.0, 0.0, 0.0).into(),
+        Node {
+            width: Val::Percent(100.0),
+            height: Val::Px(initial_spacer_displacement),
+            justify_content: JustifyContent::Center,
+            flex_direction: FlexDirection::Column,
+            align_items: AlignItems::Center,
             ..default()
         },
+        BackgroundColor(Color::srgba(0.0, 0.0, 0.0, 0.0)),
         DialogBoxSpacer(initial_spacer_displacement),
     );
 
     // =============================================================================================
     // box to contain the dialog
     // =============================================================================================
-    let dialog_box = NodeBundle {
-        style: Style {
+    let dialog_box = (
+        Node {
             width: Val::Px(300.0),
             height: Val::Px(300.0),
             min_height: Val::Px(300.0),
@@ -83,30 +77,29 @@ fn spawn_level_won_dialog(mut commands: Commands, asset_server: Res<AssetServer>
             align_items: AlignItems::Center,
             ..default()
         },
-        border_color: Color::WHITE.into(),
-        border_radius: BorderRadius::all(Val::Px(24.0)),
-        background_color: Color::srgb(0.15, 0.15, 0.15).into(),
-        ..default()
-    };
+        BorderColor(Color::WHITE),
+        BorderRadius::all(Val::Px(24.0)),
+        BackgroundColor(Color::srgb(0.15, 0.15, 0.15)),
+    );
 
     // =============================================================================================
     // text at the top of the dialog
     // =============================================================================================
-    let title_text = TextBundle::from_section(
-        "Congratulations!",
-        TextStyle {
+    let title_text = (
+        Text::new("Congratulations!"),
+        TextFont {
             font: font.clone(),
             font_size: 35.0,
-            color: Color::srgb(1.0, 1.0, 1.0),
             ..default()
         },
-    ) // Set the justification of the Text
-    .with_text_justify(JustifyText::Center)
-    .with_style(Style {
-        width: Val::Percent(100.0),
-        margin: UiRect::all(Val::Px(30.0)),
-        ..default()
-    });
+        TextColor(Color::srgb(1.0, 1.0, 1.0)),
+        TextLayout::new_with_justify(JustifyText::Center),
+        Node {
+            width: Val::Percent(100.0),
+            margin: UiRect::all(Val::Px(30.0)),
+            ..default()
+        },
+    );
 
     // =============================================================================================
     // buttons
@@ -147,10 +140,10 @@ fn spawn_level_won_dialog(mut commands: Commands, asset_server: Res<AssetServer>
 
     commands
         .entity(dialog_box_root)
-        .push_children(&[dialog_box_spacer, dialog_box]);
+        .add_children(&[dialog_box_spacer, dialog_box]);
     commands
         .entity(dialog_box)
-        .push_children(&[title_text, next_level_button, back_button]);
+        .add_children(&[title_text, next_level_button, back_button]);
 }
 
 fn despawn_level_won_dialog(
@@ -164,18 +157,18 @@ fn despawn_level_won_dialog(
 
 fn dialog_box_animation_system(
     mut commands: Commands,
-    mut spacer_query: Query<(&mut Style, &mut DialogBoxSpacer, Entity)>,
+    mut spacer_query: Query<(&mut Node, &mut DialogBoxSpacer, Entity)>,
     time: Res<Time>,
 ) {
-    for (mut spacer_style, mut spacer, entity) in spacer_query.iter_mut() {
+    for (mut spacer_node, mut spacer, entity) in spacer_query.iter_mut() {
         let curr_size = spacer.0;
-        let new_size = curr_size * f32::powf(0.001, time.delta_seconds());
+        let new_size = curr_size * f32::powf(0.001, time.delta_secs());
 
         if new_size < 1.0 {
             commands.entity(entity).remove::<DialogBoxSpacer>();
         } else {
             spacer.0 = new_size;
-            spacer_style.height = Val::Px(new_size);
+            spacer_node.height = Val::Px(new_size);
         }
     }
 }

@@ -28,15 +28,12 @@ fn spawn_credits(
     // root container for the credits
     // =============================================================================================
     let credits_root = (
-        NodeBundle {
-            style: Style {
-                width: Val::Percent(100.0),
-                height: Val::Percent(100.0),
-                justify_content: JustifyContent::FlexStart,
-                flex_direction: FlexDirection::Column,
-                align_items: AlignItems::Center,
-                ..default()
-            },
+        Node {
+            width: Val::Percent(100.0),
+            height: Val::Percent(100.0),
+            justify_content: JustifyContent::FlexStart,
+            flex_direction: FlexDirection::Column,
+            align_items: AlignItems::Center,
             ..default()
         },
         CreditsUIRoot,
@@ -45,63 +42,57 @@ fn spawn_credits(
     // =============================================================================================
     // text which says "Credits"
     // =============================================================================================
-    let title_text_box = NodeBundle {
-        style: Style {
-            width: Val::Auto,
-            height: Val::Auto,
-            flex_direction: FlexDirection::Row,
-            justify_content: JustifyContent::Center,
-            align_items: AlignItems::Center,
-            padding: UiRect::all(Val::Px(5.0)),
-            ..default()
-        },
+    let title_text_box = Node {
+        width: Val::Auto,
+        height: Val::Auto,
+        flex_direction: FlexDirection::Row,
+        justify_content: JustifyContent::Center,
+        align_items: AlignItems::Center,
+        padding: UiRect::all(Val::Px(5.0)),
         ..default()
     };
-    let title_text = TextBundle::from_section(
-        "Credits",
-        TextStyle {
+    let title_text = (
+        Text::new("Credits"),
+        TextFont {
             font: font.clone(),
             font_size: 85.0,
-            color: Color::srgb(1.0, 1.0, 1.0),
             ..default()
         },
-    ) // Set the justification of the Text
-    .with_text_justify(JustifyText::Center)
-    .with_style(Style {
-        width: Val::Percent(100.0),
-        ..default()
-    });
+        TextColor(Color::WHITE),
+        TextLayout::new_with_justify(JustifyText::Center),
+        Node {
+            width: Val::Percent(100.0),
+            ..default()
+        },
+    );
 
     // =============================================================================================
     // text with the body of the credits
     // =============================================================================================
 
-    let body_text_box = NodeBundle {
-        style: Style {
-            width: Val::Percent(85.0),
-            height: Val::Auto,
-            flex_direction: FlexDirection::Row,
-            justify_content: JustifyContent::Center,
-            align_items: AlignItems::Center,
-            margin: UiRect::all(Val::Px(20.0)),
-            ..default()
-        },
+    let body_text_box = Node {
+        width: Val::Percent(85.0),
+        height: Val::Auto,
+        flex_direction: FlexDirection::Row,
+        justify_content: JustifyContent::Center,
+        align_items: AlignItems::Center,
+        margin: UiRect::all(Val::Px(20.0)),
         ..default()
     };
-    let body_text = TextBundle::from_section(
-        "Trainyard was originally created by Matt Rix. The game concept and game art are his (until I stole it lmao).\n\n",
-        TextStyle {
+    let body_text = (
+        Text::new("Trainyard was originally created by Matt Rix. The game concept and game art are his (until I stole it lmao).\n\n"),
+        TextFont {
             font: font.clone(),
             font_size: 25.0,
-            color: Color::srgb(1.0, 1.0, 1.0),
             ..default()
         },
-    ) // Set the justification of the Text
-    .with_text_justify(JustifyText::Center)
-    .with_style(Style {
-        width: Val::Percent(100.0),
-        ..default()
-    });
+        TextColor(Color::WHITE),
+        TextLayout::new_with_justify(JustifyText::Center),
+        Node{
+            width: Val::Percent(100.0),
+            ..default()
+        },
+    );
 
     // =============================================================================================
     // Button to return to main menu
@@ -123,12 +114,12 @@ fn spawn_credits(
     let body_text_box = commands.spawn(body_text_box).id();
     let body_text = commands.spawn(body_text).id();
 
-    commands.entity(ui_root).push_children(&[credits_root]);
+    commands.entity(ui_root).add_children(&[credits_root]);
     commands
         .entity(credits_root)
-        .push_children(&[title_text_box, body_text_box, back_button]);
-    commands.entity(title_text_box).push_children(&[title_text]);
-    commands.entity(body_text_box).push_children(&[body_text]);
+        .add_children(&[title_text_box, body_text_box, back_button]);
+    commands.entity(title_text_box).add_children(&[title_text]);
+    commands.entity(body_text_box).add_children(&[body_text]);
 }
 
 fn teardown_credits(

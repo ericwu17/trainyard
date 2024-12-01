@@ -54,7 +54,9 @@ pub struct YardMidTickEvent;
 
 impl Yard {
     pub fn new(commands: &mut Commands, asset_server: &Res<AssetServer>) -> Self {
-        let base_entity = commands.spawn(SpatialBundle { ..default() }).id();
+        let base_entity = commands
+            .spawn((Transform::default(), Visibility::default()))
+            .id();
         let mut tiles: Vec<Vec<Box<dyn Tile + Send + Sync>>> = Vec::new();
         let border_states: [[TileBorderState; NUM_COLS as usize]; NUM_ROWS as usize] =
             Default::default();
@@ -71,7 +73,7 @@ impl Yard {
                 );
                 commands
                     .entity(base_entity)
-                    .push_children(&[tile.get_entity()]);
+                    .add_children(&[tile.get_entity()]);
                 row_vec.push(tile);
             }
             tiles.push(row_vec);
@@ -96,7 +98,7 @@ impl Yard {
         self.tiles[row][col].despawn_entities_recursive(commands);
         commands
             .entity(self.base_entity)
-            .push_children(&[tile.get_entity()]);
+            .add_children(&[tile.get_entity()]);
         self.tiles[row][col] = tile;
     }
 
@@ -137,12 +139,9 @@ impl Yard {
 
             for _ in self.train_activity.iter() {
                 let bundle = (
-                    SpriteBundle {
-                        texture: asset_server.load("sprites/Train.png"),
-                        sprite: Sprite {
-                            color: Color::srgba(0.0, 0.0, 0.0, 0.0),
-                            ..default()
-                        },
+                    Sprite {
+                        image: asset_server.load("sprites/Train.png"),
+                        color: Color::srgba(0.0, 0.0, 0.0, 0.0),
                         ..default()
                     },
                     TrainSprite,
@@ -151,7 +150,7 @@ impl Yard {
                 let train_entity = commands.spawn(bundle).id();
                 commands
                     .entity(self.base_entity)
-                    .push_children(&[train_entity]);
+                    .add_children(&[train_entity]);
                 self.train_entities.push(train_entity);
             }
         }
@@ -200,7 +199,8 @@ impl Yard {
             commands.entity(*entity).insert((
                 base_transform * local_transform,
                 Sprite {
-                    color: Color::from(train_color),
+                    image: asset_server.load("sprites/Train.png"),
+                    color: train_color.into(),
                     ..default()
                 },
             ));

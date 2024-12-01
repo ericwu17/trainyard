@@ -5,7 +5,7 @@ use super::LevelStatusText;
 
 pub fn update_status_text(
     level_status: Res<State<LevelState>>,
-    mut status_text_q: Query<&mut Text, With<LevelStatusText>>,
+    mut status_text_q: Query<(&mut Text, &mut TextColor), With<LevelStatusText>>,
 ) {
     let text_color: Color;
     let text_content: &str;
@@ -24,8 +24,8 @@ pub fn update_status_text(
         }
     }
 
-    for mut text in status_text_q.iter_mut() {
-        text.sections[0].style.color = text_color;
-        text.sections[0].value = String::from(text_content);
+    for (mut text, mut color) in status_text_q.iter_mut() {
+        color.0 = text_color;
+        text.0 = String::from(text_content);
     }
 }

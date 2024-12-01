@@ -40,31 +40,21 @@ impl SourceTile {
             .with_children(|parent| {
                 background_entity = parent
                     .spawn((
-                        SpriteBundle {
-                            texture: asset_server.load("sprites/Tracktile_blank.png"),
-                            ..default()
-                        },
+                        Sprite::from_image(asset_server.load("sprites/Tracktile_blank.png")),
                         Name::new("blank background"),
                     ))
                     .id();
                 exit_spout_entity = parent
                     .spawn((
-                        SpriteBundle {
-                            transform: Transform::from_xyz(0.0, 0.0, 0.2)
-                                .with_rotation(Quat::from(out_dir)),
-                            texture: asset_server.load("sprites/Trainsource_exit.png"),
-                            ..default()
-                        },
+                        Transform::from_xyz(0.0, 0.0, 0.2).with_rotation(Quat::from(out_dir)),
+                        Sprite::from_image(asset_server.load("sprites/Trainsource_exit.png")),
                         Name::new("trainsource exitway sprite"),
                     ))
                     .id();
                 border_entity = parent
                     .spawn((
-                        SpriteBundle {
-                            transform: Transform::from_xyz(0.0, 0.0, 1.0),
-                            texture: asset_server.load("sprites/Source_sink_border.png"),
-                            ..default()
-                        },
+                        Transform::from_xyz(0.0, 0.0, 1.0),
+                        Sprite::from_image(asset_server.load("sprites/Source_sink_border.png")),
                         Name::new("trainsource border sprite"),
                     ))
                     .id();
@@ -141,13 +131,10 @@ impl Tile for SourceTile {
                 .with_scale(Vec2::splat(1.0 / (num_cols as f32)).extend(0.0));
 
                 let bundle = (
-                    SpriteBundle {
-                        transform: xf,
-                        texture: asset_server.load("sprites/Plus_sign.png"),
-                        sprite: Sprite {
-                            color: Color::from(*color),
-                            ..default()
-                        },
+                    xf,
+                    Sprite {
+                        image: asset_server.load("sprites/Plus_sign.png"),
+                        color: Color::from(*color),
                         ..default()
                     },
                     Name::new("plus sign sprite"),

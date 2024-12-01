@@ -45,47 +45,46 @@ pub fn create_trainyard_button(
     font: Handle<Font>,
     button_type: TrainyardButton,
 ) -> Entity {
-    let button_bundle = (
-        ButtonBundle {
-            style: Style {
-                width: Val::Px(width_px),
-                height: Val::Px(height_px),
-                border: UiRect::all(Val::Px(3.0)),
-                // horizontally center child text
-                justify_content: JustifyContent::Center,
-                // vertically center child text
-                align_items: AlignItems::Center,
-                margin: UiRect::all(Val::Px(10.0)),
-                ..default()
-            },
-            border_color: border_color.into(),
-            border_radius: BorderRadius::all(Val::Px(12.0)),
-            background_color: super::BTN_BG.into(),
+    let button_node = (
+        Node {
+            width: Val::Px(width_px),
+            height: Val::Px(height_px),
+            border: UiRect::all(Val::Px(3.0)),
+            // horizontally center child text
+            justify_content: JustifyContent::Center,
+            // vertically center child text
+            align_items: AlignItems::Center,
+            margin: UiRect::all(Val::Px(10.0)),
             ..default()
         },
+        BorderColor(border_color),
+        BorderRadius::all(Val::Px(12.0)),
+        BackgroundColor(super::BTN_BG),
+        Button,
         button_type.clone(),
     );
 
-    let text_component = TextBundle::from_section(
-        text,
-        TextStyle {
+    let text_component = (
+        Text::new(text),
+        TextFont {
             font,
             font_size: text_size,
-            color: Color::srgb(1.0, 1.0, 1.0),
             ..default()
         },
-    )
-    .with_text_justify(JustifyText::Center)
-    .with_style(Style {
-        position_type: PositionType::Absolute,
-        width: Val::Percent(100.0),
-        ..default()
-    });
+        TextColor(Color::WHITE),
+        TextLayout::new_with_justify(JustifyText::Center),
+        Node {
+            position_type: PositionType::Absolute,
+            width: Val::Percent(100.0),
+            ..default()
+        },
+    );
+
     let text_bundle = (text_component, button_type);
 
-    let button_entity = commands.spawn(button_bundle).id();
+    let button_entity = commands.spawn(button_node).id();
     let text_entity = commands.spawn(text_bundle).id();
-    commands.entity(button_entity).push_children(&[text_entity]);
+    commands.entity(button_entity).add_children(&[text_entity]);
     return button_entity;
 }
 
@@ -96,10 +95,9 @@ pub fn button_sounds_system(
 ) {
     for interaction in interaction_query.iter() {
         if *interaction == Interaction::Pressed {
-            commands.spawn(AudioBundle {
-                source: asset_server.load("audio/button_press.ogg"),
-                ..default()
-            });
+            commands.spawn(AudioPlayer::<AudioSource>(
+                asset_server.load("audio/button_press.ogg"),
+            ));
         }
     }
 }

@@ -33,7 +33,7 @@ impl Plugin for LevelUIPlugin {
         .add_systems(OnExit(UIState::Level), teardown_level_ui)
         .add_systems(
             Update,
-            update_status_text.run_if(on_event::<StateTransitionEvent<LevelState>>()),
+            update_status_text.run_if(on_event::<StateTransitionEvent<LevelState>>),
         );
     }
 }
@@ -56,15 +56,12 @@ fn spawn_level_ui(
     // root container for the level UI
     // =============================================================================================
     let level_root = (
-        NodeBundle {
-            style: Style {
-                width: Val::Percent(100.0),
-                height: Val::Percent(100.0),
-                justify_content: JustifyContent::Center,
-                flex_direction: FlexDirection::Row,
-                align_items: AlignItems::Center,
-                ..default()
-            },
+        Node {
+            width: Val::Percent(100.0),
+            height: Val::Percent(100.0),
+            justify_content: JustifyContent::Center,
+            flex_direction: FlexDirection::Row,
+            align_items: AlignItems::Center,
             ..default()
         },
         LevelUIRoot,
@@ -73,29 +70,25 @@ fn spawn_level_ui(
     // =============================================================================================
     // canvas placeholder: a 672x672 rectangle where the trainyard yard will go
     // =============================================================================================
-    let canvas_placeholder = NodeBundle {
-        style: Style {
+    let canvas_placeholder = (
+        Node {
             width: Val::Px(672.0),
             height: Val::Px(672.0),
             ..default()
         },
-        background_color: Color::srgba(1.0, 0.0, 0.0, 0.0).into(),
-        ..default()
-    };
+        BackgroundColor(Color::srgba(1.0, 0.0, 0.0, 0.0)),
+    );
 
     // =============================================================================================
     // container for action buttons on the right
     // =============================================================================================
-    let button_container = NodeBundle {
-        style: Style {
-            width: Val::Auto,
-            height: Val::Percent(100.0),
-            justify_content: JustifyContent::Center,
-            flex_direction: FlexDirection::Column,
-            align_items: AlignItems::Center,
-            margin: UiRect::all(Val::Px(20.0)),
-            ..default()
-        },
+    let button_container = Node {
+        width: Val::Auto,
+        height: Val::Percent(100.0),
+        justify_content: JustifyContent::Center,
+        flex_direction: FlexDirection::Column,
+        align_items: AlignItems::Center,
+        margin: UiRect::all(Val::Px(20.0)),
         ..default()
     };
 
@@ -139,32 +132,29 @@ fn spawn_level_ui(
     // =============================================================================================
     // Status indicator (only visible when the level is running)
     // =============================================================================================
-    let status_text_box = NodeBundle {
-        style: Style {
-            width: Val::Px(BUTTON_WIDTH),
-            height: Val::Px(BUTTON_HEIGHT),
-            flex_direction: FlexDirection::Row,
-            justify_content: JustifyContent::Center,
-            align_items: AlignItems::Center,
-            ..default()
-        },
+    let status_text_box = Node {
+        width: Val::Px(BUTTON_WIDTH),
+        height: Val::Px(BUTTON_HEIGHT),
+        flex_direction: FlexDirection::Row,
+        justify_content: JustifyContent::Center,
+        align_items: AlignItems::Center,
         ..default()
     };
-    let status_text = TextBundle::from_section(
-        "",
-        TextStyle {
+    let status_text = (
+        Text::new(""),
+        TextFont {
             font: font.clone(),
             font_size: 23.0,
-            color: Color::srgb(0.0, 1.0, 0.0),
             ..default()
         },
-    ) // Set the justification of the Text
-    .with_text_justify(JustifyText::Center)
-    .with_style(Style {
-        position_type: PositionType::Absolute,
-        width: Val::Percent(100.0),
-        ..default()
-    });
+        TextColor(Color::srgb(0.0, 1.0, 0.0)),
+        TextLayout::new_with_justify(JustifyText::Center),
+        Node {
+            position_type: PositionType::Absolute,
+            width: Val::Percent(100.0),
+            ..default()
+        },
+    );
 
     // putting it all together
 
@@ -177,11 +167,11 @@ fn spawn_level_ui(
     let slider = spawn_speed_slider(&mut commands, font, &train_speed);
     let status_text = commands.spawn((status_text, LevelStatusText)).id();
 
-    commands.entity(ui_root).push_children(&[level_root]);
+    commands.entity(ui_root).add_children(&[level_root]);
     commands
         .entity(level_root)
-        .push_children(&[canvas_placeholder, button_container]);
-    commands.entity(button_container).push_children(&[
+        .add_children(&[canvas_placeholder, button_container]);
+    commands.entity(button_container).add_children(&[
         back_button,
         start_trains_button,
         start_erase_button,
@@ -190,7 +180,7 @@ fn spawn_level_ui(
     ]);
     commands
         .entity(status_text_box)
-        .push_children(&[status_text]);
+        .add_children(&[status_text]);
 }
 
 fn teardown_level_ui(mut commands: Commands, level_root_query: Query<Entity, With<LevelUIRoot>>) {

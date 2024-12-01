@@ -28,15 +28,12 @@ fn spawn_main_menu(
     // root container for the main menu
     // =============================================================================================
     let main_menu_root = (
-        NodeBundle {
-            style: Style {
-                width: Val::Percent(100.0),
-                height: Val::Percent(100.0),
-                justify_content: JustifyContent::Center,
-                flex_direction: FlexDirection::Column,
-                align_items: AlignItems::Center,
-                ..default()
-            },
+        Node {
+            width: Val::Percent(100.0),
+            height: Val::Percent(100.0),
+            justify_content: JustifyContent::Center,
+            flex_direction: FlexDirection::Column,
+            align_items: AlignItems::Center,
             ..default()
         },
         MainMenuUIRoot,
@@ -45,30 +42,27 @@ fn spawn_main_menu(
     // =============================================================================================
     // text which says "TRAINYARD"
     // =============================================================================================
-    let title_text_box = NodeBundle {
-        style: Style {
-            width: Val::Percent(100.0),
-            height: Val::Px(120.0),
-            ..default()
-        },
+    let title_text_box = Node {
+        width: Val::Percent(100.0),
+        height: Val::Px(120.0),
         ..default()
     };
 
-    let title_text = TextBundle::from_section(
-        "TRAINYARD",
-        TextStyle {
+    let title_text = (
+        Text::new("TRAINYARD"),
+        TextFont {
             font: font.clone(),
             font_size: 100.0,
-            color: Color::srgb(1.0, 1.0, 1.0),
             ..default()
         },
-    ) // Set the justification of the Text
-    .with_text_justify(JustifyText::Center)
-    .with_style(Style {
-        position_type: PositionType::Absolute,
-        width: Val::Percent(100.0),
-        ..default()
-    });
+        TextColor(Color::WHITE),
+        TextLayout::new_with_justify(JustifyText::Center),
+        Node {
+            position_type: PositionType::Absolute,
+            width: Val::Percent(100.0),
+            ..default()
+        },
+    );
 
     // =============================================================================================
     // "play" button
@@ -105,11 +99,11 @@ fn spawn_main_menu(
     let title_text_box = commands.spawn(title_text_box).id();
     let title_text = commands.spawn(title_text).id();
 
-    commands.entity(ui_root).push_children(&[main_menu_root]);
+    commands.entity(ui_root).add_children(&[main_menu_root]);
     commands
         .entity(main_menu_root)
-        .push_children(&[title_text_box, play_button, credits_button]);
-    commands.entity(title_text_box).push_children(&[title_text]);
+        .add_children(&[title_text_box, play_button, credits_button]);
+    commands.entity(title_text_box).add_children(&[title_text]);
 }
 
 fn teardown_main_menu(

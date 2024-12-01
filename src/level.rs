@@ -108,7 +108,7 @@ impl Plugin for LevelPlugin {
             (
                 update_level_state_from_keypress,
                 tick_yard_tick_timer.in_set(LevelRunningSet),
-                win_event_handler.run_if(on_event::<WinLevelEvent>()),
+                win_event_handler.run_if(on_event::<WinLevelEvent>),
             )
                 .in_set(LevelSet),
         )
@@ -116,7 +116,7 @@ impl Plugin for LevelPlugin {
             Update,
             level_start_event_handler
                 .after(LevelSet)
-                .run_if(on_event::<StartLevelEvent>()),
+                .run_if(on_event::<StartLevelEvent>),
         )
         .init_resource::<CurrentLevelName>();
     }
@@ -222,10 +222,9 @@ pub fn handle_tile_event(
         TileEvent::CrashedOnEdge(train_color, dir) => {
             next_state.set(LevelState::RunningCrashed);
             *has_crashed = true;
-            commands.spawn(AudioBundle {
-                source: asset_server.load("audio/crash.ogg"),
-                ..default()
-            });
+            commands.spawn(AudioPlayer::<AudioSource>(
+                asset_server.load("audio/crash.ogg"),
+            ));
             spawn_smoke(
                 commands,
                 asset_server,
@@ -243,10 +242,9 @@ pub fn handle_tile_event(
         }
         TileEvent::SwitchActivePassive => {
             yard.switch_active_passive(event.row, event.col);
-            commands.spawn(AudioBundle {
-                source: asset_server.load("audio/switch_track.ogg"),
-                ..default()
-            });
+            commands.spawn(AudioPlayer::<AudioSource>(
+                asset_server.load("audio/switch_track.ogg"),
+            ));
         }
     };
 }
@@ -265,10 +263,7 @@ pub fn play_color_sound(
         TrainColor::Green => "audio/train_green.ogg",
         TrainColor::Orange => "audio/train_orange.ogg",
     };
-    commands.spawn(AudioBundle {
-        source: asset_server.load(asset_path),
-        ..default()
-    });
+    commands.spawn(AudioPlayer::<AudioSource>(asset_server.load(asset_path)));
 }
 
 pub fn spawn_smoke(
@@ -288,16 +283,16 @@ pub fn spawn_smoke(
     for _ in 0..8 {
         let id = commands
             .spawn((
-                SpriteBundle {
-                    texture: asset_server.load("sprites/Smoke.png"),
-                    transform: Transform::from_xyz(x, y, 5.0),
-                    sprite: Sprite { color, ..default() },
+                Transform::from_xyz(x, y, 5.0),
+                Sprite {
+                    image: asset_server.load("sprites/Smoke.png"),
+                    color,
                     ..default()
                 },
                 FloatingFadingAnimationComponent::new(),
             ))
             .id();
-        commands.entity(yard_entity).push_children(&[id]);
+        commands.entity(yard_entity).add_children(&[id]);
     }
 }
 
@@ -318,30 +313,30 @@ pub fn spawn_sparkles(
     for _ in 0..5 {
         let id = commands
             .spawn((
-                SpriteBundle {
-                    texture: asset_server.load("sprites/Fire_small.png"),
-                    transform: Transform::from_xyz(x, y, 5.0),
-                    sprite: Sprite { color, ..default() },
+                Transform::from_xyz(x, y, 5.0),
+                Sprite {
+                    image: asset_server.load("sprites/Fire_small.png"),
+                    color,
                     ..default()
                 },
                 FloatingFadingAnimationComponent::new(),
             ))
             .id();
-        commands.entity(yard_entity).push_children(&[id]);
+        commands.entity(yard_entity).add_children(&[id]);
     }
     for _ in 0..5 {
         let id = commands
             .spawn((
-                SpriteBundle {
-                    texture: asset_server.load("sprites/Fire.png"),
-                    transform: Transform::from_xyz(x, y, 5.0),
-                    sprite: Sprite { color, ..default() },
+                Transform::from_xyz(x, y, 5.0),
+                Sprite {
+                    image: asset_server.load("sprites/Fire.png"),
+                    color,
                     ..default()
                 },
                 FloatingFadingAnimationComponent::new(),
             ))
             .id();
-        commands.entity(yard_entity).push_children(&[id]);
+        commands.entity(yard_entity).add_children(&[id]);
     }
 }
 
@@ -448,14 +443,13 @@ pub fn win_event_handler(
         let yard = yard_edit_state_query.single();
 
         next_state.set(LevelState::Won);
-        commands.spawn(AudioBundle {
-            source: asset_server.load("audio/win_level.ogg"),
-            settings: PlaybackSettings {
+        commands.spawn((
+            AudioPlayer::<AudioSource>(asset_server.load("audio/win_level.ogg")),
+            PlaybackSettings {
                 volume: Volume::new(0.2),
                 ..default()
             },
-            ..default()
-        });
+        ));
 
         // persist current level progress
         if let Some(name) = curr_lvl_name.0.as_ref() {
