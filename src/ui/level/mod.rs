@@ -6,7 +6,7 @@ use bevy::prelude::*;
 use speed_slider::{spawn_speed_slider, TrainSpeed};
 use status_text::update_status_text;
 
-use crate::level::LevelState;
+use crate::{level::LevelState, NUM_COLS, NUM_ROWS, TILE_SIZE_PX};
 
 use super::{
     buttons::{create_trainyard_button, TrainyardButton},
@@ -72,11 +72,11 @@ fn spawn_level_ui(
     // =============================================================================================
     let canvas_placeholder = (
         Node {
-            width: Val::Px(672.0),
-            height: Val::Px(672.0),
+            width: Val::Px(NUM_COLS as f32 * TILE_SIZE_PX),
+            height: Val::Px(NUM_ROWS as f32 * TILE_SIZE_PX),
             ..default()
         },
-        BackgroundColor(Color::srgba(1.0, 0.0, 0.0, 0.0)),
+        BackgroundColor(Color::srgba(1.0, 0.0, 0.0, 0.05)),
     );
 
     // =============================================================================================
@@ -161,7 +161,11 @@ fn spawn_level_ui(
     let level_root = commands.spawn(level_root).id();
     let button_container = commands.spawn(button_container).id();
     let canvas_placeholder = commands
-        .spawn((canvas_placeholder, YardPlaceholderNode))
+        .spawn((
+            canvas_placeholder,
+            YardPlaceholderNode,
+            Name::new("Yard placeholder in UI"),
+        ))
         .id();
     let status_text_box = commands.spawn(status_text_box).id();
     let slider = spawn_speed_slider(&mut commands, font, &train_speed);

@@ -6,7 +6,7 @@ pub mod source_tile;
 pub mod tile;
 pub mod tile_animations;
 
-use bevy::prelude::*;
+use bevy::{prelude::*, ui::UiSystem};
 
 use crate::{
     level::{
@@ -52,15 +52,19 @@ impl Plugin for TilePlugin {
             .add_systems(OnEnter(LevelState::Editing), restore_yard_edited_state)
             .add_systems(
                 Update,
-                (
-                    (
-                        render_yard,
-                        render_yard_trains.run_if(in_state(LevelStateIsRunning::Running)),
-                    )
-                        .chain(),
-                    adjust_yard_position_to_match_placeholder,
+                ((
+                    render_yard,
+                    render_yard_trains.run_if(in_state(LevelStateIsRunning::Running)),
                 )
+                    .chain(),)
                     .in_set(LevelSet),
+            )
+            .add_systems(
+                PostUpdate,
+                adjust_yard_position_to_match_placeholder
+                    .in_set(LevelSet)
+                    .after(UiSystem::Layout)
+                    .before(TransformSystem::TransformPropagate),
             );
     }
 }
@@ -170,14 +174,32 @@ fn render_yard_trains(
 
 pub fn adjust_yard_position_to_match_placeholder(
     yard_query: Query<Entity, With<Yard>>,
-    placeholder_query: Query<&GlobalTransform, With<YardPlaceholderNode>>,
+    placeholder_query: Query<(&Transform, &Parent), With<YardPlaceholderNode>>,
+    parent_query: Query<(&Transform, &Parent)>,
     mut commands: Commands,
+    _window_query: Query<&Window, With<bevy::window::PrimaryWindow>>,
 ) {
-    if let Ok(yard_entity) = yard_query.get_single() {
-        if let Ok(placeholder_transform) = placeholder_query.get_single() {
-            let Vec2 { x, y } = placeholder_transform.translation().truncate();
-            let x = x - (NUM_COLS as f32 * TILE_SIZE_PX) / 2.0;
-            let y = y - (NUM_ROWS as f32 * TILE_SIZE_PX) / 2.0;
+    for yard_entity in yard_query.iter() {
+        println!("adjusting yard position to match placeholder...");
+        if let Ok((placeholder_transform, parent)) = placeholder_query.get_single() {
+            let mut final_transform: Vec2 = Vec2::ZERO;
+
+            // add up the transforms of all parent entities
+            let mut curr_transform = placeholder_transform;
+            let mut curr_parent = parent;
+            final_transform += curr_transform.translation.truncate();
+            loop {
+                if let Ok((transform, parent)) = parent_query.get(curr_parent.get()) {
+                    curr_transform = transform;
+                    curr_parent = parent;
+                    final_transform += curr_transform.translation.truncate();
+                } else {
+                    break;
+                }
+            }
+
+            let x = final_transform.x - (NUM_COLS as f32 * TILE_SIZE_PX) / 2.0 + 120.0;
+            let y = final_transform.y - (NUM_ROWS as f32 * TILE_SIZE_PX) / 2.0;
             commands
                 .entity(yard_entity)
                 .insert(Transform::from_xyz(x, y, 0.0));
