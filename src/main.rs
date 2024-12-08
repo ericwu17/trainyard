@@ -1,6 +1,7 @@
 pub mod level;
 pub mod ui;
 
+use bevy::input::common_conditions::input_toggle_active;
 use bevy::prelude::*;
 use bevy::window::PrimaryWindow;
 
@@ -19,8 +20,8 @@ fn main() {
         ui::TrainyardUIPlugin,
         level::LevelPlugin,
         level::loader::LevelLoaderPlugin,
-        // bevy_inspector_egui::quick::WorldInspectorPlugin::default()
-        //     .run_if(input_toggle_active(false, KeyCode::Escape)),
+        bevy_inspector_egui::quick::WorldInspectorPlugin::default()
+            .run_if(input_toggle_active(false, KeyCode::Escape)),
     ))
     .add_systems(Startup, spawn_camera)
     .add_systems(
