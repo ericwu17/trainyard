@@ -172,12 +172,16 @@ pub fn adjust_yard_position_to_match_placeholder(
     yard_query: Query<Entity, With<Yard>>,
     placeholder_query: Query<&GlobalTransform, With<YardPlaceholderNode>>,
     mut commands: Commands,
+    window_query: Query<&Window, With<bevy::window::PrimaryWindow>>,
 ) {
     if let Ok(yard_entity) = yard_query.get_single() {
+        println!("adjusting yard position to match placeholder...");
         if let Ok(placeholder_transform) = placeholder_query.get_single() {
+            let window = window_query.single();
+
             let Vec2 { x, y } = placeholder_transform.translation().truncate();
-            let x = x - (NUM_COLS as f32 * TILE_SIZE_PX) / 2.0;
-            let y = y - (NUM_ROWS as f32 * TILE_SIZE_PX) / 2.0;
+            let x = x - (NUM_COLS as f32 * TILE_SIZE_PX) / 2.0 - window.width() / 2.0 + 120.0;
+            let y = y - (NUM_ROWS as f32 * TILE_SIZE_PX) / 2.0 - window.height() / 2.0;
             commands
                 .entity(yard_entity)
                 .insert(Transform::from_xyz(x, y, 0.0));
